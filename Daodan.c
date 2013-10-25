@@ -20,6 +20,7 @@
 
 #include "Daodan.h"
 #include <dlfcn.h>
+#include <security/mac.h>
 
 /*
  
@@ -54,6 +55,119 @@ __attribute__((used)) static struct{ const void* replacement; const void* replac
 __attribute__ ((section ("__DATA,__interpose"))) = { (const void*)(unsigned long)&_replacement, (const void*)(unsigned long)&_replacee };
 
 static struct SDMMOLibrarySymbolTable *binaryTable;
+
+int DAODAN__mac_execve(char *fname, char **argv, char **envv, mac_t _label) {
+	printf("__mac_execve(%s, %p, %p, %p)\n",fname,argv,envv,_label);
+	return 0;
+}
+
+DYLD_INTERPOSE(DAODAN__mac_execve, __mac_execve);
+
+int DAODAN__mac_get_fd(int _fd, mac_t _label) {
+	printf("__mac_get_fd(%i, %p)\n",_fd,_label);
+	return 0;
+}
+
+DYLD_INTERPOSE(DAODAN__mac_get_fd, __mac_get_fd);
+
+int DAODAN__mac_get_file(const char *_path, mac_t _label) {
+	printf("__mac_get_file(%s, %p)\n",_path,_label);
+	return 0;
+}
+
+DYLD_INTERPOSE(DAODAN__mac_get_file, __mac_get_file);
+
+int DAODAN__mac_get_lcid(pid_t _lcid, mac_t _label) {
+	printf("__mac_get_lcid(%i, %p)\n",_lcid, _label);
+	return 0;
+}
+
+DYLD_INTERPOSE(DAODAN__mac_get_lcid, __mac_get_lcid);
+
+int DAODAN__mac_get_lctx(mac_t _label) {
+	printf("__mac_get_lctx(%p)\n",_label);
+	return 0;
+}
+
+DYLD_INTERPOSE(DAODAN__mac_get_lctx, __mac_get_lctx);
+
+int DAODAN__mac_get_link(const char *_path, mac_t _label) {
+	printf("__mac_get_link(%s, %p)\n",_path, _label);
+	return 0;
+}
+
+DYLD_INTERPOSE(DAODAN__mac_get_link, __mac_get_link);
+
+int DAODAN__mac_get_pid(pid_t _pid, mac_t _label) {
+	printf("__mac_get_pid(%i, %p)\n",_pid, _label);
+	return 0;
+}
+
+DYLD_INTERPOSE(DAODAN__mac_get_pid, __mac_get_pid);
+
+int DAODAN__mac_get_proc(mac_t _label) {
+	printf("__mac_get_proc(%p)\n",_label);
+	return 0;
+}
+
+DYLD_INTERPOSE(DAODAN__mac_get_proc, __mac_get_proc);
+
+int DAODAN__mac_set_fd(int _fildes, const mac_t _label) {
+	printf("__mac_set_fd(%i, %p)\n",_fildes, _label);
+	return 0;
+}
+
+DYLD_INTERPOSE(DAODAN__mac_set_fd, __mac_set_fd);
+
+int DAODAN__mac_set_file(const char *_path, mac_t _label) {
+	printf("__mac_set_file(%s, %p)\n",_path, _label);
+	return 0;
+}
+
+DYLD_INTERPOSE(DAODAN__mac_set_file, __mac_set_file);
+
+int DAODAN__mac_set_lctx(mac_t _label) {
+	printf("__mac_set_lctx(%p)\n",_label);
+	return 0;
+}
+
+DYLD_INTERPOSE(DAODAN__mac_set_lctx, __mac_set_lctx);
+
+int DAODAN__mac_set_link(const char *_path, mac_t _label) {
+	printf("__mac_set_link(%s, %p)\n",_path,_label);
+	return 0;
+}
+
+DYLD_INTERPOSE(DAODAN__mac_set_link, __mac_set_link);
+
+int DAODAN__mac_mount(const char *type, const char *path, int flags, void *data, struct mac *label) {
+	printf("__mac_mount(%s, %s, %i, %p, %p)\n",type,path,flags,data,label);
+	return 0;
+}
+
+DYLD_INTERPOSE(DAODAN__mac_mount, __mac_mount);
+
+int DAODAN__mac_get_mount(const char *path, struct mac *label) {
+	printf("__mac_get_mount(%s, %p)\n",path,label);
+	return 0;
+}
+
+DYLD_INTERPOSE(DAODAN__mac_get_mount, __mac_get_mount);
+
+int DAODAN__mac_set_proc(const mac_t _label) {
+	printf("__mac_set_proc(%p)\n",_label);
+	return 0;
+}
+
+DYLD_INTERPOSE(DAODAN__mac_set_proc, __mac_set_proc);
+
+int DAODAN__mac_syscall(const char *_policyname, int _call, void *_arg) {
+	printf("__mac_syscall(%s, %i, %p)\n",_policyname,_call,_arg);
+	return 0;
+}
+
+DYLD_INTERPOSE(DAODAN__mac_syscall, __mac_syscall);
+
 
 void initDaodan() {
 	_dyld_register_func_for_add_image(SDMAddImageHook);
