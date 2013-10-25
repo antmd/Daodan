@@ -62,37 +62,38 @@ void initDaodan() {
 	if (result != 0xffffffff) {
 		binaryTable = SDMSTLoadLibrary((char*)_dyld_get_image_name(result));
 	} else {
-		printf("[%sDaodan%s][%sERR%s] Could not find an executable binary image.\n",COLOR_BLU,COLOR_NRM,COLOR_RED,COLOR_NRM);
+		SDMPrint(PrintCode_ERR,"Could not find an executable binary image.");
 	}
+	
 }
 
 void unloadDaodan() {
-	printf("[%sDaodan%s][%sTRY%s] Looking for Daodan.\n",COLOR_BLU,COLOR_NRM,COLOR_YEL,COLOR_NRM);
+	SDMPrint(PrintCode_TRY,"Looking for Daodan.");
 	void* symbolAddress = NULL;
 	symbolAddress = dlsym(RTLD_SELF, "_initDaodan");
 	Dl_info libInfo;
 	if (dladdr(symbolAddress, &libInfo) == 0) {
-		printf("[%sDaodan%s][%sOK!%s] Found Daodan.\n",COLOR_BLU,COLOR_NRM,COLOR_GRN,COLOR_NRM);
+		SDMPrint(PrintCode_OK,"Found Daodan.\n");
 		void* daodanHandle = dlopen(libInfo.dli_fbase, RTLD_LAZY);
 		if (daodanHandle) {
-			printf("[%sDaodan%s][%sOK!%s] Unloading Daodan.\n",COLOR_BLU,COLOR_NRM,COLOR_GRN,COLOR_NRM);
+			SDMPrint(PrintCode_OK,"Unloading Daodan.");
 		} else {
-			printf("[%sDaodan%s][%sERR%s] Error creating handle to Daodan.\n",COLOR_BLU,COLOR_NRM,COLOR_RED,COLOR_NRM);
+			SDMPrint(PrintCode_ERR,"Error creating handle to Daodan.");
 		}
 		SDMSTLibraryRelease(binaryTable);
 		dlclose(daodanHandle);
 	} else {
-		printf("[%sDaodan%s][%sERR%s] Could not find Daodan.\n",COLOR_BLU,COLOR_NRM,COLOR_RED,COLOR_NRM);
+		SDMPrint(PrintCode_ERR,"Could not find Daodan.\n");
 	}
 }
 
 uintptr_t daodanLookupFunction(char *name) {
-	printf("[%sDaodan%s][%sTRY%s] Looking up function with name: %s\n",COLOR_BLU,COLOR_NRM,COLOR_YEL,COLOR_NRM,name);
+	SDMPrint(PrintCode_TRY,"Looking up function with name: %s",name);
 	struct SDMSTFunction *symbol = SDMSTCreateFunction(binaryTable, name);
 	if (symbol->offset) {
-		printf("[%sDaodan%s][%sOK!%s] Successfully found symbol!\n",COLOR_BLU,COLOR_NRM,COLOR_GRN,COLOR_NRM);
+		SDMPrint(PrintCode_OK,"Successfully found symbol!");
 	} else {
-		printf("[%sDaodan%s][%sERR%s] Could not find symbol with name \"%s\".\n",COLOR_BLU,COLOR_NRM,COLOR_RED,COLOR_NRM,name);
+		SDMPrint(PrintCode_ERR,"Could not find symbol with name \"%s\".",name);
 	}
 	return (uintptr_t)symbol->offset;
 }
@@ -103,7 +104,7 @@ void daodanLoadSymbolTableForImage(uint32_t index) {
 }
 
 uint32_t SDMGetExecuteImage() {
-	printf("[%sDaodan%s][%sTRY%s] Looking for application binary.\n",COLOR_BLU,COLOR_NRM,COLOR_YEL,COLOR_NRM);
+	SDMPrint(PrintCode_TRY,"Looking for application binary.");
 	struct mach_header *imageHeader;
 	uint32_t count = _dyld_image_count();
 	bool foundBinary = FALSE;
@@ -139,7 +140,7 @@ void SDMAddImageHook(const struct mach_header* mh, intptr_t vmaddr_slide) {
 	char *path = NULL;
 	SDMGetImageLocation(mh, &path);
 #if DEBUG
-	printf("[%sDaodan%s][%sOK!%s] Load: %08lx %s\n",COLOR_BLU,COLOR_NRM,COLOR_GRN,COLOR_NRM, vmaddr_slide, path);
+	SDMPrint(PrintCode_OK,"Load: %08lx %s",vmaddr_slide,path);
 #else
 	// this exists for debugging, do not ship in debug mode.
 #endif
@@ -150,7 +151,7 @@ void SDMRemoveImageHook(const struct mach_header* mh, intptr_t vmaddr_slide) {
 	char *path = NULL;
 	SDMGetImageLocation(mh, &path);
 #if DEBUG
-	printf("[%sDaodan%s][%sOK!%s] Unloaded: %08lx %s\n",COLOR_BLU,COLOR_NRM,COLOR_GRN,COLOR_NRM, vmaddr_slide, path);
+	SDMPrint(PrintCode_OK,"Unloaded: %08lx %s",vmaddr_slide,path);
 #else
 	// this exists for debugging, do not ship in debug mode.
 #endif

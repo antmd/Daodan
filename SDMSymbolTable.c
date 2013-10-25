@@ -210,6 +210,8 @@ struct SDMMOLibrarySymbolTable* SDMSTLoadLibrary(char *path) {
 		table->symbolCount = 0x0;
 		SDMSTBuildLibraryInfo(table);
 		SDMSTGenerateSortedSymbolTable(table);
+	} else {
+		
 	}
 	return table;
 }

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>230EB3EB-8D7E-42DF-BF84-CB4A3ED7E71A</string>
+	<key>IDESourceControlProjectName</key>
+	<string>Daodan</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>4C632F48-0B12-4B2B-A65C-E0F9557D4BCC</key>
+		<string>ssh://github.com/samdmarshall/Daodan.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>Daodan.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>4C632F48-0B12-4B2B-A65C-E0F9557D4BCC</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>ssh://github.com/samdmarshall/Daodan.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>4C632F48-0B12-4B2B-A65C-E0F9557D4BCC</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>4C632F48-0B12-4B2B-A65C-E0F9557D4BCC</string>
+			<key>IDESourceControlWCCName</key>
+			<string>Daodan</string>
+		</dict>
+	</array>
+</dict>
+</plist>

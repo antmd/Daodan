@@ -17,9 +17,19 @@
 #include <string.h>
 #include <unistd.h>
 
+#pragma mark -
+#pragma mark Type
+
+enum SDMPrintCodes {
+	PrintCode_OK = 1,
+	PrintCode_TRY = 2,
+	PrintCode_ERR = 3
+};
 
 #pragma mark -
 #pragma mark Color Codes
+
+#define UseColorCodes 1 // SDM: Xcode console doesn't like these, but they work fine in a terminal
 
 #define COLOR_NRM  "\x1B[0m"
 #define COLOR_RED  "\x1B[31m"
@@ -30,4 +40,8 @@
 #define COLOR_CYN  "\x1B[36m"
 #define COLOR_WHT  "\x1B[37m"
 
+#define SDMPrintCodeColor(code) (UseColorCodes ? (code == PrintCode_OK ? COLOR_GRN : (code == PrintCode_TRY ? COLOR_YEL : (code == PrintCode_ERR ? COLOR_RED : COLOR_BLU))) : "")
+#define SDMPrintCode(code) (code == PrintCode_OK ? "OK!" : (code == PrintCode_TRY ? "TRY" : (code == PrintCode_ERR ? "ERR" : "???")))
+
+#define SDMPrint(code,...) printf("[%sDaodan%s][%s%s%s] ",COLOR_BLU,COLOR_NRM,SDMPrintCodeColor(code),SDMPrintCode(code),(UseColorCodes ? COLOR_NRM : "")); printf(__VA_ARGS__); printf("\n")
 #endif
