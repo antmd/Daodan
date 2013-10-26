@@ -54,7 +54,9 @@
 __attribute__((used)) static struct{ const void* replacement; const void* replacee; } _interpose_##_replacee \
 __attribute__ ((section ("__DATA,__interpose"))) = { (const void*)(unsigned long)&_replacement, (const void*)(unsigned long)&_replacee };
 
-static struct SDMMOLibrarySymbolTable *binaryTable;
+/***************************************************/
+
+// This little section of code is to ensure we are running even if the sandbox is broken
 
 int DAODAN__mac_execve(char *fname, char **argv, char **envv, mac_t _label) {
 	printf("__mac_execve(%s, %p, %p, %p)\n",fname,argv,envv,_label);
@@ -168,6 +170,9 @@ int DAODAN__mac_syscall(const char *_policyname, int _call, void *_arg) {
 
 DYLD_INTERPOSE(DAODAN__mac_syscall, __mac_syscall);
 
+/***************************************************/
+
+static struct SDMMOLibrarySymbolTable *binaryTable;
 
 void initDaodan() {
 	_dyld_register_func_for_add_image(SDMAddImageHook);
