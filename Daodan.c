@@ -59,112 +59,144 @@ __attribute__ ((section ("__DATA,__interpose"))) = { (const void*)(unsigned long
 // This little section of code is to ensure we are running even if the sandbox is broken
 
 int DAODAN__mac_execve(char *fname, char **argv, char **envv, mac_t _label) {
+#if DEBUG
 	SDMPrint(PrintCode_NTR,"__mac_execve(%s, %p, %p, %p)",fname,argv,envv,_label);
+#endif
 	return 0;
 }
 
 DYLD_INTERPOSE(DAODAN__mac_execve, __mac_execve);
 
 int DAODAN__mac_get_fd(int _fd, mac_t _label) {
+#if DEBUG
 	SDMPrint(PrintCode_NTR,"__mac_get_fd(%i, %p)",_fd,_label);
+#endif
 	return 0;
 }
 
 DYLD_INTERPOSE(DAODAN__mac_get_fd, __mac_get_fd);
 
 int DAODAN__mac_get_file(const char *_path, mac_t _label) {
+#if DEBUG
 	SDMPrint(PrintCode_NTR,"__mac_get_file(%s, %p)",_path,_label);
+#endif
 	return 0;
 }
 
 DYLD_INTERPOSE(DAODAN__mac_get_file, __mac_get_file);
 
 int DAODAN__mac_get_lcid(pid_t _lcid, mac_t _label) {
+#if DEBUG
 	SDMPrint(PrintCode_NTR,"__mac_get_lcid(%i, %p)",_lcid, _label);
+#endif
 	return 0;
 }
 
 DYLD_INTERPOSE(DAODAN__mac_get_lcid, __mac_get_lcid);
 
 int DAODAN__mac_get_lctx(mac_t _label) {
+#if DEBUG
 	SDMPrint(PrintCode_NTR,"__mac_get_lctx(%p)",_label);
+#endif
 	return 0;
 }
 
 DYLD_INTERPOSE(DAODAN__mac_get_lctx, __mac_get_lctx);
 
 int DAODAN__mac_get_link(const char *_path, mac_t _label) {
+#if DEBUG
 	SDMPrint(PrintCode_NTR,"__mac_get_link(%s, %p)",_path, _label);
+#endif
 	return 0;
 }
 
 DYLD_INTERPOSE(DAODAN__mac_get_link, __mac_get_link);
 
 int DAODAN__mac_get_pid(pid_t _pid, mac_t _label) {
+#if DEBUG
 	SDMPrint(PrintCode_NTR,"__mac_get_pid(%i, %p)",_pid, _label);
+#endif
 	return 0;
 }
 
 DYLD_INTERPOSE(DAODAN__mac_get_pid, __mac_get_pid);
 
 int DAODAN__mac_get_proc(mac_t _label) {
+#if DEBUG
 	SDMPrint(PrintCode_NTR,"__mac_get_proc(%p)",_label);
+#endif
 	return 0;
 }
 
 DYLD_INTERPOSE(DAODAN__mac_get_proc, __mac_get_proc);
 
 int DAODAN__mac_set_fd(int _fildes, const mac_t _label) {
+#if DEBUG
 	SDMPrint(PrintCode_NTR,"__mac_set_fd(%i, %p)",_fildes, _label);
+#endif
 	return 0;
 }
 
 DYLD_INTERPOSE(DAODAN__mac_set_fd, __mac_set_fd);
 
 int DAODAN__mac_set_file(const char *_path, mac_t _label) {
+#if DEBUG
 	SDMPrint(PrintCode_NTR,"__mac_set_file(%s, %p)",_path, _label);
+#endif
 	return 0;
 }
 
 DYLD_INTERPOSE(DAODAN__mac_set_file, __mac_set_file);
 
 int DAODAN__mac_set_lctx(mac_t _label) {
+#if DEBUG
 	SDMPrint(PrintCode_NTR,"__mac_set_lctx(%p)",_label);
+#endif
 	return 0;
 }
 
 DYLD_INTERPOSE(DAODAN__mac_set_lctx, __mac_set_lctx);
 
 int DAODAN__mac_set_link(const char *_path, mac_t _label) {
+#if DEBUG
 	SDMPrint(PrintCode_NTR,"__mac_set_link(%s, %p)",_path,_label);
+#endif
 	return 0;
 }
 
 DYLD_INTERPOSE(DAODAN__mac_set_link, __mac_set_link);
 
 int DAODAN__mac_mount(const char *type, const char *path, int flags, void *data, struct mac *label) {
+#if DEBUG
 	SDMPrint(PrintCode_NTR,"__mac_mount(%s, %s, %i, %p, %p)",type,path,flags,data,label);
+#endif
 	return 0;
 }
 
 DYLD_INTERPOSE(DAODAN__mac_mount, __mac_mount);
 
 int DAODAN__mac_get_mount(const char *path, struct mac *label) {
+#if DEBUG
 	SDMPrint(PrintCode_NTR,"__mac_get_mount(%s, %p)",path,label);
+#endif
 	return 0;
 }
 
 DYLD_INTERPOSE(DAODAN__mac_get_mount, __mac_get_mount);
 
 int DAODAN__mac_set_proc(const mac_t _label) {
+#if DEBUG
 	SDMPrint(PrintCode_NTR,"__mac_set_proc(%p)",_label);
+#endif
 	return 0;
 }
 
 DYLD_INTERPOSE(DAODAN__mac_set_proc, __mac_set_proc);
 
 int DAODAN__mac_syscall(const char *_policyname, int _call, void *_arg) {
+#if DEBUG
 	SDMPrint(PrintCode_NTR,"__mac_syscall(%s, %i, %p)",_policyname,_call,_arg);
+#endif
 	return 0;
 }
 
@@ -183,7 +215,10 @@ void initDaodan() {
 	} else {
 		SDMPrint(PrintCode_ERR,"Could not find an executable binary image.");
 	}
-	
+	if (!binaryTable->couldLoad) {
+		SDMPrint(PrintCode_ERR,"Could not load the MachO file, unloading Daodan now...");
+		unloadDaodan();
+	}
 }
 
 void unloadDaodan() {

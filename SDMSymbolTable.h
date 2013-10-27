@@ -88,6 +88,11 @@ typedef struct SDMSTMachOSymbol {
 	bool isStub;
 } __attribute__ ((packed)) SDMSTMachOSymbol;
 
+typedef struct SDMSTSubroutine {
+	uintptr_t offset;
+	char *name;
+} __attribute__ ((packed)) SDMSTSubroute;
+
 typedef struct SDMMOLibrarySymbolTable {
 	bool couldLoad;
 	char *libraryPath;
@@ -96,6 +101,8 @@ typedef struct SDMMOLibrarySymbolTable {
 	struct SDMSTLibraryTableInfo *libInfo;
 	struct SDMSTMachOSymbol *table;
 	uint32_t symbolCount;
+	struct SDMSTSubroutine *subroutine;
+	uint32_t subroutineCount;
 } __attribute__ ((packed)) SDMMOLibrarySymbolTable;
 
 #pragma mark -

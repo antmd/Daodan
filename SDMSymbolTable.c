@@ -31,6 +31,7 @@
 #include <mach-o/nlist.h>
 #include <mach-o/ldsyms.h>
 #include <math.h>
+#include <stdlib.h>
 
 #pragma mark -
 #pragma mark Declarations
@@ -74,23 +75,32 @@ void SDMSTBuildLibraryInfo(SDMMOLibrarySymbolTable *libTable) {
 			libTable->libInfo->symtabCommands = (struct symtab_command *)calloc(0x1, sizeof(struct symtab_command));
 			libTable->libInfo->symtabCount = 0x0;
 			for (uint32_t i = 0x0; i < libHeader->ncmds; i++) {
-				if (loadCmd->cmd == LC_SYMTAB) {
-					libTable->libInfo->symtabCommands = realloc(libTable->libInfo->symtabCommands, (libTable->libInfo->symtabCount+0x1)*sizeof(struct symtab_command));
-					libTable->libInfo->symtabCommands[libTable->libInfo->symtabCount] = *(struct symtab_command *)loadCmd;
-					libTable->libInfo->symtabCount++;
-				}
-				if (loadCmd->cmd == (libTable->libInfo->is64bit ? LC_SEGMENT_64 : LC_SEGMENT)) {
-					struct SDMSTSegmentEntry *seg = (struct SDMSTSegmentEntry *)loadCmd;
-					if ((libTable->libInfo->textSeg == NULL) && !strncmp(SEG_TEXT,seg->segname,sizeof(seg->segname))) {
-						libTable->libInfo->textSeg = (struct SDMSTSegmentEntry *)seg;
-					} else if ((libTable->libInfo->linkSeg == NULL) && !strncmp(SEG_LINKEDIT,seg->segname,sizeof(seg->segname))) {
-						libTable->libInfo->linkSeg = (struct SDMSTSegmentEntry *)seg;
+				switch (loadCmd->cmd) {
+					case LC_SYMTAB: {
+						libTable->libInfo->symtabCommands = realloc(libTable->libInfo->symtabCommands, (libTable->libInfo->symtabCount+0x1)*sizeof(struct symtab_command));
+						libTable->libInfo->symtabCommands[libTable->libInfo->symtabCount] = *(struct symtab_command *)loadCmd;
+						libTable->libInfo->symtabCount++;
+						break;
 					}
-				}
-				if (loadCmd->cmd == LC_LOAD_DYLIB) {
-					struct dylib_command *linkedLibrary = (struct dylib_command *)loadCmd;
-					if (loadCmd+linkedLibrary->dylib.name.offset) {
-						printf("%s\n",(char*)loadCmd+linkedLibrary->dylib.name.offset);
+					case LC_SEGMENT:
+					case LC_SEGMENT_64: {
+						struct SDMSTSegmentEntry *seg = (struct SDMSTSegmentEntry *)loadCmd;
+						if ((libTable->libInfo->textSeg == NULL) && !strncmp(SEG_TEXT,seg->segname,sizeof(seg->segname))) {
+							libTable->libInfo->textSeg = (struct SDMSTSegmentEntry *)seg;
+						} else if ((libTable->libInfo->linkSeg == NULL) && !strncmp(SEG_LINKEDIT,seg->segname,sizeof(seg->segname))) {
+							libTable->libInfo->linkSeg = (struct SDMSTSegmentEntry *)seg;
+						}
+						break;
+					}
+					case LC_LOAD_DYLIB: {
+						struct dylib_command *linkedLibrary = (struct dylib_command *)loadCmd;
+						if (loadCmd+linkedLibrary->dylib.name.offset) {
+							SDMPrint(PrintCode_OK,"Found Linked Library: %s",(char*)loadCmd+linkedLibrary->dylib.name.offset);
+						}
+						break;
+					}
+					default: {
+						break;
 					}
 				}
 				loadCmd = (struct load_command *)((char*)loadCmd + loadCmd->cmdsize);
@@ -106,7 +116,63 @@ int SDMSTCompareTableEntries(const void *entry1, const void *entry2) {
 	return 0xdeadbeef;
 }
 
+void SDMSTFindSubroutines(struct SDMMOLibrarySymbolTable *libTable) {
+	SDMPrint(PrintCode_TRY,"Looking for subroutines...");
+	libTable->subroutine = (struct SDMSTSubroutine *)calloc(0x1, sizeof(struct SDMSTSubroutine));
+	libTable->subroutineCount = 0x0;
+	uint32_t textSections = 0x0;
+	if (libTable->libInfo->is64bit) {
+		textSections = ((struct segment_command_64*)(libTable->libInfo->textSeg))->nsects;
+	} else {
+		textSections = ((struct segment_command *)(libTable->libInfo->textSeg))->nsects;
+	}
+	uintptr_t textSectionOffset = (uintptr_t)(libTable->libInfo->textSeg);
+	if (libTable->libInfo->is64bit) {
+		textSectionOffset += sizeof(struct segment_command_64);
+	} else {
+		textSectionOffset += sizeof(struct segment_command);
+	}
+	uint32_t flags = 0x0;
+	uint64_t size = 0x0;
+	uint64_t address = 0x0;
+	for (uint32_t i = 0; i < textSections; i++) {
+		if (libTable->libInfo->is64bit) {
+			flags = ((struct section_64 *)(textSectionOffset))->flags;
+			size = ((struct section_64 *)(textSectionOffset))->size;
+			address = ((struct section_64 *)(textSectionOffset))->addr;
+		} else {
+			flags = ((struct section *)(textSectionOffset))->flags;
+			size = ((struct section *)(textSectionOffset))->size;
+			address = ((struct section *)(textSectionOffset))->addr;
+		}
+		if ((flags & S_ATTR_PURE_INSTRUCTIONS) || (flags & S_ATTR_SOME_INSTRUCTIONS)) {
+			uint64_t offset = 0x0;
+			uint8_t subStart[3] = {0x55, 0x89, 0xe5};
+			while (offset < size) {
+				uint32_t result = memcmp((void*)(address+offset), &subStart, 0x3);
+				if (result == 0) {
+					char *buffer = calloc(0x1, sizeof(char)*0x400);
+					libTable->subroutine = realloc(libTable->subroutine, ((libTable->subroutineCount+1)*sizeof(struct SDMSTSubroutine)));
+					struct SDMSTSubroutine *aSubroutine = (struct SDMSTSubroutine *)calloc(0x1, sizeof(struct SDMSTSubroutine));
+					aSubroutine->offset = (uintptr_t)(address+offset);
+					sprintf(buffer, "%x", (unsigned int)(aSubroutine->offset));
+					aSubroutine->name = calloc(0x5 + (strlen(buffer)), sizeof(char));
+					sprintf(aSubroutine->name, "sub_%x", (unsigned int)(aSubroutine->offset));
+					memcpy(&(libTable->subroutine[libTable->subroutineCount]), aSubroutine, sizeof(struct SDMSTSubroutine));
+					free(aSubroutine);
+					free(buffer);
+					libTable->subroutineCount++;
+				}
+				offset++;
+			}
+		}
+		textSectionOffset += (libTable->libInfo->is64bit ? sizeof(struct section_64) : sizeof(struct section));
+	}
+	SDMPrint(PrintCode_OK,"Found %i subroutines",libTable->subroutineCount);
+}
+
 void SDMSTGenerateSortedSymbolTable(struct SDMMOLibrarySymbolTable *libTable) {
+	SDMPrint(PrintCode_TRY,"Looking for symbols...");
 	if (libTable->table == NULL) {
 		uintptr_t symbolAddress = 0x0;
 		libTable->table = (struct SDMSTMachOSymbol *)calloc(0x1, sizeof(struct SDMSTMachOSymbol));
@@ -158,12 +224,14 @@ void SDMSTGenerateSortedSymbolTable(struct SDMMOLibrarySymbolTable *libTable) {
 		}
 		qsort(libTable->table, libTable->symbolCount, sizeof(struct SDMSTMachOSymbol), SDMSTCompareTableEntries);
 	}
+	SDMPrint(PrintCode_OK,"Found %i symbols",libTable->symbolCount);
 }
 
 struct SDMMOLibrarySymbolTable* SDMSTLoadLibrary(char *path) {
 	struct SDMMOLibrarySymbolTable *table = (struct SDMMOLibrarySymbolTable *)calloc(0x1, sizeof(struct SDMMOLibrarySymbolTable));
 	bool inMemory = FALSE;
 	char *imagePath;
+	void* handle = NULL;
 	uint32_t count = _dyld_image_count();
 	for (uint32_t index = 0x0; index < count; index++) {
 		if (_dyld_get_image_name(index)) {
@@ -171,17 +239,17 @@ struct SDMMOLibrarySymbolTable* SDMSTLoadLibrary(char *path) {
 			strcpy(imagePath, _dyld_get_image_name(index));
 			if (strcmp(path, imagePath) == 0x0) {
 				inMemory = TRUE;
-				printf("[%sDaodan%s][%sOK!%s] Found Mach-O: %s\n",COLOR_BLU,COLOR_NRM,COLOR_GRN,COLOR_NRM,path);
+				handle = (void*)_dyld_get_image_vmaddr_slide(index);
+				SDMPrint(PrintCode_OK,"Found Mach-O: %s",path);
 				break;
 			}
 		}
 	}
-	void* handle = NULL;
 	if (!inMemory) {
 		handle = dlopen(path, RTLD_LOCAL);
 		if (!handle) {
-			printf("[%sDaodan%s][%sERR%s] Code: %s Unable to load library at path: %s\n", COLOR_BLU,COLOR_NRM,COLOR_RED,COLOR_NRM, dlerror(), path);
-			printf("[%sDaodan%s][%sTRY%s] Attempting to manually load and map...\n",COLOR_BLU,COLOR_NRM,COLOR_YEL,COLOR_NRM);
+			SDMPrint(PrintCode_ERR,"Code: %s Unable to load library at path: %s", dlerror(), path);
+			SDMPrint(PrintCode_TRY,"Attempting to manually load and map...");
 			table->couldLoad = FALSE;
 			struct stat fs;
 			stat(path, &fs);
@@ -190,6 +258,7 @@ struct SDMMOLibrarySymbolTable* SDMSTLoadLibrary(char *path) {
 			read(fd, &header, sizeof(uint32_t));
 			uint32_t size = (uint32_t)fs.st_size;
 			uint32_t offset = 0x0;
+#warning SDM fix this to properly read fat binaries
 			if (header == 0xbebafeca) {
 				size -= 0x1000;
 				offset += 0x1000;
@@ -202,7 +271,7 @@ struct SDMMOLibrarySymbolTable* SDMSTLoadLibrary(char *path) {
 		table->couldLoad = TRUE;
 		table->librarySize = 0x0;
 	}
-	if (handle) {
+	if (handle || inMemory) {
 		table->libraryPath = path;
 		table->libraryHandle = handle;
 		table->libInfo = NULL;
@@ -210,8 +279,10 @@ struct SDMMOLibrarySymbolTable* SDMSTLoadLibrary(char *path) {
 		table->symbolCount = 0x0;
 		SDMSTBuildLibraryInfo(table);
 		SDMSTGenerateSortedSymbolTable(table);
+		SDMSTFindSubroutines(table);
 	} else {
-		
+		table->couldLoad = FALSE;
+		SDMPrint(PrintCode_ERR,"Could not load MachO");
 	}
 	return table;
 }
@@ -261,6 +332,10 @@ void SDMSTLibraryRelease(struct SDMMOLibrarySymbolTable *libTable) {
 			free(libTable->table[i].name);
 	}
 	free(libTable->table);
+	for (uint32_t i = 0x0; i < libTable->subroutineCount; i++) {
+		free(libTable->subroutine[i].name);
+	}
+	free(libTable->subroutine);
 	if (libTable->couldLoad)
 		dlclose(libTable->libraryHandle);
 	else
