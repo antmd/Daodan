@@ -105,6 +105,11 @@ typedef struct SDMMOLibrarySymbolTable {
 	uint32_t subroutineCount;
 } __attribute__ ((packed)) SDMMOLibrarySymbolTable;
 
+typedef struct SDMSTBinary {
+	uintptr_t *arch;
+	uint32_t archCount;
+} __attribute__ ((packed)) SDMSTBinary;
+
 #pragma mark -
 #pragma mark Declarations
 
