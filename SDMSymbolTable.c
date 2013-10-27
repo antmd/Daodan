@@ -163,12 +163,13 @@ void SDMSTFindSubroutines(struct SDMMOLibrarySymbolTable *libTable) {
 			if (((flags & S_REGULAR)==0x0) && ((flags & S_ATTR_PURE_INSTRUCTIONS) || (flags & S_ATTR_SOME_INSTRUCTIONS))) {
 				uint64_t offset = 0x0;
 				bool isIntel64bitArch = (libTable->libInfo->is64bit && libTable->libInfo->arch.type == CPU_TYPE_X86_64);
-				while (offset < size) {
+				while (offset < size - (isIntel64bitArch ? Intel_x86_64bit_StackSetupLength : Intel_x86_32bit_StackSetupLength)) {
 					uint32_t result = 0x0;
+					printf("start at offset: %llx for arch %s\n",(address+offset),(isIntel64bitArch ? "x64\0" : "x32\0"));
 					if (isIntel64bitArch) {
-						result = memcmp((void*)(address+offset), &Intel_x86_64bit_StackSetup, Intel_x86_64bit_StackSetupLength);
+						result = memcmp((void*)(address+offset), &(Intel_x86_64bit_StackSetup), Intel_x86_64bit_StackSetupLength);
 					} else {
-						result = memcmp((void*)(address+offset), &Intel_x86_32bit_StackSetup, Intel_x86_32bit_StackSetupLength);
+						result = memcmp((void*)(address+offset), &(Intel_x86_32bit_StackSetup), Intel_x86_32bit_StackSetupLength);
 					}
 					if (!result) {
 						char *buffer = calloc(0x1, sizeof(char)*0x400);
@@ -190,7 +191,7 @@ void SDMSTFindSubroutines(struct SDMMOLibrarySymbolTable *libTable) {
 		}
 		SDMPrint(PrintCode_OK,"Found %i subroutines",libTable->subroutineCount);
 	} else {
-		SDMPrint(PrintCode_ERR,"Daodan only supports subroutines on intel binaries");
+		SDMPrint(PrintCode_ERR,"Daodan only supports subroutines on Intel binaries");
 	}
 }
 
@@ -216,17 +217,17 @@ void SDMSTGenerateSortedSymbolTable(struct SDMMOLibrarySymbolTable *libTable) {
 			}
 			struct SDMSTSymbolTableListEntry *entry = (struct SDMSTSymbolTableListEntry *)((char*)libTable->libInfo->mhOffset + cmd->symoff + fslide);
 			for (uint32_t j = 0x0; j < cmd->nsyms; j++) {
-				if (!(entry->n_type & N_STAB) && ((entry->n_type & N_TYPE) == N_SECT)) {
-					char *strTable = (char*)libTable->libInfo->mhOffset + cmd->stroff + fslide;
-					if (libTable->libInfo->is64bit) {
-						uint64_t *n_value = (uint64_t*)((char*)entry + sizeof(struct SDMSTSymbolTableListEntry));
-						symbolAddress = (uintptr_t)*n_value;
-					} else {
-						uint32_t *n_value = (uint32_t*)((char*)entry + sizeof(struct SDMSTSymbolTableListEntry));
-						symbolAddress = (uintptr_t)*n_value;
-					}
-					libTable->table = realloc(libTable->table, sizeof(struct SDMSTMachOSymbol)*(libTable->symbolCount+0x1));
-					struct SDMSTMachOSymbol *aSymbol = (struct SDMSTMachOSymbol *)calloc(0x1, sizeof(struct SDMSTMachOSymbol));
+				char *strTable = (char*)libTable->libInfo->mhOffset + cmd->stroff + fslide;
+				if (libTable->libInfo->is64bit) {
+					uint64_t *n_value = (uint64_t*)((char*)entry + sizeof(struct SDMSTSymbolTableListEntry));
+					symbolAddress = (uintptr_t)*n_value;
+				} else {
+					uint32_t *n_value = (uint32_t*)((char*)entry + sizeof(struct SDMSTSymbolTableListEntry));
+					symbolAddress = (uintptr_t)*n_value;
+				}
+				libTable->table = realloc(libTable->table, sizeof(struct SDMSTMachOSymbol)*(libTable->symbolCount+0x1));
+				struct SDMSTMachOSymbol *aSymbol = (struct SDMSTMachOSymbol *)calloc(0x1, sizeof(struct SDMSTMachOSymbol));
+				if (aSymbol) {
 					aSymbol->tableNumber = i;
 					aSymbol->symbolNumber = j;
 					aSymbol->offset = (uintptr_t)symbolAddress + (libTable->couldLoad ? _dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber) : 0x0);
@@ -331,23 +332,22 @@ struct SDMMOLibrarySymbolTable* SDMSTLoadLibrary(char *path) {
 			read(fd, &header, sizeof(uint32_t));
 			uint32_t size = (uint32_t)fs.st_size;
 			uint32_t offset = 0x0;
-			if (header == FAT_MAGIC || header == FAT_CIGAM) {
-				handle = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, offset);
-				struct SDMSTBinary *binary = SDMSTLoadBinaryFromFile(handle);
-				close(fd);
-				table->libraryHandle = SDMSTGetCurrentArchFromBinary(binary);
-				SDMSTBinaryRelease(binary);
-			} else {
-				handle = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, offset);
-				close(fd);
-				table->librarySize = 0x0;
-			}
+			handle = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, offset);
+			close(fd);
+			table->librarySize = 0x0;
 		}
 	} else {
 		table->couldLoad = TRUE;
 		table->librarySize = 0x0;
 	}
 	if (handle || inMemory) {
+		uint32_t header = (uint32_t)(handle);
+		if (header == FAT_MAGIC || header == FAT_CIGAM) {
+			struct SDMSTBinary *binary = SDMSTLoadBinaryFromFile(handle);
+			handle = SDMSTGetCurrentArchFromBinary(binary);
+			printf("%08x\n",handle);
+			SDMSTBinaryRelease(binary);
+		}
 		table->libraryPath = path;
 		table->libraryHandle = handle;
 		table->libInfo = NULL;
