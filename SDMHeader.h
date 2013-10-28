@@ -39,6 +39,11 @@ enum SDMPrintCodes {
 	PrintCode_NTR = 0x4
 };
 
+typedef struct SDMSTRange {
+	uintptr_t offset;
+	uint64_t length;
+} __attribute__ ((packed)) SDMSTRange;
+
 #pragma mark -
 #pragma mark Color Codes
 

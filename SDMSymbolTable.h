@@ -28,6 +28,11 @@
 #pragma mark -
 #pragma mark Types
 
+typedef struct SDMSTSectionName {
+	char sectname[16];
+	char segname[16];
+} __attribute__ ((packed)) SDMSTSectionName;
+
 typedef struct SDMSTSymbolTableListEntry {
 	union {
 		uint32_t n_strx;
@@ -90,6 +95,7 @@ typedef struct SDMSTMachOSymbol {
 typedef struct SDMSTSubroutine {
 	uintptr_t offset;
 	char *name;
+	uintptr_t sectionOffset;
 } __attribute__ ((packed)) SDMSTSubroute;
 
 typedef struct SDMMOLibrarySymbolTable {
@@ -115,6 +121,7 @@ typedef struct SDMSTBinary {
 
 struct SDMMOLibrarySymbolTable* SDMSTLoadLibrary(char *path, uint32_t index);
 struct SDMSTFunction* SDMSTCreateFunction(struct SDMMOLibrarySymbolTable *libTable, char *name);
+struct SDMSTRange SDMSTRangeOfSubroutine(struct SDMSTSubroutine *subroutine, struct SDMMOLibrarySymbolTable *libTable);
 void SDMSTFunctionRelease(struct SDMSTFunction *function);
 void SDMSTLibraryRelease(struct SDMMOLibrarySymbolTable *libTable);
 

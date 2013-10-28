@@ -49,6 +49,15 @@ static uint8_t Intel_x86_32bit_StackSetup[Intel_x86_32bit_StackSetupLength] = {0
 #define Intel_x86_64bit_StackSetupLength 0x4
 static uint8_t Intel_x86_64bit_StackSetup[Intel_x86_64bit_StackSetupLength] = {0x55, 0x48, 0x89, 0xe5};
 
+/* ARM stack?
+ 0xf0, 0xb5
+ 0x90, 0xb5
+ 0x80, 0xb5
+ 0xb0, 0xb5
+ 0x30, 0x40, 0x2d, 0xe9
+ 0xf0, 0x4f, 0x2d, 0xe9
+ */
+
 #pragma mark -
 #pragma mark Declarations
 
@@ -182,9 +191,13 @@ void SDMSTFindSubroutines(struct SDMMOLibrarySymbolTable *libTable) {
 							libTable->subroutine = realloc(libTable->subroutine, ((libTable->subroutineCount+0x1)*sizeof(struct SDMSTSubroutine)));
 							struct SDMSTSubroutine *aSubroutine = (struct SDMSTSubroutine *)calloc(0x1, sizeof(struct SDMSTSubroutine));
 							aSubroutine->offset = (uintptr_t)(address+offset);
+							
 							sprintf(buffer, "%x", (unsigned int)(aSubroutine->offset));
 							aSubroutine->name = calloc(0x5 + (strlen(buffer)), sizeof(char));
 							sprintf(aSubroutine->name, "sub_%x", (unsigned int)(aSubroutine->offset));
+							
+							aSubroutine->sectionOffset = textSectionOffset;
+							
 							memcpy(&(libTable->subroutine[libTable->subroutineCount]), aSubroutine, sizeof(struct SDMSTSubroutine));
 							free(aSubroutine);
 							free(buffer);
@@ -202,6 +215,31 @@ void SDMSTFindSubroutines(struct SDMMOLibrarySymbolTable *libTable) {
 	} else {
 		SDMPrint(PrintCode_ERR,"Daodan only supports subroutines on Intel binaries");
 	}
+}
+
+struct SDMSTRange SDMSTRangeOfSubroutine(struct SDMSTSubroutine *subroutine, struct SDMMOLibrarySymbolTable *libTable) {
+	struct SDMSTRange range = {0x0, 0x0};
+	for (uint32_t i = 0; i < libTable->subroutineCount; i++) {
+		if (libTable->subroutine[i].offset == subroutine->offset) {
+			range.offset = subroutine->offset;
+			uint32_t next = i+1;
+			if (next < libTable->subroutineCount) {
+				range.length = (libTable->subroutine[next].offset - range.offset);
+			} else {
+				uint64_t size, address;
+				if (libTable->libInfo->is64bit) {
+					size = ((struct section_64 *)(subroutine->sectionOffset))->size;
+					address = ((struct section_64 *)(subroutine->sectionOffset))->addr + _dyld_get_image_vmaddr_slide(libTable->vmIndex);
+				} else {
+					size = ((struct section *)(subroutine->sectionOffset))->size;
+					address = ((struct section *)(subroutine->sectionOffset))->addr + _dyld_get_image_vmaddr_slide(libTable->vmIndex);
+				}
+				range.length = ((address+size) - range.offset);
+			}
+			break;
+		}
+	}
+	return range;
 }
 
 void SDMSTGenerateSortedSymbolTable(struct SDMMOLibrarySymbolTable *libTable) {
