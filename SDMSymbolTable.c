@@ -52,11 +52,13 @@ static uint8_t Intel_x86_64bit_StackSetup[Intel_x86_64bit_StackSetupLength] = {0
 
 void SDMSTBuildLibraryInfo(SDMMOLibrarySymbolTable *libTable);
 int SDMSTCompareTableEntries(const void *entry1, const void *entry2);
+void SDMSTFindSubroutines(struct SDMMOLibrarySymbolTable *libTable);
 void SDMSTGenerateSortedSymbolTable(struct SDMMOLibrarySymbolTable *libTable);
+struct SDMSTBinary* SDMSTLoadBinaryFromFile(void* handle);
+void SDMSTBinaryRelease(struct SDMSTBinary *binary);
+uintptr_t* SDMSTGetCurrentArchFromBinary(struct SDMSTBinary *binary);
 bool SMDSTSymbolDemangleAndCompare(char *symFromTable, char *symbolName);
 SDMSTFunctionCall SDMSTSymbolLookup(struct SDMMOLibrarySymbolTable *libTable, char *symbolName);
-
-extern void* makeDynamicCallWithIntList(uint32_t argc, void* argv, void* functionPointer);
 
 #pragma mark -
 #pragma mark Functions
