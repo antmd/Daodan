@@ -233,8 +233,8 @@ void setupChrysalisNotificationListeners() {
 		message.header.msgh_remote_port = portReceive;
 		message.header.msgh_local_port = portSend;
 		message.header.msgh_id = 0;
-		message.header.msgh_size = 8*sizeof(message);
-		mach_msg(&message.header, MACH_SEND_MSG, 8*sizeof(message), 0x0, MACH_PORT_NULL, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
+		message.header.msgh_size = sizeof(struct DaodanMachMessage);
+		mach_msg(&message.header, MACH_SEND_MSG, sizeof(struct DaodanMachMessage), 0x0, portReceive, MACH_SEND_TIMEOUT, MACH_PORT_NULL);
 	});
 	result[0x1] = notify_register_dispatch(CHRYSALIS_RELOAD, &daodan_notify_token[0x1], dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^(int token){
 		printf("Got reload plugins notification\n");
@@ -263,17 +263,25 @@ void cancelChrysalisNotificationListeners() {
 }
 
 static dispatch_block_t portSendHandler = ^{
-	//struct DaodanMachMessage message;
-	//mach_msg(&message.header, MACH_SEND_MSG, sizeof(message), 0x0, portSend, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
-	printf("wat\n");
+	struct DaodanMachMessage message;
+	message.header.msgh_bits = MACH_MSGH_BITS(MACH_MSG_TYPE_MAKE_SEND, MACH_MSG_TYPE_MAKE_SEND_ONCE);
+	message.header.msgh_remote_port = portReceive;
+	message.header.msgh_local_port = portSend;
+	message.header.msgh_id = 0;
+	message.header.msgh_size = sizeof(struct DaodanMachMessage);
+	mach_msg(&message.header, MACH_SEND_MSG, sizeof(struct DaodanMachMessage), 0x0, portSend, MACH_SEND_TIMEOUT, MACH_PORT_NULL);
+	printf("+++%s\n",message.data);
 };
 
 static dispatch_block_t portReceiveHandler = ^{
 	struct DaodanMachMessage message;
-	mach_msg(&message.header, MACH_RCV_MSG, 0x0, sizeof(message), portReceive, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
-	dispatch_async(dispatch_get_main_queue(), ^{
-		printf("%s\n",message.data);
-	});
+message.header.msgh_bits = MACH_MSGH_BITS(MACH_MSG_TYPE_MOVE_RECEIVE, MACH_MSG_TYPE_COPY_RECEIVE);
+	message.header.msgh_remote_port = portReceive;
+	message.header.msgh_local_port = portSend;
+	message.header.msgh_id = 0;
+	message.header.msgh_size = sizeof(struct DaodanMachMessage);
+	mach_msg(&message.header, MACH_RCV_MSG, 0x0, sizeof(struct DaodanMachMessage), portReceive, MACH_RCV_TIMEOUT, MACH_PORT_NULL);
+	printf("---%s\n",message.data);
 };
 
 char* GenerateUniqueQueueName(enum DAODAN_QUEUE type) {
@@ -296,7 +304,7 @@ char* GenerateUniqueQueueName(enum DAODAN_QUEUE type) {
 void setupDaodanMachPort() {
 	vm_map_t task = mach_task_self();
 	
-	/*kern_return_t resultPortSend = mach_port_allocate(task, MACH_PORT_RIGHT_RECEIVE, &portSend);
+	kern_return_t resultPortSend = mach_port_allocate(task, MACH_PORT_RIGHT_RECEIVE, &portSend);
 	if (resultPortSend == KERN_SUCCESS) {
 		char *name = GenerateUniqueQueueName(DAODAN_MACH_SEND);
 		dispatchSendQueue = dispatch_queue_create(name, DISPATCH_QUEUE_SERIAL);
@@ -313,7 +321,7 @@ void setupDaodanMachPort() {
 		SDMPrint(PrintCode_OK,"Successfully acquired local mach port for sending");
 	} else {
 		SDMPrint(PrintCode_ERR,"Send mach port setup failed");
-	}*/
+	}
 	
 	kern_return_t resultPortRecieve = mach_port_allocate(task, MACH_PORT_RIGHT_RECEIVE, &portReceive);
 	if (resultPortRecieve == KERN_SUCCESS) {
@@ -327,6 +335,7 @@ void setupDaodanMachPort() {
 			dispatch_release(dispatchReceiveQueue);
 			dispatch_release(dispatchReceive);
 			mach_port_deallocate(mach_task_self(), portReceive);
+			SDMPrint(PrintCode_OK,"Releasing receive port handler");
 		});
 		dispatch_resume(dispatchReceive);
 		SDMPrint(PrintCode_OK,"Successfully acquired local mach port for receiving");
@@ -399,7 +408,7 @@ void daodanLoadSymbolTableForImage(uint32_t index) {
 }
 
 uint32_t SDMGetExecuteImage() {
-	SDMPrint(PrintCode_TRY,"Looking for application binary.");
+	SDMPrint(PrintCode_TRY,"Looking for application binary...");
 	struct mach_header *imageHeader;
 	uint32_t count = _dyld_image_count();
 	bool foundBinary = FALSE;
