@@ -22,20 +22,23 @@
 #pragma mark -
 #pragma mark Includes
 #include "SDMSymbolTable.h"
+#pragma mark sys/*
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <sys/sysctl.h>
 #include <sys/errno.h>
 #include <sys/types.h>
-#include <fcntl.h>
-#include <dlfcn.h>
+#pragma mark mach/*
 #include <mach/mach.h>
+#pragma mark mach-o/*
 #include <mach-o/dyld.h>
 #include <mach-o/nlist.h>
 #include <mach-o/ldsyms.h>
 #include <mach-o/fat.h>
+#pragma mark Other
+#include <fcntl.h>
+#include <dlfcn.h>
 #include <math.h>
-#include <stdlib.h>
 
 
 #pragma mark -
@@ -168,7 +171,7 @@ void SDMSTFindSubroutines(struct SDMMOLibrarySymbolTable *libTable) {
 				if (((flags & S_REGULAR)==0x0) && ((flags & S_ATTR_PURE_INSTRUCTIONS) || (flags & S_ATTR_SOME_INSTRUCTIONS))) {
 					uint64_t offset = 0x0;
 					bool isIntel64bitArch = (libTable->libInfo->is64bit && libTable->libInfo->arch.type == CPU_TYPE_X86_64);
-					while (offset < size - (isIntel64bitArch ? Intel_x86_64bit_StackSetupLength : Intel_x86_32bit_StackSetupLength)) {
+					while (offset < (size - (isIntel64bitArch ? Intel_x86_64bit_StackSetupLength : Intel_x86_32bit_StackSetupLength))) {
 						uint32_t result = 0x0;
 						if (isIntel64bitArch) {
 							result = memcmp((void*)(address+offset), &(Intel_x86_64bit_StackSetup[0x0]), Intel_x86_64bit_StackSetupLength);

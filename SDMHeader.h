@@ -9,6 +9,9 @@
 #ifndef Daodan_SDMHeader_h
 #define Daodan_SDMHeader_h
 
+#pragma mark -
+#pragma mark Includes
+#pragma mark Standard Libs
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -18,7 +21,7 @@
 #include <unistd.h>
 
 #pragma mark -
-#pragma mark Type
+#pragma mark Types
 
 enum SDMPrintCodes {
 	PrintCode_OK = 0x1,

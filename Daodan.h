@@ -19,9 +19,9 @@
 #ifndef Daodan_Daodan_h
 #define Daodan_Daodan_h
 
-#include <mach-o/dyld.h>
-#include "SDMSymbolTable.h"
 #include "SDMHeader.h"
+#include "SDMSymbolTable.h"
+
 
 void initDaodan();
 void unloadDaodan();

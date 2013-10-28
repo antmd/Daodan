@@ -18,9 +18,12 @@
 #ifndef Daodan_Daodan_c
 #define Daodan_Daodan_c
 
+#pragma mark -
+#pragma mark Includes
 #include "Daodan.h"
 #include <dlfcn.h>
 #include <security/mac.h>
+#include <mach-o/dyld.h>
 
 /*
  

@@ -22,9 +22,9 @@
 
 #pragma mark -
 #pragma mark Includes
-
-#include <mach-o/loader.h>
 #include "SDMHeader.h"
+#pragma mark mach-o/*
+#include <mach-o/loader.h>
 
 #pragma mark -
 #pragma mark Types
