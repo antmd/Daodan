@@ -226,9 +226,9 @@ typedef struct DaodanMachMessage {
 void setupChrysalisNotificationListeners() {
 	uint32_t result[DAODAN_NOTIFY_COUNT];
 	result[0x0] = notify_register_dispatch(CHRYSALIS_LAUNCH, &daodan_notify_token[0x0], dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^(int token){
-		printf("got launch notification\n");
+		printf("Got launch notification\n");
 		struct DaodanMachMessage message;
-		sprintf(message.data, "Chrysalis is launching!");
+		sprintf(message.data, "Controller is launching!");
 		message.header.msgh_bits = MACH_MSGH_BITS(MACH_MSG_TYPE_MAKE_SEND, MACH_MSG_TYPE_MAKE_SEND_ONCE);
 		message.header.msgh_remote_port = portReceive;
 		message.header.msgh_local_port = portSend;
@@ -237,20 +237,10 @@ void setupChrysalisNotificationListeners() {
 		mach_msg(&message.header, MACH_SEND_MSG, 8*sizeof(message), 0x0, MACH_PORT_NULL, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
 	});
 	result[0x1] = notify_register_dispatch(CHRYSALIS_RELOAD, &daodan_notify_token[0x1], dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^(int token){
-		printf("got reload plugins notification\n");
-		struct DaodanMachMessage message;
-		mach_msg(&message.header, MACH_SEND_MSG, sizeof(message), 0x0, portReceive, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
+		printf("Got reload plugins notification\n");
 	});
 	result[0x2] = notify_register_dispatch(CHRYSALIS_QUIT, &daodan_notify_token[0x2], dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^(int token){
-		printf("got quit notification\n");
-		struct DaodanMachMessage message;
-		sprintf(message.data, "Chrysalis is quitting!");
-		message.header.msgh_bits = MACH_MSGH_BITS(MACH_MSG_TYPE_MAKE_SEND, MACH_MSG_TYPE_MAKE_SEND_ONCE);
-		message.header.msgh_remote_port = portReceive;
-		message.header.msgh_local_port = portSend;
-		message.header.msgh_id = 0;
-		message.header.msgh_size = sizeof(message);
-		mach_msg(&message.header, MACH_SEND_MSG, 8*sizeof(message), 0x0, MACH_PORT_NULL, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
+		printf("Got quit notification\n");
 	});
 	bool statusOK = TRUE;
 	for (uint32_t i = 0x0; i < DAODAN_NOTIFY_COUNT; i++) {
@@ -280,12 +270,9 @@ static dispatch_block_t portSendHandler = ^{
 
 static dispatch_block_t portReceiveHandler = ^{
 	struct DaodanMachMessage message;
-	mach_msg(&message.header, MACH_RCV_MSG, 0x0, 8*sizeof(message), portReceive, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
-	//dispatch_async(dispatch_get_main_queue(), ^{
-	//	printf("%s\n",message.data);
-	//});
+	mach_msg(&message.header, MACH_RCV_MSG, 0x0, sizeof(message), portReceive, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
 	dispatch_async(dispatch_get_main_queue(), ^{
-	printf("testing!\n");
+		printf("%s\n",message.data);
 	});
 };
 
