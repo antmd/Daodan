@@ -22,7 +22,6 @@
 #include "SDMHeader.h"
 #include "SDMSymbolTable.h"
 
-
 void initDaodan();
 void unloadDaodan();
 uintptr_t daodanLookupFunction(char *name);

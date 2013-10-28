@@ -40,7 +40,6 @@
 #include <dlfcn.h>
 #include <math.h>
 
-
 #pragma mark -
 #pragma mark Defines
 

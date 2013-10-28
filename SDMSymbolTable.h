@@ -16,7 +16,6 @@
  *
  */
 
-
 #ifndef _SDMSYMBOLTABLE_H_
 #define _SDMSYMBOLTABLE_H_
 
