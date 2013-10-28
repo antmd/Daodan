@@ -161,8 +161,8 @@ void SDMSTFindSubroutines(struct SDMMOLibrarySymbolTable *libTable) {
 				address = ((struct section *)(textSectionOffset))->addr;
 			}
 			Dl_info info;
-			uint32_t result = dladdr((void*)address, &info);
-			if (result != 0x0) {
+			uint32_t loaded = dladdr((void*)address, &info);
+			if (loaded != 0x0) {
 				if (((flags & S_REGULAR)==0x0) && ((flags & S_ATTR_PURE_INSTRUCTIONS) || (flags & S_ATTR_SOME_INSTRUCTIONS))) {
 					uint64_t offset = 0x0;
 					bool isIntel64bitArch = (libTable->libInfo->is64bit && libTable->libInfo->arch.type == CPU_TYPE_X86_64);
