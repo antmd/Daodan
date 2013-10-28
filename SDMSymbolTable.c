@@ -49,6 +49,8 @@ static uint8_t Intel_x86_32bit_StackSetup[Intel_x86_32bit_StackSetupLength] = {0
 #define Intel_x86_64bit_StackSetupLength 0x4
 static uint8_t Intel_x86_64bit_StackSetup[Intel_x86_64bit_StackSetupLength] = {0x55, 0x48, 0x89, 0xe5};
 
+// need to figure out of it is necessary to setup a structure here for storing stack setup per arch
+
 /* ARM stack?
  0xf0, 0xb5
  0x90, 0xb5

@@ -28,11 +28,6 @@
 #pragma mark -
 #pragma mark Types
 
-typedef struct SDMSTSectionName {
-	char sectname[16];
-	char segname[16];
-} __attribute__ ((packed)) SDMSTSectionName;
-
 typedef struct SDMSTSymbolTableListEntry {
 	union {
 		uint32_t n_strx;
