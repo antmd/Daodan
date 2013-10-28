@@ -21,6 +21,8 @@
 
 #include "SDMHeader.h"
 #include "SDMSymbolTable.h"
+#include <xpc/xpc.h>
+#include <xpc/connection.h>
 
 void initDaodan();
 void unloadDaodan();
