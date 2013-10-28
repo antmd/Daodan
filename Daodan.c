@@ -25,6 +25,7 @@
 #include <dlfcn.h>
 #include <security/mac.h>
 #include <mach-o/dyld.h>
+#include <notify.h>
 
 /*
  
@@ -195,6 +196,39 @@ DYLD_INTERPOSE(DAODAN__mac_syscall, __mac_syscall);
 
 static struct SDMMOLibrarySymbolTable *binaryTable;
 
+#define CHRYSALIS_LAUNCH "com.samdmarshall.Chrysalis.Launch"
+#define CHRYSALIS_RELOAD "com.samdmarshall.Chrysalis.ReloadPlugins"
+#define CHRYSALIS_QUIT "com.samdmarshall.Chrysalis.Quit"
+
+
+#define DAODAN_NOTIFY_COUNT 0x3
+static int daodan_notify_token[DAODAN_NOTIFY_COUNT];
+
+void setupChrysalisNotificationListeners() {
+	uint32_t result[DAODAN_NOTIFY_COUNT];
+	result[0x0] = notify_register_dispatch(CHRYSALIS_LAUNCH, &daodan_notify_token[0x0], dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^(int token){
+		printf("got launch notification\n");
+	});
+	result[0x1] = notify_register_dispatch(CHRYSALIS_RELOAD, &daodan_notify_token[0x1], dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^(int token){
+		printf("got reload plugins notification\n");
+	});
+	result[0x2] = notify_register_dispatch(CHRYSALIS_QUIT, &daodan_notify_token[0x2], dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^(int token){
+		printf("got quit notification\n");
+	});
+	bool statusOK = TRUE;
+	for (uint32_t i = 0x0; i < DAODAN_NOTIFY_COUNT; i++) {
+		if (result[i] != NOTIFY_STATUS_OK) {
+			statusOK = FALSE;
+			break;
+		}
+	}
+	if (statusOK) {
+		SDMPrint(PrintCode_OK,"Successfully registered notify listeners");
+	} else {
+		SDMPrint(PrintCode_ERR,"Unable to registery notify listeners, Daodan will be unable to communicate with Chrysalis");
+	}
+}
+
 void initDaodan() {
 	_dyld_register_func_for_add_image(SDMAddImageHook);
 	_dyld_register_func_for_remove_image(SDMRemoveImageHook);
@@ -208,7 +242,8 @@ void initDaodan() {
 		SDMPrint(PrintCode_ERR,"Could not load the MachO file, unloading Daodan now...");
 		unloadDaodan();
 	} else {
-		// start the ipc listener
+		SDMPrint(PrintCode_TRY,"Registering notify listeners for Chrysalis...");
+		setupChrysalisNotificationListeners();
 	}
 }
 
@@ -226,6 +261,9 @@ void unloadDaodan() {
 			SDMPrint(PrintCode_ERR,"Error creating handle to Daodan.");
 		}
 		SDMSTLibraryRelease(binaryTable);
+		for (uint32_t i = 0; i < DAODAN_NOTIFY_COUNT; i++) {
+			notify_cancel(daodan_notify_token[i]);
+		}
 		dlclose(daodanHandle);
 	} else {
 		SDMPrint(PrintCode_ERR,"Could not find Daodan.\n");
