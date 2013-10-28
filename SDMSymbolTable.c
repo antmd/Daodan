@@ -221,10 +221,10 @@ void SDMSTFindSubroutines(struct SDMMOLibrarySymbolTable *libTable) {
 
 struct SDMSTRange SDMSTRangeOfSubroutine(struct SDMSTSubroutine *subroutine, struct SDMMOLibrarySymbolTable *libTable) {
 	struct SDMSTRange range = {0x0, 0x0};
-	for (uint32_t i = 0; i < libTable->subroutineCount; i++) {
+	for (uint32_t i = 0x0; i < libTable->subroutineCount; i++) {
 		if (libTable->subroutine[i].offset == subroutine->offset) {
 			range.offset = subroutine->offset;
-			uint32_t next = i+1;
+			uint32_t next = i+0x1;
 			if (next < libTable->subroutineCount) {
 				range.length = (libTable->subroutine[next].offset - range.offset);
 			} else {
