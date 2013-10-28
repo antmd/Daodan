@@ -94,6 +94,7 @@ typedef struct SDMSTSubroutine {
 } __attribute__ ((packed)) SDMSTSubroute;
 
 typedef struct SDMMOLibrarySymbolTable {
+	uint32_t vmIndex;
 	bool couldLoad;
 	char *libraryPath;
 	uintptr_t* libraryHandle;
@@ -113,7 +114,7 @@ typedef struct SDMSTBinary {
 #pragma mark -
 #pragma mark Declarations
 
-struct SDMMOLibrarySymbolTable* SDMSTLoadLibrary(char *path);
+struct SDMMOLibrarySymbolTable* SDMSTLoadLibrary(char *path, uint32_t index);
 struct SDMSTFunction* SDMSTCreateFunction(struct SDMMOLibrarySymbolTable *libTable, char *name);
 void SDMSTFunctionRelease(struct SDMSTFunction *function);
 void SDMSTLibraryRelease(struct SDMMOLibrarySymbolTable *libTable);

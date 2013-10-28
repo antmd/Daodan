@@ -160,32 +160,37 @@ void SDMSTFindSubroutines(struct SDMMOLibrarySymbolTable *libTable) {
 				size = ((struct section *)(textSectionOffset))->size;
 				address = ((struct section *)(textSectionOffset))->addr;
 			}
-			if (((flags & S_REGULAR)==0x0) && ((flags & S_ATTR_PURE_INSTRUCTIONS) || (flags & S_ATTR_SOME_INSTRUCTIONS))) {
-				uint64_t offset = 0x0;
-				bool isIntel64bitArch = (libTable->libInfo->is64bit && libTable->libInfo->arch.type == CPU_TYPE_X86_64);
-				while (offset < size - (isIntel64bitArch ? Intel_x86_64bit_StackSetupLength : Intel_x86_32bit_StackSetupLength)) {
-					uint32_t result = 0x0;
-					printf("start at offset: %llx for arch %s\n",(address+offset),(isIntel64bitArch ? "x64\0" : "x32\0"));
-					if (isIntel64bitArch) {
-						result = memcmp((void*)(address+offset), &(Intel_x86_64bit_StackSetup), Intel_x86_64bit_StackSetupLength);
-					} else {
-						result = memcmp((void*)(address+offset), &(Intel_x86_32bit_StackSetup), Intel_x86_32bit_StackSetupLength);
+			Dl_info info;
+			uint32_t result = dladdr((void*)address, &info);
+			if (result != 0) {
+				if (((flags & S_REGULAR)==0x0) && ((flags & S_ATTR_PURE_INSTRUCTIONS) || (flags & S_ATTR_SOME_INSTRUCTIONS))) {
+					uint64_t offset = 0x0;
+					bool isIntel64bitArch = (libTable->libInfo->is64bit && libTable->libInfo->arch.type == CPU_TYPE_X86_64);
+					while (offset < size - (isIntel64bitArch ? Intel_x86_64bit_StackSetupLength : Intel_x86_32bit_StackSetupLength)) {
+						uint32_t result = 0x0;
+						if (isIntel64bitArch) {
+							result = memcmp((void*)(address+offset), &(Intel_x86_64bit_StackSetup[0]), Intel_x86_64bit_StackSetupLength);
+						} else {
+							result = memcmp((void*)(address+offset), &(Intel_x86_32bit_StackSetup[0]), Intel_x86_32bit_StackSetupLength);
+						}
+						if (!result) {
+							char *buffer = calloc(0x1, sizeof(char)*0x400);
+							libTable->subroutine = realloc(libTable->subroutine, ((libTable->subroutineCount+1)*sizeof(struct SDMSTSubroutine)));
+							struct SDMSTSubroutine *aSubroutine = (struct SDMSTSubroutine *)calloc(0x1, sizeof(struct SDMSTSubroutine));
+							aSubroutine->offset = (uintptr_t)(address+offset);
+							sprintf(buffer, "%x", (unsigned int)(aSubroutine->offset));
+							aSubroutine->name = calloc(0x5 + (strlen(buffer)), sizeof(char));
+							sprintf(aSubroutine->name, "sub_%x", (unsigned int)(aSubroutine->offset));
+							memcpy(&(libTable->subroutine[libTable->subroutineCount]), aSubroutine, sizeof(struct SDMSTSubroutine));
+							free(aSubroutine);
+							free(buffer);
+							libTable->subroutineCount++;
+						}
+						offset++;
 					}
-					if (!result) {
-						char *buffer = calloc(0x1, sizeof(char)*0x400);
-						libTable->subroutine = realloc(libTable->subroutine, ((libTable->subroutineCount+1)*sizeof(struct SDMSTSubroutine)));
-						struct SDMSTSubroutine *aSubroutine = (struct SDMSTSubroutine *)calloc(0x1, sizeof(struct SDMSTSubroutine));
-						aSubroutine->offset = (uintptr_t)(address+offset);
-						sprintf(buffer, "%x", (unsigned int)(aSubroutine->offset));
-						aSubroutine->name = calloc(0x5 + (strlen(buffer)), sizeof(char));
-						sprintf(aSubroutine->name, "sub_%x", (unsigned int)(aSubroutine->offset));
-						memcpy(&(libTable->subroutine[libTable->subroutineCount]), aSubroutine, sizeof(struct SDMSTSubroutine));
-						free(aSubroutine);
-						free(buffer);
-						libTable->subroutineCount++;
-					}
-					offset++;
 				}
+			} else {
+				SDMPrint(PrintCode_ERR,"Couldn't load image");
 			}
 			textSectionOffset += (libTable->libInfo->is64bit ? sizeof(struct section_64) : sizeof(struct section));
 		}
@@ -299,7 +304,7 @@ uintptr_t* SDMSTGetCurrentArchFromBinary(struct SDMSTBinary *binary) {
 	return offset;
 }
 
-struct SDMMOLibrarySymbolTable* SDMSTLoadLibrary(char *path) {
+struct SDMMOLibrarySymbolTable* SDMSTLoadLibrary(char *path, uint32_t index) {
 	struct SDMMOLibrarySymbolTable *table = (struct SDMMOLibrarySymbolTable *)calloc(0x1, sizeof(struct SDMMOLibrarySymbolTable));
 	bool inMemory = FALSE;
 	char *imagePath;
@@ -345,9 +350,9 @@ struct SDMMOLibrarySymbolTable* SDMSTLoadLibrary(char *path) {
 		if (header == FAT_MAGIC || header == FAT_CIGAM) {
 			struct SDMSTBinary *binary = SDMSTLoadBinaryFromFile(handle);
 			handle = SDMSTGetCurrentArchFromBinary(binary);
-			printf("%08x\n",handle);
 			SDMSTBinaryRelease(binary);
 		}
+		table->vmIndex = index;
 		table->libraryPath = path;
 		table->libraryHandle = handle;
 		table->libInfo = NULL;
