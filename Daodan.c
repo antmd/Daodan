@@ -27,6 +27,14 @@
 #include <mach-o/dyld.h>
 #include <notify.h>
 
+#import <mach/std_types.h>
+#import <mach/mach_traps.h>
+#import <signal.h>
+#import <mach/mach_init.h>
+#import <mach/vm_map.h>
+#import <mach/mach_vm.h>
+#import <mach/mach.h>
+
 /*
  
 ** How to implement function hooks:
@@ -200,20 +208,49 @@ static struct SDMMOLibrarySymbolTable *binaryTable;
 #define CHRYSALIS_RELOAD "com.samdmarshall.Chrysalis.ReloadPlugins"
 #define CHRYSALIS_QUIT "com.samdmarshall.Chrysalis.Quit"
 
-
 #define DAODAN_NOTIFY_COUNT 0x3
 static int daodan_notify_token[DAODAN_NOTIFY_COUNT];
+
+static mach_port_name_t portSend = MACH_PORT_NULL;
+static mach_port_name_t portReceive = MACH_PORT_NULL;
+static dispatch_source_t dispatchSend;
+static dispatch_source_t dispatchReceive;
+static dispatch_queue_t dispatchSendQueue = NULL;
+static dispatch_queue_t dispatchReceiveQueue;
+
+typedef struct DaodanMachMessage {
+	mach_msg_header_t header;
+	char data[0x400];
+} __attribute__ ((packed)) DaodanMachMessage;
 
 void setupChrysalisNotificationListeners() {
 	uint32_t result[DAODAN_NOTIFY_COUNT];
 	result[0x0] = notify_register_dispatch(CHRYSALIS_LAUNCH, &daodan_notify_token[0x0], dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^(int token){
 		printf("got launch notification\n");
+		struct DaodanMachMessage message;
+		sprintf(message.data, "Chrysalis is launching!");
+		message.header.msgh_bits = MACH_MSGH_BITS(MACH_MSG_TYPE_MAKE_SEND, MACH_MSG_TYPE_MAKE_SEND_ONCE);
+		message.header.msgh_remote_port = portReceive;
+		message.header.msgh_local_port = portSend;
+		message.header.msgh_id = 0;
+		message.header.msgh_size = 8*sizeof(message);
+		mach_msg(&message.header, MACH_SEND_MSG, 8*sizeof(message), 0x0, MACH_PORT_NULL, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
 	});
 	result[0x1] = notify_register_dispatch(CHRYSALIS_RELOAD, &daodan_notify_token[0x1], dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^(int token){
 		printf("got reload plugins notification\n");
+		struct DaodanMachMessage message;
+		mach_msg(&message.header, MACH_SEND_MSG, sizeof(message), 0x0, portReceive, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
 	});
 	result[0x2] = notify_register_dispatch(CHRYSALIS_QUIT, &daodan_notify_token[0x2], dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^(int token){
 		printf("got quit notification\n");
+		struct DaodanMachMessage message;
+		sprintf(message.data, "Chrysalis is quitting!");
+		message.header.msgh_bits = MACH_MSGH_BITS(MACH_MSG_TYPE_MAKE_SEND, MACH_MSG_TYPE_MAKE_SEND_ONCE);
+		message.header.msgh_remote_port = portReceive;
+		message.header.msgh_local_port = portSend;
+		message.header.msgh_id = 0;
+		message.header.msgh_size = sizeof(message);
+		mach_msg(&message.header, MACH_SEND_MSG, 8*sizeof(message), 0x0, MACH_PORT_NULL, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
 	});
 	bool statusOK = TRUE;
 	for (uint32_t i = 0x0; i < DAODAN_NOTIFY_COUNT; i++) {
@@ -227,6 +264,93 @@ void setupChrysalisNotificationListeners() {
 	} else {
 		SDMPrint(PrintCode_ERR,"Unable to registery notify listeners, Daodan will be unable to communicate with Chrysalis");
 	}
+}
+
+void cancelChrysalisNotificationListeners() {
+	for (uint32_t i = 0; i < DAODAN_NOTIFY_COUNT; i++) {
+		notify_cancel(daodan_notify_token[i]);
+	}
+}
+
+static dispatch_block_t portSendHandler = ^{
+	//struct DaodanMachMessage message;
+	//mach_msg(&message.header, MACH_SEND_MSG, sizeof(message), 0x0, portSend, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
+	printf("wat\n");
+};
+
+static dispatch_block_t portReceiveHandler = ^{
+	struct DaodanMachMessage message;
+	mach_msg(&message.header, MACH_RCV_MSG, 0x0, 8*sizeof(message), portReceive, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
+	//dispatch_async(dispatch_get_main_queue(), ^{
+	//	printf("%s\n",message.data);
+	//});
+	dispatch_async(dispatch_get_main_queue(), ^{
+	printf("testing!\n");
+	});
+};
+
+char* GenerateUniqueQueueName(enum DAODAN_QUEUE type) {
+	char *name = calloc(0x400, sizeof(char));
+	char *typeDesc = "UNKNOWN";
+	switch (type) {
+		case DAODAN_MACH_SEND:
+			typeDesc = "MACH_SEND";
+			break;
+		case DAODAN_MACH_RECV:
+			typeDesc = "MACH_RECV";
+			break;
+		default:
+			break;
+	}
+	sprintf(name, "com.samdmarshall.libDaodan.%i.%s",getpid(),typeDesc);
+	return name;
+}
+
+void setupDaodanMachPort() {
+	vm_map_t task = mach_task_self();
+	
+	/*kern_return_t resultPortSend = mach_port_allocate(task, MACH_PORT_RIGHT_RECEIVE, &portSend);
+	if (resultPortSend == KERN_SUCCESS) {
+		char *name = GenerateUniqueQueueName(DAODAN_MACH_SEND);
+		dispatchSendQueue = dispatch_queue_create(name, DISPATCH_QUEUE_SERIAL);
+		free(name);
+		dispatchSend = dispatch_source_create(DISPATCH_SOURCE_TYPE_MACH_SEND, portSend, 0x0, dispatchSendQueue);
+		dispatch_source_set_event_handler(dispatchSend, portSendHandler);
+		dispatch_source_set_cancel_handler(dispatchSend, ^{
+			mach_port_mod_refs(mach_task_self(), portSend, MACH_PORT_RIGHT_RECEIVE, -1);
+			dispatch_release(dispatchSendQueue);
+			dispatch_release(dispatchSend);
+			mach_port_deallocate(mach_task_self(), portSend);
+		});
+		dispatch_resume(dispatchSend);
+		SDMPrint(PrintCode_OK,"Successfully acquired local mach port for sending");
+	} else {
+		SDMPrint(PrintCode_ERR,"Send mach port setup failed");
+	}*/
+	
+	kern_return_t resultPortRecieve = mach_port_allocate(task, MACH_PORT_RIGHT_RECEIVE, &portReceive);
+	if (resultPortRecieve == KERN_SUCCESS) {
+		char *name = GenerateUniqueQueueName(DAODAN_MACH_RECV);
+		dispatchReceiveQueue = dispatch_queue_create(name, DISPATCH_QUEUE_SERIAL);
+		free(name);
+		dispatchReceive = dispatch_source_create(DISPATCH_SOURCE_TYPE_MACH_RECV, portReceive, 0x0, dispatchReceiveQueue);
+		dispatch_source_set_event_handler(dispatchReceive, portReceiveHandler);
+		dispatch_source_set_cancel_handler(dispatchReceive, ^{
+			mach_port_mod_refs(mach_task_self(), portReceive, MACH_PORT_RIGHT_RECEIVE, -1);
+			dispatch_release(dispatchReceiveQueue);
+			dispatch_release(dispatchReceive);
+			mach_port_deallocate(mach_task_self(), portReceive);
+		});
+		dispatch_resume(dispatchReceive);
+		SDMPrint(PrintCode_OK,"Successfully acquired local mach port for receiving");
+	} else {
+		SDMPrint(PrintCode_ERR,"Receive mach port setup failed");
+	}
+}
+
+void closeDaodanMachPorts() {
+	dispatch_source_cancel(dispatchSend);
+	dispatch_source_cancel(dispatchReceive);
 }
 
 void initDaodan() {
@@ -244,6 +368,7 @@ void initDaodan() {
 	} else {
 		SDMPrint(PrintCode_TRY,"Registering notify listeners for Chrysalis...");
 		setupChrysalisNotificationListeners();
+		setupDaodanMachPort();
 	}
 }
 
@@ -261,9 +386,8 @@ void unloadDaodan() {
 			SDMPrint(PrintCode_ERR,"Error creating handle to Daodan.");
 		}
 		SDMSTLibraryRelease(binaryTable);
-		for (uint32_t i = 0; i < DAODAN_NOTIFY_COUNT; i++) {
-			notify_cancel(daodan_notify_token[i]);
-		}
+		cancelChrysalisNotificationListeners();
+		closeDaodanMachPorts();
 		dlclose(daodanHandle);
 	} else {
 		SDMPrint(PrintCode_ERR,"Could not find Daodan.\n");
