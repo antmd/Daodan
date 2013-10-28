@@ -21,16 +21,16 @@
 #pragma mark Type
 
 enum SDMPrintCodes {
-	PrintCode_OK = 1,
-	PrintCode_TRY = 2,
-	PrintCode_ERR = 3,
-	PrintCode_NTR = 4
+	PrintCode_OK = 0x1,
+	PrintCode_TRY = 0x2,
+	PrintCode_ERR = 0x3,
+	PrintCode_NTR = 0x4
 };
 
 #pragma mark -
 #pragma mark Color Codes
 
-#define UseColorCodes 1 // SDM: Xcode console doesn't like these, but they work fine in a terminal
+#define UseColorCodes true // SDM: Xcode console doesn't like these, but they work fine in a terminal
 
 #define COLOR_NRM  "\x1B[0m"
 #define COLOR_RED  "\x1B[31m"

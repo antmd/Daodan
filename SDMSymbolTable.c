@@ -162,20 +162,20 @@ void SDMSTFindSubroutines(struct SDMMOLibrarySymbolTable *libTable) {
 			}
 			Dl_info info;
 			uint32_t result = dladdr((void*)address, &info);
-			if (result != 0) {
+			if (result != 0x0) {
 				if (((flags & S_REGULAR)==0x0) && ((flags & S_ATTR_PURE_INSTRUCTIONS) || (flags & S_ATTR_SOME_INSTRUCTIONS))) {
 					uint64_t offset = 0x0;
 					bool isIntel64bitArch = (libTable->libInfo->is64bit && libTable->libInfo->arch.type == CPU_TYPE_X86_64);
 					while (offset < size - (isIntel64bitArch ? Intel_x86_64bit_StackSetupLength : Intel_x86_32bit_StackSetupLength)) {
 						uint32_t result = 0x0;
 						if (isIntel64bitArch) {
-							result = memcmp((void*)(address+offset), &(Intel_x86_64bit_StackSetup[0]), Intel_x86_64bit_StackSetupLength);
+							result = memcmp((void*)(address+offset), &(Intel_x86_64bit_StackSetup[0x0]), Intel_x86_64bit_StackSetupLength);
 						} else {
-							result = memcmp((void*)(address+offset), &(Intel_x86_32bit_StackSetup[0]), Intel_x86_32bit_StackSetupLength);
+							result = memcmp((void*)(address+offset), &(Intel_x86_32bit_StackSetup[0x0]), Intel_x86_32bit_StackSetupLength);
 						}
 						if (!result) {
 							char *buffer = calloc(0x1, sizeof(char)*0x400);
-							libTable->subroutine = realloc(libTable->subroutine, ((libTable->subroutineCount+1)*sizeof(struct SDMSTSubroutine)));
+							libTable->subroutine = realloc(libTable->subroutine, ((libTable->subroutineCount+0x1)*sizeof(struct SDMSTSubroutine)));
 							struct SDMSTSubroutine *aSubroutine = (struct SDMSTSubroutine *)calloc(0x1, sizeof(struct SDMSTSubroutine));
 							aSubroutine->offset = (uintptr_t)(address+offset);
 							sprintf(buffer, "%x", (unsigned int)(aSubroutine->offset));
@@ -190,7 +190,7 @@ void SDMSTFindSubroutines(struct SDMMOLibrarySymbolTable *libTable) {
 					}
 				}
 			} else {
-				SDMPrint(PrintCode_ERR,"Couldn't load image");
+				SDMPrint(PrintCode_ERR,"Image for address (%08llx) is not loaded",address);
 			}
 			textSectionOffset += (libTable->libInfo->is64bit ? sizeof(struct section_64) : sizeof(struct section));
 		}
@@ -263,7 +263,7 @@ struct SDMSTBinary* SDMSTLoadBinaryFromFile(void* handle) {
 	struct fat_header *header = handle;
 	for (uint32_t i = 0x0; i < header->nfat_arch; i++) {
 		struct fat_arch *arch = (handle+(i*sizeof(struct fat_arch)));
-		binary->arch = realloc(binary->arch, (binary->archCount+1)*sizeof(uintptr_t));
+		binary->arch = realloc(binary->arch, (binary->archCount+0x1)*sizeof(uintptr_t));
 		binary->arch[i] = arch->offset;
 		binary->archCount++;
 	}
