@@ -195,67 +195,6 @@ DYLD_INTERPOSE(DAODAN__mac_syscall, __mac_syscall);
 
 static struct SDMMOLibrarySymbolTable *binaryTable;
 
-void xpcDaodanEventHandler(xpc_connection_t peer, xpc_object_t event) {
-	xpc_type_t type = xpc_get_type(event);
-	if (type == XPC_TYPE_ERROR) {
-		if (event == XPC_ERROR_CONNECTION_INVALID) {
-			SDMPrint(PrintCode_ERR,"XPC Connection Invalid");
-		} else if (event == XPC_ERROR_TERMINATION_IMMINENT) {
-			SDMPrint(PrintCode_ERR,"XPC Connection Ending soon...");
-		}
-	} else if (type == XPC_TYPE_CONNECTION) {
-		
-	} else {
-		// SDM: this is going to be object creation
-		
-		/*xpc_object_t reply = xpc_dictionary_create_reply(event);
-        int64_t op = xpc_dictionary_get_int64(event, "op");
-        xpc_object_t stack = xpc_dictionary_get_value(event, "stack");
-        
-        if (xpc_array_get_count(stack) >= 2) {
-            int64_t lhs = xpc_array_get_int64(stack, xpc_array_get_count(stack) - 1);
-            int64_t rhs = xpc_array_get_int64(stack, xpc_array_get_count(stack) - 2);
-            
-            int64_t result = 0;
-            if (op == OperatorAdd) {
-                result = lhs + rhs;
-            } else if (op == OperatorSub) {
-                result = lhs - rhs;
-            } else if (op == OperatorMul) {
-                result = lhs * rhs;
-            } else if (op == OperatorDiv) {
-                result = lhs / rhs;
-            }
-            
-            xpc_object_t new_stack = xpc_array_create(NULL, 0);
-            
-            xpc_array_apply(stack, ^ (size_t idx, xpc_object_t value) {
-                if (idx >= xpc_array_get_count(stack) - 2) {
-                    return (bool)false;
-                }
-                xpc_array_append_value(new_stack, value);
-                return (bool)true;
-            });
-            
-            xpc_array_set_int64(new_stack, XPC_ARRAY_APPEND, result);
-            
-            xpc_dictionary_set_value(reply, "stack", new_stack);
-            xpc_release(new_stack);
-        } else {
-            xpc_dictionary_set_value(reply, "stack", stack);
-        }
-        
-        xpc_connection_send_message(peer, reply);
-        xpc_release(reply);*/
-	}
-}
-
-void xpcDaodanHandler(xpc_connection_t peer) {
-	xpc_connection_set_event_handler(peer, ^(xpc_object_t event) {
-		xpcDaodanEventHandler(peer, event);
-	});
-}
-
 void initDaodan() {
 	_dyld_register_func_for_add_image(SDMAddImageHook);
 	_dyld_register_func_for_remove_image(SDMRemoveImageHook);
@@ -269,8 +208,7 @@ void initDaodan() {
 		SDMPrint(PrintCode_ERR,"Could not load the MachO file, unloading Daodan now...");
 		unloadDaodan();
 	} else {
-		// start the xpc listener
-		xpc_main(xpcDaodanHandler);
+		// start the ipc listener
 	}
 }
 
