@@ -21,13 +21,21 @@
 
 #include "SDMHeader.h"
 #include "SDMSymbolTable.h"
-#include <xpc/xpc.h>
-#include <xpc/connection.h>
 
 enum DAODAN_QUEUE {
 	DAODAN_MACH_SEND = 1,
 	DAODAN_MACH_RECV = 2
 };
+
+typedef struct SDMDaodanBundle {
+	char *path;
+	
+} __attribute__ ((packed)) SDMDaodanBundle;
+
+typedef struct DaodanMachMessage {
+	mach_msg_header_t header;
+	char data[0x400];
+} __attribute__ ((packed)) DaodanMachMessage;
 
 void initDaodan();
 void unloadDaodan();
