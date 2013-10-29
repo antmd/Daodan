@@ -232,8 +232,9 @@ void setupChrysalisNotificationListeners() {
 		message.header.msgh_bits = MACH_MSGH_BITS(MACH_MSG_TYPE_MAKE_SEND, MACH_MSG_TYPE_MAKE_SEND_ONCE);
 		message.header.msgh_remote_port = portReceive;
 		message.header.msgh_local_port = portSend;
-		message.header.msgh_id = 0;
+		message.header.msgh_id = 0x0;
 		message.header.msgh_size = sizeof(struct DaodanMachMessage);
+		printf("===%s\n",message.data);
 		mach_msg(&message.header, MACH_SEND_MSG, sizeof(struct DaodanMachMessage), 0x0, portReceive, MACH_SEND_TIMEOUT, MACH_PORT_NULL);
 	});
 	result[0x1] = notify_register_dispatch(CHRYSALIS_RELOAD, &daodan_notify_token[0x1], dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^(int token){
@@ -267,7 +268,7 @@ static dispatch_block_t portSendHandler = ^{
 	message.header.msgh_bits = MACH_MSGH_BITS(MACH_MSG_TYPE_MAKE_SEND, MACH_MSG_TYPE_MAKE_SEND_ONCE);
 	message.header.msgh_remote_port = portReceive;
 	message.header.msgh_local_port = portSend;
-	message.header.msgh_id = 0;
+	message.header.msgh_id = 0x0;
 	message.header.msgh_size = sizeof(struct DaodanMachMessage);
 	mach_msg(&message.header, MACH_SEND_MSG, sizeof(struct DaodanMachMessage), 0x0, portSend, MACH_SEND_TIMEOUT, MACH_PORT_NULL);
 	printf("+++%s\n",message.data);
@@ -278,7 +279,7 @@ static dispatch_block_t portReceiveHandler = ^{
 message.header.msgh_bits = MACH_MSGH_BITS(MACH_MSG_TYPE_MOVE_RECEIVE, MACH_MSG_TYPE_COPY_RECEIVE);
 	message.header.msgh_remote_port = portReceive;
 	message.header.msgh_local_port = portSend;
-	message.header.msgh_id = 0;
+	message.header.msgh_id = 0x0;
 	message.header.msgh_size = sizeof(struct DaodanMachMessage);
 	mach_msg(&message.header, MACH_RCV_MSG, 0x0, sizeof(struct DaodanMachMessage), portReceive, MACH_RCV_TIMEOUT, MACH_PORT_NULL);
 	printf("---%s\n",message.data);
@@ -373,7 +374,7 @@ void unloadDaodan() {
 	void* symbolAddress = NULL;
 	symbolAddress = dlsym(RTLD_SELF, "_initDaodan");
 	Dl_info libInfo;
-	if (dladdr(symbolAddress, &libInfo) == 0) {
+	if (dladdr(symbolAddress, &libInfo) == 0x0) {
 		SDMPrint(PrintCode_OK,"Found Daodan.\n");
 		void* daodanHandle = dlopen(libInfo.dli_fbase, RTLD_LAZY);
 		if (daodanHandle) {
