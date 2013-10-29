@@ -220,7 +220,7 @@ static dispatch_queue_t dispatchReceiveQueue;
 
 typedef struct DaodanMachMessage {
 	mach_msg_header_t header;
-	char data[0x400];
+	char data[0x100];
 } __attribute__ ((packed)) DaodanMachMessage;
 
 void setupChrysalisNotificationListeners() {
@@ -228,13 +228,13 @@ void setupChrysalisNotificationListeners() {
 	result[0x0] = notify_register_dispatch(CHRYSALIS_LAUNCH, &daodan_notify_token[0x0], dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^(int token){
 		printf("Got launch notification\n");
 		struct DaodanMachMessage message;
-		sprintf(message.data, "Controller is launching!");
+		sprintf(&message.data[0x0], "Controller is launching!");
 		message.header.msgh_bits = MACH_MSGH_BITS(MACH_MSG_TYPE_MAKE_SEND, MACH_MSG_TYPE_MAKE_SEND_ONCE);
 		message.header.msgh_remote_port = portReceive;
 		message.header.msgh_local_port = portSend;
 		message.header.msgh_id = 0x0;
 		message.header.msgh_size = sizeof(struct DaodanMachMessage);
-		printf("===%s\n",message.data);
+		printf("===%s\n",&message.data[0x0]);
 		mach_msg(&message.header, MACH_SEND_MSG, sizeof(struct DaodanMachMessage), 0x0, portReceive, MACH_SEND_TIMEOUT, MACH_PORT_NULL);
 	});
 	result[0x1] = notify_register_dispatch(CHRYSALIS_RELOAD, &daodan_notify_token[0x1], dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^(int token){
@@ -277,12 +277,15 @@ static dispatch_block_t portSendHandler = ^{
 static dispatch_block_t portReceiveHandler = ^{
 	struct DaodanMachMessage message;
 message.header.msgh_bits = MACH_MSGH_BITS(MACH_MSG_TYPE_MOVE_RECEIVE, MACH_MSG_TYPE_COPY_RECEIVE);
-	message.header.msgh_remote_port = portReceive;
-	message.header.msgh_local_port = portSend;
+	message.header.msgh_remote_port = portSend;
+	message.header.msgh_local_port = portReceive;
 	message.header.msgh_id = 0x0;
-	message.header.msgh_size = sizeof(struct DaodanMachMessage);
-	mach_msg(&message.header, MACH_RCV_MSG, 0x0, sizeof(struct DaodanMachMessage), portReceive, MACH_RCV_TIMEOUT, MACH_PORT_NULL);
-	printf("---%s\n",message.data);
+	message.header.msgh_size = sizeof(struct DaodanMachMessage)+sizeof(mach_msg_header_t);
+	uint32_t result = mach_msg(&message.header, MACH_RCV_MSG, 0x0, sizeof(struct DaodanMachMessage)+sizeof(mach_msg_header_t), portReceive, MACH_RCV_TIMEOUT, MACH_PORT_NULL);
+	if (result != KERN_SUCCESS) {
+		printf("error %08x %s\n",result,mach_error_string(result));
+	}
+	printf("---%s\n",&message.data[0x0]);
 };
 
 char* GenerateUniqueQueueName(enum DAODAN_QUEUE type) {
@@ -305,7 +308,7 @@ char* GenerateUniqueQueueName(enum DAODAN_QUEUE type) {
 void setupDaodanMachPort() {
 	vm_map_t task = mach_task_self();
 	
-	kern_return_t resultPortSend = mach_port_allocate(task, MACH_PORT_RIGHT_RECEIVE, &portSend);
+	/*kern_return_t resultPortSend = mach_port_allocate(task, MACH_PORT_RIGHT_RECEIVE, &portSend);
 	if (resultPortSend == KERN_SUCCESS) {
 		char *name = GenerateUniqueQueueName(DAODAN_MACH_SEND);
 		dispatchSendQueue = dispatch_queue_create(name, DISPATCH_QUEUE_SERIAL);
@@ -322,7 +325,7 @@ void setupDaodanMachPort() {
 		SDMPrint(PrintCode_OK,"Successfully acquired local mach port for sending");
 	} else {
 		SDMPrint(PrintCode_ERR,"Send mach port setup failed");
-	}
+	}*/
 	
 	kern_return_t resultPortRecieve = mach_port_allocate(task, MACH_PORT_RIGHT_RECEIVE, &portReceive);
 	if (resultPortRecieve == KERN_SUCCESS) {
