@@ -40,7 +40,7 @@
 
 #define DEFAULT_LOGGER FALSE
 
-#define kiAmLaunchPad 0x647068636E75616C
+#define kiAmLaunchPad 0x647068636E75616C // "launchpd"
 
 enum SDMPrintCodes {
 	PrintCode_OK = 0x1,

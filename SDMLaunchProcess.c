@@ -52,11 +52,7 @@ void launchNewProcess(int argc, const char *argv[]) {
 		if (ptraceResult != 0x0) {
 			printf("PT_TRACE_ME failed.\n");
 		} else {
-			if (argc == 0x2) {
-				execl(argv[0x1], argv[0x1], NULL);
-			} else {
-				execl(argv[0x1], argv[0x1], argv[0x2], NULL);
-			}
+			spawnFromLaunchpad(argc, argv);
 		}
 	} else {
 		mach_port_t task;
