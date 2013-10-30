@@ -324,7 +324,7 @@ static dispatch_block_t portSendHandler = ^{
 	message->header.msgh_size = sizeof(struct DaodanMachMessage);
 	uint32_t result = mach_msg(&(message->header), MACH_SEND_MSG, sizeof(struct DaodanMachMessage), 0x0, portReceive, MACH_SEND_TIMEOUT, MACH_PORT_NULL);
 	if (result != KERN_SUCCESS) {
-		printf("error %08x %s\n",result,mach_error_string(result));
+		SDMPrint(FALSE,PrintCode_ERR,"error %08x %s",result,mach_error_string(result));
 	}
 	printf("+++%s\n",&(message->data[0x0]));
 	free(message);
@@ -339,7 +339,7 @@ static dispatch_block_t portReceiveHandler = ^{
 	message->header.msgh_size = DAODAN_RECV_LENGTH;
 	uint32_t result = mach_msg(&(message->header), MACH_RCV_MSG, 0x0, DAODAN_RECV_LENGTH, portReceive, MACH_RCV_TIMEOUT, MACH_PORT_NULL);
 	if (result != KERN_SUCCESS) {
-		printf("error %08x %s\n",result,mach_error_string(result));
+		SDMPrint(FALSE,PrintCode_ERR,"error %08x %s",result,mach_error_string(result));
 	}
 	printf("---%s\n",&(message->data[0x0]));
 	free(message);
