@@ -23,11 +23,11 @@
 
 /* Begin PBXBuildFile section */
 		2295903418217B0B006E985D /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 2295903318217B0B006E985D /* main.c */; };
-		2295903C18217E29006E985D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2295903B18217E29006E985D /* Security.framework */; };
 		2295903E18217F01006E985D /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2295903D18217F01006E985D /* CoreFoundation.framework */; };
 		2295904218218202006E985D /* SDMLaunchProcess.c in Sources */ = {isa = PBXBuildFile; fileRef = 2295904118218202006E985D /* SDMLaunchProcess.c */; };
 		22959044182182CF006E985D /* SDMLaunchProcess.c in Sources */ = {isa = PBXBuildFile; fileRef = 2295904118218202006E985D /* SDMLaunchProcess.c */; };
 		22959047182182FB006E985D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22959046182182FB006E985D /* Security.framework */; };
+		2295905018219DC3006E985D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22959046182182FB006E985D /* Security.framework */; };
 		22C17BBE17EF49B800800C71 /* Daodan.c in Sources */ = {isa = PBXBuildFile; fileRef = 22C17BBD17EF49B800800C71 /* Daodan.c */; };
 		22C17BC017EF49C400800C71 /* Daodan.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C17BBF17EF49C400800C71 /* Daodan.h */; };
 		22C17BC417EF696500800C71 /* SDMSymbolTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C17BC317EF696500800C71 /* SDMSymbolTable.h */; };
@@ -54,7 +54,6 @@
 /* Begin PBXFileReference section */
 		2295903118217B0B006E985D /* Launchpad */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Launchpad; sourceTree = BUILT_PRODUCTS_DIR; };
 		2295903318217B0B006E985D /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
-		2295903B18217E29006E985D /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
 		2295903D18217F01006E985D /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		2295904118218202006E985D /* SDMLaunchProcess.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDMLaunchProcess.c; sourceTree = "<group>"; };
 		2295904318218215006E985D /* SDMLaunchProcess.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDMLaunchProcess.h; sourceTree = "<group>"; };
@@ -74,7 +73,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2295903E18217F01006E985D /* CoreFoundation.framework in Frameworks */,
-				2295903C18217E29006E985D /* Security.framework in Frameworks */,
+				2295905018219DC3006E985D /* Security.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -100,7 +99,6 @@
 		2295903A18217B17006E985D /* Daodan */ = {
 			isa = PBXGroup;
 			children = (
-				22B56F78181EE2AB002AF48E /* Info.plist */,
 				22C17BC717EF83E500800C71 /* SDMHeader.h */,
 				22C17BC317EF696500800C71 /* SDMSymbolTable.h */,
 				22C17BC517EF697800800C71 /* SDMSymbolTable.c */,
@@ -115,7 +113,6 @@
 			children = (
 				22959046182182FB006E985D /* Security.framework */,
 				2295903D18217F01006E985D /* CoreFoundation.framework */,
-				2295903B18217E29006E985D /* Security.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -123,6 +120,7 @@
 		22959040182181D8006E985D /* Auth */ = {
 			isa = PBXGroup;
 			children = (
+				22B56F78181EE2AB002AF48E /* Info.plist */,
 				2295904318218215006E985D /* SDMLaunchProcess.h */,
 				2295904118218202006E985D /* SDMLaunchProcess.c */,
 			);
@@ -133,9 +131,9 @@
 			isa = PBXGroup;
 			children = (
 				22959040182181D8006E985D /* Auth */,
-				2295903F182181CF006E985D /* Frameworks */,
 				2295903A18217B17006E985D /* Daodan */,
 				2295903218217B0B006E985D /* Launchpad */,
+				2295903F182181CF006E985D /* Frameworks */,
 				22C17BB717EF49A700800C71 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -426,6 +424,7 @@
 				2295903818217B0B006E985D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		2295904918218568006E985D /* Build configuration list for PBXAggregateTarget "All" */ = {
 			isa = XCConfigurationList;
@@ -434,6 +433,7 @@
 				2295904B18218568006E985D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		22C17BB117EF49A700800C71 /* Build configuration list for PBXProject "Daodan" */ = {
 			isa = XCConfigurationList;
