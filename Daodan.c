@@ -405,15 +405,16 @@ void setupDaodanMachPort() {
 	}
 }
 
-void setupChrysalisMachPort() {
+void setupChrysalisMachPort(pid_t chrysalisPID) {
 	vm_map_t task = mach_task_self();
 	mach_port_t target;
 	// get pid and store here
-	kern_return_t taskResult = task_for_pid(task, 0x1, &target);
+	kern_return_t taskResult = task_for_pid(task, chrysalisPID, &target);
 	if (taskResult == KERN_SUCCESS) {
 		// do stuff
+		SDMPrint(FALSE,PrintCode_OK,"Successfully called task_for_pid(%i) back to Chrysalis",chrysalisPID);
 	} else {
-		SDMPrint(FALSE,PrintCode_ERR,"Unable to attach, error %s.",mach_error_string(taskResult));
+		SDMPrint(FALSE,PrintCode_ERR,"Unable to attach task_for_pid(%i), error: %s.",chrysalisPID,mach_error_string(taskResult));
 		SDMPrint(FALSE,PrintCode_TRY,"Attempting to relaunch via Launchpad...");
 		const char *argv[] = { binaryTable->libraryPath, kLaunchPadPath, binaryTable->libraryPath, NULL};
 		spawnFromLaunchpad(0x3, argv);
@@ -460,7 +461,7 @@ void initDaodan() {
 			SDMPrint(FALSE,PrintCode_TRY,"Registering notify listeners for Chrysalis...");
 			setupChrysalisNotificationListeners();
 			setupDaodanMachPort();
-			setupChrysalisMachPort();
+			setupChrysalisMachPort(0x1);
 		}
 	}
 }
