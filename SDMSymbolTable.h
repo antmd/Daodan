@@ -114,9 +114,10 @@ typedef struct SDMSTBinary {
 #pragma mark -
 #pragma mark Declarations
 
-struct SDMMOLibrarySymbolTable* SDMSTLoadLibrary(char *path, uint32_t index);
+struct SDMMOLibrarySymbolTable* SDMSTLoadLibrary(char *path, uint32_t index, bool silent);
 struct SDMSTFunction* SDMSTCreateFunction(struct SDMMOLibrarySymbolTable *libTable, char *name);
 struct SDMSTRange SDMSTRangeOfSubroutine(struct SDMSTSubroutine *subroutine, struct SDMMOLibrarySymbolTable *libTable);
+SDMSTFunctionCall SDMSTSymbolLookup(struct SDMMOLibrarySymbolTable *libTable, char *symbolName);
 void SDMSTFunctionRelease(struct SDMSTFunction *function);
 void SDMSTLibraryRelease(struct SDMMOLibrarySymbolTable *libTable);
 

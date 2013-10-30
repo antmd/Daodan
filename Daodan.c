@@ -27,13 +27,15 @@
 #include <mach-o/dyld.h>
 #include <notify.h>
 
-#import <mach/std_types.h>
-#import <mach/mach_traps.h>
-#import <signal.h>
-#import <mach/mach_init.h>
-#import <mach/vm_map.h>
-#import <mach/mach_vm.h>
-#import <mach/mach.h>
+#include <mach/std_types.h>
+#include <mach/mach_traps.h>
+#include <signal.h>
+#include <mach/mach_init.h>
+#include <mach/vm_map.h>
+#include <mach/mach_vm.h>
+#include <mach/mach.h>
+
+#include "SDMLaunchProcess.h"
 
 /*
  
@@ -72,114 +74,146 @@ __attribute__ ((section ("__DATA,__interpose"))) = { (const void*)(unsigned long
 // This little section of code is to ensure we are running even if the sandbox is broken
 
 int DAODAN__mac_execve(char *fname, char **argv, char **envv, mac_t _label) {
+	bool silent = TRUE;
 #if DEBUG
-	SDMPrint(PrintCode_NTR,"__mac_execve(%s, %p, %p, %p)",fname,argv,envv,_label);
+	silent = !DEBUG;
 #endif
+	SDMPrint(silent,PrintCode_NTR,"__mac_execve(%s, %p, %p, %p)",fname,argv,envv,_label);
 	return 0x0;
 }
 
 int DAODAN__mac_get_fd(int _fd, mac_t _label) {
+	bool silent = TRUE;
 #if DEBUG
-	SDMPrint(PrintCode_NTR,"__mac_get_fd(%i, %p)",_fd,_label);
+	silent = !DEBUG;
 #endif
+	SDMPrint(silent,PrintCode_NTR,"__mac_get_fd(%i, %p)",_fd,_label);
 	return 0x0;
 }
 
 int DAODAN__mac_get_file(const char *_path, mac_t _label) {
+	bool silent = TRUE;
 #if DEBUG
-	SDMPrint(PrintCode_NTR,"__mac_get_file(%s, %p)",_path,_label);
+	silent = !DEBUG;
 #endif
+	SDMPrint(silent,PrintCode_NTR,"__mac_get_file(%s, %p)",_path,_label);
 	return 0x0;
 }
 
 int DAODAN__mac_get_lcid(pid_t _lcid, mac_t _label) {
+	bool silent = TRUE;
 #if DEBUG
-	SDMPrint(PrintCode_NTR,"__mac_get_lcid(%i, %p)",_lcid, _label);
+	silent = !DEBUG;
 #endif
+	SDMPrint(silent,PrintCode_NTR,"__mac_get_lcid(%i, %p)",_lcid, _label);
 	return 0x0;
 }
 
 int DAODAN__mac_get_lctx(mac_t _label) {
+	bool silent = TRUE;
 #if DEBUG
-	SDMPrint(PrintCode_NTR,"__mac_get_lctx(%p)",_label);
+	silent = !DEBUG;
 #endif
+	SDMPrint(silent,PrintCode_NTR,"__mac_get_lctx(%p)",_label);
 	return 0x0;
 }
 
 int DAODAN__mac_get_link(const char *_path, mac_t _label) {
+	bool silent = TRUE;
 #if DEBUG
-	SDMPrint(PrintCode_NTR,"__mac_get_link(%s, %p)",_path, _label);
+	silent = !DEBUG;
 #endif
+	SDMPrint(silent,PrintCode_NTR,"__mac_get_link(%s, %p)",_path, _label);
 	return 0x0;
 }
 
 int DAODAN__mac_get_pid(pid_t _pid, mac_t _label) {
+	bool silent = TRUE;
 #if DEBUG
-	SDMPrint(PrintCode_NTR,"__mac_get_pid(%i, %p)",_pid, _label);
+	silent = !DEBUG;
 #endif
+	SDMPrint(silent,PrintCode_NTR,"__mac_get_pid(%i, %p)",_pid, _label);
 	return 0x0;
 }
 
 int DAODAN__mac_get_proc(mac_t _label) {
+	bool silent = TRUE;
 #if DEBUG
-	SDMPrint(PrintCode_NTR,"__mac_get_proc(%p)",_label);
+	silent = !DEBUG;
 #endif
+	SDMPrint(silent,PrintCode_NTR,"__mac_get_proc(%p)",_label);
 	return 0x0;
 }
 
 int DAODAN__mac_set_fd(int _fildes, const mac_t _label) {
+	bool silent = TRUE;
 #if DEBUG
-	SDMPrint(PrintCode_NTR,"__mac_set_fd(%i, %p)",_fildes, _label);
+	silent = !DEBUG;
 #endif
+	SDMPrint(silent,PrintCode_NTR,"__mac_set_fd(%i, %p)",_fildes, _label);
 	return 0x0;
 }
 
 int DAODAN__mac_set_file(const char *_path, mac_t _label) {
+	bool silent = TRUE;
 #if DEBUG
-	SDMPrint(PrintCode_NTR,"__mac_set_file(%s, %p)",_path, _label);
+	silent = !DEBUG;
 #endif
+	SDMPrint(silent,PrintCode_NTR,"__mac_set_file(%s, %p)",_path, _label);
 	return 0x0;
 }
 
 int DAODAN__mac_set_lctx(mac_t _label) {
+	bool silent = TRUE;
 #if DEBUG
-	SDMPrint(PrintCode_NTR,"__mac_set_lctx(%p)",_label);
+	silent = !DEBUG;
 #endif
+	SDMPrint(silent,PrintCode_NTR,"__mac_set_lctx(%p)",_label);
 	return 0x0;
 }
 
 int DAODAN__mac_set_link(const char *_path, mac_t _label) {
+	bool silent = TRUE;
 #if DEBUG
-	SDMPrint(PrintCode_NTR,"__mac_set_link(%s, %p)",_path,_label);
+	silent = !DEBUG;
 #endif
+	SDMPrint(silent,PrintCode_NTR,"__mac_set_link(%s, %p)",_path,_label);
 	return 0x0;
 }
 
 int DAODAN__mac_mount(const char *type, const char *path, int flags, void *data, struct mac *label) {
+	bool silent = TRUE;
 #if DEBUG
-	SDMPrint(PrintCode_NTR,"__mac_mount(%s, %s, %i, %p, %p)",type,path,flags,data,label);
+	silent = !DEBUG;
 #endif
+	SDMPrint(silent,PrintCode_NTR,"__mac_mount(%s, %s, %i, %p, %p)",type,path,flags,data,label);
 	return 0x0;
 }
 
 int DAODAN__mac_get_mount(const char *path, struct mac *label) {
+	bool silent = TRUE;
 #if DEBUG
-	SDMPrint(PrintCode_NTR,"__mac_get_mount(%s, %p)",path,label);
+	silent = !DEBUG;
 #endif
+	SDMPrint(silent,PrintCode_NTR,"__mac_get_mount(%s, %p)",path,label);
 	return 0x0;
 }
 
 int DAODAN__mac_set_proc(const mac_t _label) {
+	bool silent = TRUE;
 #if DEBUG
-	SDMPrint(PrintCode_NTR,"__mac_set_proc(%p)",_label);
+	silent = !DEBUG;
 #endif
+	SDMPrint(silent,PrintCode_NTR,"__mac_set_proc(%p)",_label);
 	return 0x0;
 }
 
 int DAODAN__mac_syscall(const char *_policyname, int _call, void *_arg) {
+	bool silent = TRUE;
 #if DEBUG
-	SDMPrint(PrintCode_NTR,"__mac_syscall(%s, %i, %p)",_policyname,_call,_arg);
+	silent = !DEBUG;
 #endif
+	SDMPrint(silent,PrintCode_NTR,"__mac_syscall(%s, %i, %p)",_policyname,_call,_arg);
 	return 0x0;
 }
 
@@ -213,13 +247,11 @@ static int daodan_notify_token[DAODAN_NOTIFY_COUNT];
 
 #define DAODAN_RECV_LENGTH (sizeof(struct DaodanMachMessage)+sizeof(mach_msg_header_t))
 
-#define MACH_SEND_ENABLED 0
+#define MACH_SEND_ENABLED FALSE
 
 static mach_port_name_t portSend = MACH_PORT_NULL;
-#if MACH_SEND_ENABLED
 static dispatch_source_t dispatchSend = NULL;
 static dispatch_queue_t dispatchSendQueue = NULL;
-#endif
 
 static mach_port_name_t portReceive = MACH_PORT_NULL;
 static dispatch_source_t dispatchReceive = NULL;
@@ -240,7 +272,7 @@ uint32_t sendDaodanMachMessage(char data[0x400]) {
 	uint32_t result = mach_msg(&message.header, MACH_SEND_MSG, sizeof(struct DaodanMachMessage), 0x0, portReceive, MACH_SEND_TIMEOUT, MACH_PORT_NULL);
 	messageCounter++;
 	if (result == KERN_SUCCESS) {
-		return 0;
+		return 0x0;
 	} else {
 		return result;
 	}
@@ -271,19 +303,18 @@ void setupChrysalisNotificationListeners() {
 		}
 	}
 	if (statusOK) {
-		SDMPrint(PrintCode_OK,"Successfully registered notify listeners");
+		SDMPrint(FALSE,PrintCode_OK,"Successfully registered notify listeners");
 	} else {
-		SDMPrint(PrintCode_ERR,"Unable to registery notify listeners, Daodan will be unable to communicate with Chrysalis");
+		SDMPrint(FALSE,PrintCode_ERR,"Unable to registery notify listeners, Daodan will be unable to communicate with Chrysalis");
 	}
 }
 
 void cancelChrysalisNotificationListeners() {
-	for (uint32_t i = 0; i < DAODAN_NOTIFY_COUNT; i++) {
+	for (uint32_t i = 0x0; i < DAODAN_NOTIFY_COUNT; i++) {
 		notify_cancel(daodan_notify_token[i]);
 	}
 }
 
-#if MACH_SEND_ENABLED
 static dispatch_block_t portSendHandler = ^{
 	struct DaodanMachMessage *message = calloc(0x1, sizeof(struct DaodanMachMessage));
 	message->header.msgh_bits = MACH_MSGH_BITS(MACH_MSG_TYPE_MAKE_SEND, MACH_MSG_TYPE_MAKE_SEND_ONCE);
@@ -298,7 +329,6 @@ static dispatch_block_t portSendHandler = ^{
 	printf("+++%s\n",&(message->data[0x0]));
 	free(message);
 };
-#endif
 
 static dispatch_block_t portReceiveHandler = ^{
 	struct DaodanMachMessage *message = calloc(0x1, DAODAN_RECV_LENGTH);
@@ -335,7 +365,6 @@ char* GenerateUniqueQueueName(enum DAODAN_QUEUE type) {
 void setupDaodanMachPort() {
 	vm_map_t task = mach_task_self();
 	
-#if MACH_SEND_ENABLED
 	kern_return_t resultPortSend = mach_port_allocate(task, MACH_PORT_RIGHT_RECEIVE, &portSend);
 	if (resultPortSend == KERN_SUCCESS) {
 		char *name = GenerateUniqueQueueName(DAODAN_MACH_SEND);
@@ -344,17 +373,16 @@ void setupDaodanMachPort() {
 		dispatchSend = dispatch_source_create(DISPATCH_SOURCE_TYPE_MACH_SEND, portSend, 0x0, dispatchSendQueue);
 		dispatch_source_set_event_handler(dispatchSend, portSendHandler);
 		dispatch_source_set_cancel_handler(dispatchSend, ^{
-			mach_port_mod_refs(mach_task_self(), portSend, MACH_PORT_RIGHT_RECEIVE, -1);
+			mach_port_mod_refs(mach_task_self(), portSend, MACH_PORT_RIGHT_RECEIVE, 0xffffffff);
 			dispatch_release(dispatchSendQueue);
 			dispatch_release(dispatchSend);
 			mach_port_deallocate(mach_task_self(), portSend);
 		});
 		dispatch_resume(dispatchSend);
-		SDMPrint(PrintCode_OK,"Successfully acquired local mach port for sending");
+		SDMPrint(FALSE,PrintCode_OK,"Successfully acquired local mach port for sending");
 	} else {
-		SDMPrint(PrintCode_ERR,"Send mach port setup failed");
+		SDMPrint(FALSE,PrintCode_ERR,"Send mach port setup failed");
 	}
-#endif
 	
 	kern_return_t resultPortRecieve = mach_port_allocate(task, MACH_PORT_RIGHT_RECEIVE, &portReceive);
 	if (resultPortRecieve == KERN_SUCCESS) {
@@ -364,24 +392,52 @@ void setupDaodanMachPort() {
 		dispatchReceive = dispatch_source_create(DISPATCH_SOURCE_TYPE_MACH_RECV, portReceive, 0x0, dispatchReceiveQueue);
 		dispatch_source_set_event_handler(dispatchReceive, portReceiveHandler);
 		dispatch_source_set_cancel_handler(dispatchReceive, ^{
-			mach_port_mod_refs(mach_task_self(), portReceive, MACH_PORT_RIGHT_RECEIVE, -1);
+			mach_port_mod_refs(mach_task_self(), portReceive, MACH_PORT_RIGHT_RECEIVE, 0xffffffff);
 			dispatch_release(dispatchReceiveQueue);
 			dispatch_release(dispatchReceive);
 			mach_port_deallocate(mach_task_self(), portReceive);
-			SDMPrint(PrintCode_OK,"Releasing receive port handler");
+			SDMPrint(FALSE,PrintCode_OK,"Releasing receive port handler");
 		});
 		dispatch_resume(dispatchReceive);
-		SDMPrint(PrintCode_OK,"Successfully acquired local mach port for receiving");
+		SDMPrint(FALSE,PrintCode_OK,"Successfully acquired local mach port for receiving");
 	} else {
-		SDMPrint(PrintCode_ERR,"Receive mach port setup failed");
+		SDMPrint(FALSE,PrintCode_ERR,"Receive mach port setup failed");
+	}
+}
+
+void setupChrysalisMachPort() {
+	vm_map_t task = mach_task_self();
+	mach_port_t target;
+	// get pid and store here
+	kern_return_t taskResult = task_for_pid(task, 0, &target);
+	if (taskResult == KERN_SUCCESS) {
+		// do stuff
+	} else {
+		SDMPrint(FALSE,PrintCode_ERR,"Unable to attach, error %s.",mach_error_string(taskResult));
+		SDMPrint(FALSE,PrintCode_TRY,"Attempting to relaunch via Launchpad...");
+		const char *argv[] = { binaryTable->libraryPath, kLaunchPadPath, binaryTable->libraryPath, NULL};
+		launchNewProcess(3, argv);
 	}
 }
 
 void closeDaodanMachPorts() {
-#if MACH_SEND_ENABLED
-	dispatch_source_cancel(dispatchSend);
-#endif
-	dispatch_source_cancel(dispatchReceive);
+	if (dispatchSend)
+		dispatch_source_cancel(dispatchSend);
+	if (dispatchReceive)
+		dispatch_source_cancel(dispatchReceive);
+}
+
+bool locateLaunchpad() {
+	bool found = FALSE;
+	SDMSTFunctionCall symbolAddress = SDMSTSymbolLookup(binaryTable, "_iAmLaunchPad");
+	if (symbolAddress) {
+		uint64_t result = (uint64_t)symbolAddress(NULL, NULL);
+		if (result == kiAmLaunchPad) {
+			SDMPrint(FALSE,PrintCode_OK,"Found Launchpad");
+			found = TRUE;
+		}
+	}
+	return found;
 }
 
 void initDaodan() {
@@ -389,49 +445,60 @@ void initDaodan() {
 	_dyld_register_func_for_remove_image(SDMRemoveImageHook);
 	uint32_t result = SDMGetExecuteImage();
 	if (result != 0xffffffff) {
-		binaryTable = SDMSTLoadLibrary((char*)_dyld_get_image_name(result), result);
+		binaryTable = SDMSTLoadLibrary((char*)_dyld_get_image_name(result), result, FALSE);
 	} else {
-		SDMPrint(PrintCode_ERR,"Could not find an executable binary image.");
+		SDMPrint(FALSE,PrintCode_ERR,"Could not find an executable binary image.");
 	}
 	if (!binaryTable->couldLoad) {
-		SDMPrint(PrintCode_ERR,"Could not load the MachO file, unloading Daodan now...");
+		SDMPrint(FALSE,PrintCode_ERR,"Could not load the MachO file, unloading Daodan now...");
 		unloadDaodan();
 	} else {
-		SDMPrint(PrintCode_TRY,"Registering notify listeners for Chrysalis...");
-		setupChrysalisNotificationListeners();
-		setupDaodanMachPort();
+		bool foundLaunchpad = locateLaunchpad();
+		if (foundLaunchpad) {
+			unloadDaodan();
+		} else {
+			SDMPrint(FALSE,PrintCode_TRY,"Registering notify listeners for Chrysalis...");
+			setupChrysalisNotificationListeners();
+			setupDaodanMachPort();
+		}
 	}
 }
 
 void unloadDaodan() {
-	SDMPrint(PrintCode_TRY,"Looking for Daodan.");
-	void* symbolAddress = NULL;
-	symbolAddress = dlsym(RTLD_SELF, "_initDaodan");
-	Dl_info libInfo;
-	if (dladdr(symbolAddress, &libInfo) == 0x0) {
-		SDMPrint(PrintCode_OK,"Found Daodan.\n");
-		void* daodanHandle = dlopen(libInfo.dli_fbase, RTLD_LAZY);
-		if (daodanHandle) {
-			SDMPrint(PrintCode_OK,"Unloading Daodan.");
-		} else {
-			SDMPrint(PrintCode_ERR,"Error creating handle to Daodan.");
+	SDMPrint(FALSE,PrintCode_TRY,"Looking for Daodan.");
+	SDMSTFunctionCall symbolAddress = NULL;
+	for (uint32_t i = 0x0; i < _dyld_image_count(); i++) {
+		SDMSTLibraryRelease(binaryTable);
+		binaryTable = SDMSTLoadLibrary((char*)_dyld_get_image_name(i), i, TRUE);
+		symbolAddress = SDMSTSymbolLookup(binaryTable, "_initDaodan");
+		if (symbolAddress) {
+			break;
 		}
+	}
+	if (symbolAddress) {
+		SDMPrint(FALSE,PrintCode_OK,"Found Daodan.");
+		//void* daodanHandle = dlopen(libInfo.dli_fbase, RTLD_LAZY);
+		//if (daodanHandle) {
+		SDMPrint(FALSE,PrintCode_OK,"Unloading Daodan.");
+		//} else {
+		//	SDMPrint(FALSE,PrintCode_ERR,"Error creating handle to Daodan.");
+		//}
 		SDMSTLibraryRelease(binaryTable);
 		cancelChrysalisNotificationListeners();
 		closeDaodanMachPorts();
-		dlclose(daodanHandle);
+		//dlclose(daodanHandle);
 	} else {
-		SDMPrint(PrintCode_ERR,"Could not find Daodan.\n");
+		SDMPrint(FALSE,PrintCode_ERR,"Could not find Daodan.\n");
 	}
 }
 
 uintptr_t daodanLookupFunction(char *name) {
-	SDMPrint(PrintCode_TRY,"Looking up function with name: %s",name);
+	SDMPrint(FALSE,PrintCode_TRY,"Looking up function with name: %s",name);
 	struct SDMSTFunction *symbol = SDMSTCreateFunction(binaryTable, name);
 	if (symbol->offset) {
-		SDMPrint(PrintCode_OK,"Successfully found symbol!");
+		SDMPrint(FALSE,PrintCode_OK,"Successfully found symbol!");
 	} else {
-		SDMPrint(PrintCode_ERR,"Could not find symbol with name \"%s\".",name);
+		SDMPrint(FALSE,PrintCode_ERR,"Could not find symbol with name \"%s\".",name);
 	}
 	return (uintptr_t)symbol->offset;
 }
@@ -439,11 +506,11 @@ uintptr_t daodanLookupFunction(char *name) {
 void daodanLoadSymbolTableForImage(uint32_t index) {
 	if (binaryTable)
 		SDMSTLibraryRelease(binaryTable);
-	binaryTable = SDMSTLoadLibrary((char*)_dyld_get_image_name(index),index);
+	binaryTable = SDMSTLoadLibrary((char*)_dyld_get_image_name(index),index, FALSE);
 }
 
 uint32_t SDMGetExecuteImage() {
-	SDMPrint(PrintCode_TRY,"Looking for application binary...");
+	SDMPrint(FALSE,PrintCode_TRY,"Looking for application binary...");
 	struct mach_header *imageHeader;
 	uint32_t count = _dyld_image_count();
 	bool foundBinary = FALSE;
@@ -478,22 +545,22 @@ uint32_t SDMGetImageLocation(const struct mach_header *mh, char **path) {
 void SDMAddImageHook(const struct mach_header* mh, intptr_t vmaddr_slide) {
 	char *path = NULL;
 	SDMGetImageLocation(mh, &path);
+	bool silent = TRUE;
 #if DEBUG
-	SDMPrint(PrintCode_OK,"Load: %08lx %s",vmaddr_slide,path);
-#else
-	// this exists for debugging, do not ship in debug mode.
+	silent = !DEBUG;
 #endif
+	SDMPrint(silent,PrintCode_OK,"Load: %08lx %s",vmaddr_slide,path);
 	free(path);
 }
 
 void SDMRemoveImageHook(const struct mach_header* mh, intptr_t vmaddr_slide) {
 	char *path = NULL;
 	SDMGetImageLocation(mh, &path);
+	bool silent = TRUE;
 #if DEBUG
-	SDMPrint(PrintCode_OK,"Unloaded: %08lx %s",vmaddr_slide,path);
-#else
-	// this exists for debugging, do not ship in debug mode.
+	silent = !DEBUG;
 #endif
+	SDMPrint(silent,PrintCode_OK,"Unloaded: %08lx %s",vmaddr_slide,path);
 	free(path);
 }
 

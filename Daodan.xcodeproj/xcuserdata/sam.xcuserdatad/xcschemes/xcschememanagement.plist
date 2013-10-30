@@ -4,14 +4,34 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>All.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
 		<key>Daodan.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
+		<key>Launchpad.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>1</integer>
+		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>2295903018217B0B006E985D</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>2295904818218568006E985D</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>22C17BB517EF49A700800C71</key>
 		<dict>
 			<key>primary</key>

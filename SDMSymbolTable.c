@@ -63,10 +63,10 @@ static uint8_t Intel_x86_64bit_StackSetup[Intel_x86_64bit_StackSetupLength] = {0
 #pragma mark -
 #pragma mark Declarations
 
-void SDMSTBuildLibraryInfo(SDMMOLibrarySymbolTable *libTable);
+void SDMSTBuildLibraryInfo(SDMMOLibrarySymbolTable *libTable, bool silent);
 int SDMSTCompareTableEntries(const void *entry1, const void *entry2);
-void SDMSTFindSubroutines(struct SDMMOLibrarySymbolTable *libTable);
-void SDMSTGenerateSortedSymbolTable(struct SDMMOLibrarySymbolTable *libTable);
+void SDMSTFindSubroutines(struct SDMMOLibrarySymbolTable *libTable, bool silent);
+void SDMSTGenerateSortedSymbolTable(struct SDMMOLibrarySymbolTable *libTable, bool silent);
 struct SDMSTBinary* SDMSTLoadBinaryFromFile(void* handle);
 void SDMSTBinaryRelease(struct SDMSTBinary *binary);
 uintptr_t* SDMSTGetCurrentArchFromBinary(struct SDMSTBinary *binary);
@@ -76,7 +76,7 @@ SDMSTFunctionCall SDMSTSymbolLookup(struct SDMMOLibrarySymbolTable *libTable, ch
 #pragma mark -
 #pragma mark Functions
 
-void SDMSTBuildLibraryInfo(SDMMOLibrarySymbolTable *libTable) {
+void SDMSTBuildLibraryInfo(SDMMOLibrarySymbolTable *libTable, bool silent) {
 	if (libTable->libInfo == NULL) {
 		libTable->libInfo = (struct SDMSTLibraryTableInfo *)calloc(0x1, sizeof(struct SDMSTLibraryTableInfo));
 		const struct mach_header *imageHeader;
@@ -124,7 +124,7 @@ void SDMSTBuildLibraryInfo(SDMMOLibrarySymbolTable *libTable) {
 					case LC_LOAD_DYLIB: {
 						struct dylib_command *linkedLibrary = (struct dylib_command *)loadCmd;
 						if (loadCmd+linkedLibrary->dylib.name.offset) {
-							SDMPrint(PrintCode_OK,"Found Dependency: %s",(char*)loadCmd+linkedLibrary->dylib.name.offset);
+							SDMPrint(silent,PrintCode_OK,"Found Dependency: %s",(char*)loadCmd+linkedLibrary->dylib.name.offset);
 						}
 						break;
 					}
@@ -145,8 +145,8 @@ int SDMSTCompareTableEntries(const void *entry1, const void *entry2) {
 	return 0xdeadbeef;
 }
 
-void SDMSTFindSubroutines(struct SDMMOLibrarySymbolTable *libTable) {
-	SDMPrint(PrintCode_TRY,"Looking for subroutines...");
+void SDMSTFindSubroutines(struct SDMMOLibrarySymbolTable *libTable, bool silent) {
+	SDMPrint(silent,PrintCode_TRY,"Looking for subroutines...");
 	if (libTable->libInfo->arch.type == CPU_TYPE_X86_64 || libTable->libInfo->arch.type == CPU_TYPE_I386) {
 		libTable->subroutine = (struct SDMSTSubroutine *)calloc(0x1, sizeof(struct SDMSTSubroutine));
 		libTable->subroutineCount = 0x0;
@@ -209,13 +209,13 @@ void SDMSTFindSubroutines(struct SDMMOLibrarySymbolTable *libTable) {
 					}
 				}
 			} else {
-				SDMPrint(PrintCode_ERR,"Image for address (%08llx) is not loaded",address);
+				SDMPrint(silent,PrintCode_ERR,"Image for address (%08llx) is not loaded",address);
 			}
 			textSectionOffset += (libTable->libInfo->is64bit ? sizeof(struct section_64) : sizeof(struct section));
 		}
-		SDMPrint(PrintCode_OK,"Found %i subroutines",libTable->subroutineCount);
+		SDMPrint(silent,PrintCode_OK,"Found %i subroutines",libTable->subroutineCount);
 	} else {
-		SDMPrint(PrintCode_ERR,"Daodan only supports subroutines on Intel binaries");
+		SDMPrint(silent,PrintCode_ERR,"Daodan only supports subroutines on Intel binaries");
 	}
 }
 
@@ -244,14 +244,14 @@ struct SDMSTRange SDMSTRangeOfSubroutine(struct SDMSTSubroutine *subroutine, str
 	return range;
 }
 
-void SDMSTGenerateSortedSymbolTable(struct SDMMOLibrarySymbolTable *libTable) {
-	SDMPrint(PrintCode_TRY,"Looking for symbols...");
+void SDMSTGenerateSortedSymbolTable(struct SDMMOLibrarySymbolTable *libTable, bool silent) {
+	SDMPrint(silent,PrintCode_TRY,"Looking for symbols...");
 	if (libTable->table == NULL) {
 		uintptr_t symbolAddress = 0x0;
 		libTable->table = (struct SDMSTMachOSymbol *)calloc(0x1, sizeof(struct SDMSTMachOSymbol));
 		libTable->symbolCount = 0x0;
 		if (libTable->libInfo == NULL)
-			SDMSTBuildLibraryInfo(libTable);
+			SDMSTBuildLibraryInfo(libTable, silent);
 		for (uint32_t i = 0x0; i < libTable->libInfo->symtabCount; i++) {
 			struct symtab_command *cmd = (struct symtab_command *)(&(libTable->libInfo->symtabCommands[i]));
 			uint64_t fslide = 0x0;
@@ -297,7 +297,7 @@ void SDMSTGenerateSortedSymbolTable(struct SDMMOLibrarySymbolTable *libTable) {
 		}
 		qsort(libTable->table, libTable->symbolCount, sizeof(struct SDMSTMachOSymbol), SDMSTCompareTableEntries);
 	}
-	SDMPrint(PrintCode_OK,"Found %i symbols",libTable->symbolCount);
+	SDMPrint(silent,PrintCode_OK,"Found %i symbols",libTable->symbolCount);
 }
 
 struct SDMSTBinary* SDMSTLoadBinaryFromFile(void* handle) {
@@ -348,7 +348,7 @@ uintptr_t* SDMSTGetCurrentArchFromBinary(struct SDMSTBinary *binary) {
 	return offset;
 }
 
-struct SDMMOLibrarySymbolTable* SDMSTLoadLibrary(char *path, uint32_t index) {
+struct SDMMOLibrarySymbolTable* SDMSTLoadLibrary(char *path, uint32_t index, bool silent) {
 	struct SDMMOLibrarySymbolTable *table = (struct SDMMOLibrarySymbolTable *)calloc(0x1, sizeof(struct SDMMOLibrarySymbolTable));
 	bool inMemory = FALSE;
 	char *imagePath;
@@ -361,7 +361,7 @@ struct SDMMOLibrarySymbolTable* SDMSTLoadLibrary(char *path, uint32_t index) {
 			if (strcmp(path, imagePath) == 0x0) {
 				inMemory = TRUE;
 				handle = (void*)_dyld_get_image_vmaddr_slide(index);
-				SDMPrint(PrintCode_OK,"Found Mach-O: %s",path);
+				SDMPrint(silent, PrintCode_OK,"Found Mach-O: %s",path);
 				free(imagePath);
 				break;
 			}
@@ -371,8 +371,8 @@ struct SDMMOLibrarySymbolTable* SDMSTLoadLibrary(char *path, uint32_t index) {
 	if (!inMemory) {
 		handle = dlopen(path, RTLD_LOCAL);
 		if (!handle) {
-			SDMPrint(PrintCode_ERR,"Code: %s Unable to load library at path: %s", dlerror(), path);
-			SDMPrint(PrintCode_TRY,"Attempting to manually load and map...");
+			SDMPrint(silent,PrintCode_ERR,"Code: %s Unable to load library at path: %s", dlerror(), path);
+			SDMPrint(silent,PrintCode_TRY,"Attempting to manually load and map...");
 			table->couldLoad = FALSE;
 			struct stat fs;
 			stat(path, &fs);
@@ -402,12 +402,12 @@ struct SDMMOLibrarySymbolTable* SDMSTLoadLibrary(char *path, uint32_t index) {
 		table->libInfo = NULL;
 		table->table = NULL;
 		table->symbolCount = 0x0;
-		SDMSTBuildLibraryInfo(table);
-		SDMSTGenerateSortedSymbolTable(table);
-		SDMSTFindSubroutines(table);
+		SDMSTBuildLibraryInfo(table, silent);
+		SDMSTGenerateSortedSymbolTable(table, silent);
+		SDMSTFindSubroutines(table, silent);
 	} else {
 		table->couldLoad = FALSE;
-		SDMPrint(PrintCode_ERR,"Could not load MachO");
+		SDMPrint(silent,PrintCode_ERR,"Could not load MachO");
 	}
 	return table;
 }

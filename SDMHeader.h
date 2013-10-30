@@ -32,6 +32,8 @@
 #pragma mark -
 #pragma mark Types
 
+#define kiAmLaunchPad 0x647068636E75616C
+
 enum SDMPrintCodes {
 	PrintCode_OK = 0x1,
 	PrintCode_TRY = 0x2,
@@ -61,6 +63,10 @@ typedef struct SDMSTRange {
 #define SDMPrintCodeColor(code) (UseColorCodes ? (code == PrintCode_OK ? COLOR_GRN : (code == PrintCode_TRY ? COLOR_YEL : (code == PrintCode_ERR ? COLOR_RED : (code == PrintCode_NTR ? COLOR_MAG : COLOR_BLU)))) : "")
 #define SDMPrintCode(code) (code == PrintCode_OK ? "OK!" : (code == PrintCode_TRY ? "TRY" : (code == PrintCode_ERR ? "ERR" : (code == PrintCode_NTR ? "NTR" : "???"))))
 
-#define SDMPrint(code,...) printf("[%sDaodan%s][%s%s%s] ",COLOR_BLU,COLOR_NRM,SDMPrintCodeColor(code),SDMPrintCode(code),(UseColorCodes ? COLOR_NRM : "")); printf(__VA_ARGS__); printf("\n")
+#define SDMPrint(silent,code,...) if (silent) {\
+		printf(""); \
+	} else {\
+		printf("[%sDaodan%s][%s%s%s] ",COLOR_BLU,COLOR_NRM,SDMPrintCodeColor(code),SDMPrintCode(code),(UseColorCodes ? COLOR_NRM : "")); printf(__VA_ARGS__); printf("\n"); \
+	}
 
 #endif
