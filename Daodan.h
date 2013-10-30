@@ -23,8 +23,8 @@
 #include "SDMSymbolTable.h"
 
 enum DAODAN_QUEUE {
-	DAODAN_MACH_SEND = 1,
-	DAODAN_MACH_RECV = 2
+	DAODAN_MACH_SEND = 0x1,
+	DAODAN_MACH_RECV = 0x2,
 };
 
 typedef struct SDMDaodanBundle {

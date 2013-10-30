@@ -14,6 +14,7 @@
 #define kLaunchPadPath "/Volumes/Data/Users/sam/Projects/Daodan/build/Release/Launchpad"
 
 int acquireTaskForPortRight();
+void spawnFromLaunchpad(int argc, const char *argv[]);
 void launchNewProcess(int argc, const char *argv[]);
 extern uint64_t iAmLaunchPad(int argc, const char *argv[]);
 
