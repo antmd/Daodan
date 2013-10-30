@@ -74,7 +74,7 @@ typedef struct SDMSTRange {
 #define SDMPrint(silent,code,...) if (silent) {\
 		printf(""); \
 	} else {\
-		printf("[%sDaodan%s][%s%s%s] ",COLOR_BLU,COLOR_NRM,SDMPrintCodeColor(code),SDMPrintCode(code),(UseColorCodes ? COLOR_NRM : "")); printf(__VA_ARGS__); printf("\n"); \
+		printf("[%s%s%s][%sDaodan%s][%s%s%s] ",COLOR_CYN,getprogname(),COLOR_NRM,COLOR_BLU,COLOR_NRM,SDMPrintCodeColor(code),SDMPrintCode(code),(UseColorCodes ? COLOR_NRM : "")); printf(__VA_ARGS__); printf("\n"); \
 	}
 
 #endif
