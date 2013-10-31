@@ -35,7 +35,7 @@
 #include <mach-o/nlist.h>
 #include <mach-o/ldsyms.h>
 #include <mach-o/fat.h>
-#pragma mark Other
+#pragma mark other
 #include <fcntl.h>
 #include <dlfcn.h>
 #include <math.h>

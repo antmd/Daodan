@@ -35,37 +35,37 @@ typedef struct SDMSTSymbolTableListEntry {
 	uint8_t n_type;
 	uint8_t n_sect;
 	uint16_t n_desc;
-} __attribute__ ((packed)) SDMSTSymbolTableListEntry;
+} ATR_PACK SDMSTSymbolTableListEntry;
 
 typedef struct SDMSTSeg32Data {
 	uint32_t vmaddr;
 	uint32_t vmsize;
 	uint32_t fileoff;
-} __attribute__ ((packed)) SDMSTSeg32Data;
+} ATR_PACK SDMSTSeg32Data;
 
 typedef struct SDMSTSeg64Data {
 	uint64_t vmaddr;
 	uint64_t vmsize;
 	uint64_t fileoff;
-} __attribute__ ((packed)) SDMSTSeg64Data;
+} ATR_PACK SDMSTSeg64Data;
 
 typedef uintptr_t* (*SDMSTFunctionCall)();
 
 typedef struct SDMSTFunction {
 	char *name;
 	SDMSTFunctionCall offset;
-} __attribute__ ((packed)) SDMSTFunction;
+} ATR_PACK SDMSTFunction;
 
 typedef struct SDMSTSegmentEntry {
 	uint32_t cmd;
 	uint32_t cmdsize;
 	char segname[0x10];
-} __attribute__ ((packed)) SDMSTSegmentEntry;
+} ATR_PACK SDMSTSegmentEntry;
 
 typedef struct SDMSTLibraryArchitecture {
 	cpu_type_t type;
 	cpu_subtype_t subtype;
-} __attribute__ ((packed)) SDMSTLibraryArchitecture;
+} ATR_PACK SDMSTLibraryArchitecture;
 
 typedef struct SDMSTLibraryTableInfo {
 	uint32_t imageNumber;
@@ -77,7 +77,7 @@ typedef struct SDMSTLibraryTableInfo {
 	uint32_t headerMagic;
 	bool is64bit;
 	struct SDMSTLibraryArchitecture arch;
-} __attribute__ ((packed)) SDMSTLibraryTableInfo;
+} ATR_PACK SDMSTLibraryTableInfo;
 
 typedef struct SDMSTMachOSymbol {
 	uint32_t tableNumber;
@@ -85,13 +85,13 @@ typedef struct SDMSTMachOSymbol {
 	uintptr_t offset;
 	char *name;
 	bool isStub;
-} __attribute__ ((packed)) SDMSTMachOSymbol;
+} ATR_PACK SDMSTMachOSymbol;
 
 typedef struct SDMSTSubroutine {
 	uintptr_t offset;
 	char *name;
 	uintptr_t sectionOffset;
-} __attribute__ ((packed)) SDMSTSubroute;
+} ATR_PACK SDMSTSubroute;
 
 typedef struct SDMMOLibrarySymbolTable {
 	uint32_t vmIndex;
@@ -104,12 +104,12 @@ typedef struct SDMMOLibrarySymbolTable {
 	uint32_t symbolCount;
 	struct SDMSTSubroutine *subroutine;
 	uint32_t subroutineCount;
-} __attribute__ ((packed)) SDMMOLibrarySymbolTable;
+} ATR_PACK SDMMOLibrarySymbolTable;
 
 typedef struct SDMSTBinary {
 	uintptr_t *arch;
 	uint32_t archCount;
-} __attribute__ ((packed)) SDMSTBinary;
+} ATR_PACK SDMSTBinary;
 
 #pragma mark -
 #pragma mark Declarations

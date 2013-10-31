@@ -42,6 +42,8 @@
 
 #define kiAmLaunchPad 0x647068636E75616C // "launchpd"
 
+#define ATR_PACK __attribute__ ((packed))
+
 enum SDMPrintCodes {
 	PrintCode_OK = 0x1,
 	PrintCode_TRY = 0x2,
@@ -52,7 +54,7 @@ enum SDMPrintCodes {
 typedef struct SDMSTRange {
 	uintptr_t offset;
 	uint64_t length;
-} __attribute__ ((packed)) SDMSTRange;
+} ATR_PACK SDMSTRange;
 
 #pragma mark -
 #pragma mark Color Codes

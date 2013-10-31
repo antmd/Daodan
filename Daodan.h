@@ -30,12 +30,12 @@ enum DAODAN_QUEUE {
 typedef struct SDMDaodanBundle {
 	char *path;
 	
-} __attribute__ ((packed)) SDMDaodanBundle;
+} ATR_PACK SDMDaodanBundle;
 
 typedef struct DaodanMachMessage {
 	mach_msg_header_t header;
 	char data[0x400];
-} __attribute__ ((packed)) DaodanMachMessage;
+} ATR_PACK DaodanMachMessage;
 
 void initDaodan();
 void unloadDaodan();
