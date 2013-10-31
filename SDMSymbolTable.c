@@ -207,11 +207,6 @@ void SDMSTFindSubroutines(struct SDMSTLibrary *libTable, bool silent) {
 							
 							aSubroutine->sectionOffset = textSectionOffset;
 							
-							if (libTable->subroutineCount) {
-								struct SDMSTSubroutine *previousRoutine = &(libTable->subroutine[libTable->subroutineCount-0x1]);
-								previousRoutine->subSize = (uint32_t)(aSubroutine->offset - previousRoutine->offset);
-							}
-							
 							memcpy(&(libTable->subroutine[libTable->subroutineCount]), aSubroutine, sizeof(struct SDMSTSubroutine));
 							free(aSubroutine);
 							free(buffer);

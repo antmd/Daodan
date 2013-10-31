@@ -52,7 +52,7 @@ enum SDMPrintCodes {
 	PrintCode_NTR = 0x4
 };
 
-typedef struct SDMSTRange {
+struct SDMSTRange {
 	uintptr_t offset;
 	uint64_t length;
 } ATR_PACK SDMSTRange;

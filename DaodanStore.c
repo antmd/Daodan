@@ -69,8 +69,17 @@ void SDMDaodanCheckStorePath() {
 	free(newDump);
 }
 
-void SDMDaodanWriteSubroutine(struct SDMSTSubroutine *subroutine, FILE *file) {
-	
+void SDMDaodanWriteSubroutine(struct SDMSTSubroutine *subroutine, struct SDMSTRange range, struct SDMDisasm *disasm, FILE *file) {
+	char *subroutineDefine = calloc(0x1, sizeof(char)*(strlen(subroutine->name)+0x4));
+	sprintf(subroutineDefine, "\n%s:\n",subroutine->name);
+	fwrite(subroutineDefine, sizeof(char), strlen(subroutineDefine), file);
+	free(subroutineDefine);
+	SDM_disasm_setbuffer(disasm, (uint32_t*)range.offset, (uint32_t)range.length);
+	while (SDM_disasm_parse(*disasm)) {
+		char *line = (char*)ud_insn_asm(&(disasm->obj));
+		fwrite(line, sizeof(char), strlen(line), file);
+		fwrite("\n", sizeof(char), sizeof(char), file);
+	}
 }
 
 void SDMDaodanWriteDumpForLibrary(char *dumpPath, struct SDMSTLibrary *libTable) {
@@ -84,8 +93,10 @@ void SDMDaodanWriteDumpForLibrary(char *dumpPath, struct SDMSTLibrary *libTable)
 		
 	}
 	
+	struct SDMDisasm disasm = SDM_disasm_init((struct mach_header *)(libTable->libInfo->mhOffset));
 	for (uint32_t i = 0x0; i < libTable->subroutineCount; i++) {
-		SDMDaodanWriteSubroutine(&(libTable->subroutine[i]), file);
+		struct SDMSTRange range = SDMSTRangeOfSubroutine(&(libTable->subroutine[i]), libTable);
+		SDMDaodanWriteSubroutine(&(libTable->subroutine[i]), range, &disasm, file);
 	}
 	
 	fclose(file);
