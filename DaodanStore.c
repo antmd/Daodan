@@ -93,29 +93,33 @@ void SDMDaodanWriteHeaderInDumpFile(char *header, FILE *file) {
 void SDMDaodanWriteSubroutine(struct SDMSTSubroutine *subroutine, struct SDMSTRange range, struct SDMDisasm *disasm, FILE *file) {
 	char *subroutineDefine = calloc(0x1, sizeof(char)*(strlen(subroutine->name)+0x4));
 	sprintf(subroutineDefine, "\n%s:\n",subroutine->name);
-	fwrite(subroutineDefine, sizeof(char), strlen(subroutineDefine), file);
+	FWRITE_STRING_TO_FILE(subroutineDefine, file);
 	free(subroutineDefine);
 	SDM_disasm_setbuffer(disasm, (uint32_t*)range.offset, (uint32_t)range.length);
 	while (SDM_disasm_parse(disasm)) {
 		char *line = (char*)ud_insn_asm(&(disasm->obj));
 		char *printLine = calloc(0x1, sizeof(char)*(strlen(line)+0x3));
 		sprintf(printLine,"\t%s\n",line);
-		fwrite(printLine, sizeof(char), strlen(printLine), file);
+		FWRITE_STRING_TO_FILE(printLine, file);
 		free(printLine);
 	}
 }
 
 void SDMDaodanWriteDumpForLibrary(char *dumpPath, struct SDMSTLibrary *libTable) {
-	printf("%s\n",dumpPath);
+	SDMPrint(FALSE,PrintCode_TRY,"Writing DumpFile...");
 	FILE *file = fopen(dumpPath, "w+");
 	
+	SDMPrint(FALSE,PrintCode_TRY,"Writing Binary Information...");
 	SDMDaodanWriteHeaderInDumpFile("Header Information\n",file);
+	FWRITE_STRING_TO_FILE(libTable->libraryPath, file);
+	FWRITE_STRING_TO_FILE("\n", file);
 	
+	SDMPrint(FALSE,PrintCode_TRY,"Writing Symbol Table...");
 	SDMDaodanWriteHeaderInDumpFile("Symbol Table\n",file);
 	for (uint32_t i = 0x0; i < libTable->symbolCount; i++) {
 		
 	}
-	
+	SDMPrint(FALSE,PrintCode_TRY,"Writing Linked Libraries...");
 	SDMDaodanWriteHeaderInDumpFile("Linked Libraries\n",file);
 	for (uint32_t i = 0x0; i < libTable->dependencyCount; i++) {
 		char *path = (char *)(libTable->dependency[i].loadCmd + libTable->dependency[i].dyl.dylib.name.offset);
@@ -124,7 +128,7 @@ void SDMDaodanWriteDumpForLibrary(char *dumpPath, struct SDMSTLibrary *libTable)
 		sprintf(slideAndPath, "\t0x%08lx %s\n",slide,path);
 		FWRITE_STRING_TO_FILE(slideAndPath, file);
 	}
-	
+	SDMPrint(FALSE,PrintCode_TRY,"Writing Subroutines...");
 	SDMDaodanWriteHeaderInDumpFile("Subroutines\n",file);
 	struct SDMDisasm *disasm = SDM_disasm_init((struct mach_header *)(libTable->libInfo->mhOffset));
 	for (uint32_t i = 0x0; i < libTable->subroutineCount; i++) {
@@ -133,6 +137,7 @@ void SDMDaodanWriteDumpForLibrary(char *dumpPath, struct SDMSTLibrary *libTable)
 	}
 	free(disasm);
 	fclose(file);
+	SDMPrint(FALSE,PrintCode_OK,"Successfully written dump to path: %s",dumpPath);
 }
 
 void SDMDaodanWriteDumpForImage(char *dumpPath, char *imagePath, bool skipDependencies) {
