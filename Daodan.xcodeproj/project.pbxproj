@@ -34,6 +34,25 @@
 		22C17BC017EF49C400800C71 /* Daodan.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C17BBF17EF49C400800C71 /* Daodan.h */; };
 		22C17BC417EF696500800C71 /* SDMSymbolTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C17BC317EF696500800C71 /* SDMSymbolTable.h */; };
 		22C17BC617EF697800800C71 /* SDMSymbolTable.c in Sources */ = {isa = PBXBuildFile; fileRef = 22C17BC517EF697800800C71 /* SDMSymbolTable.c */; };
+		22FD60B81822FD080052A1FF /* arm_decode.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60A41822FD080052A1FF /* arm_decode.c */; };
+		22FD60B91822FD080052A1FF /* arm_decode.h in Headers */ = {isa = PBXBuildFile; fileRef = 22FD60A51822FD080052A1FF /* arm_decode.h */; };
+		22FD60BA1822FD080052A1FF /* disasm.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60A61822FD080052A1FF /* disasm.c */; };
+		22FD60BB1822FD080052A1FF /* disasm.h in Headers */ = {isa = PBXBuildFile; fileRef = 22FD60A71822FD080052A1FF /* disasm.h */; };
+		22FD60BC1822FD080052A1FF /* decode.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60A91822FD080052A1FF /* decode.c */; };
+		22FD60BD1822FD080052A1FF /* decode.h in Headers */ = {isa = PBXBuildFile; fileRef = 22FD60AA1822FD080052A1FF /* decode.h */; };
+		22FD60BE1822FD080052A1FF /* extern.h in Headers */ = {isa = PBXBuildFile; fileRef = 22FD60AB1822FD080052A1FF /* extern.h */; };
+		22FD60BF1822FD080052A1FF /* input.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60AC1822FD080052A1FF /* input.c */; };
+		22FD60C01822FD080052A1FF /* input.h in Headers */ = {isa = PBXBuildFile; fileRef = 22FD60AD1822FD080052A1FF /* input.h */; };
+		22FD60C11822FD080052A1FF /* itab.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60AE1822FD080052A1FF /* itab.c */; };
+		22FD60C21822FD080052A1FF /* itab.h in Headers */ = {isa = PBXBuildFile; fileRef = 22FD60AF1822FD080052A1FF /* itab.h */; };
+		22FD60C31822FD080052A1FF /* syn-att.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60B01822FD080052A1FF /* syn-att.c */; };
+		22FD60C41822FD080052A1FF /* syn-intel.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60B11822FD080052A1FF /* syn-intel.c */; };
+		22FD60C51822FD080052A1FF /* syn.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60B21822FD080052A1FF /* syn.c */; };
+		22FD60C61822FD080052A1FF /* syn.h in Headers */ = {isa = PBXBuildFile; fileRef = 22FD60B31822FD080052A1FF /* syn.h */; };
+		22FD60C71822FD080052A1FF /* types.h in Headers */ = {isa = PBXBuildFile; fileRef = 22FD60B41822FD080052A1FF /* types.h */; };
+		22FD60C81822FD080052A1FF /* udint.h in Headers */ = {isa = PBXBuildFile; fileRef = 22FD60B51822FD080052A1FF /* udint.h */; };
+		22FD60C91822FD080052A1FF /* udis86.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60B61822FD080052A1FF /* udis86.c */; };
+		22FD60CA1822FD080052A1FF /* udis86.h in Headers */ = {isa = PBXBuildFile; fileRef = 22FD60B71822FD080052A1FF /* udis86.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +90,25 @@
 		22C17BC317EF696500800C71 /* SDMSymbolTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDMSymbolTable.h; sourceTree = "<group>"; };
 		22C17BC517EF697800800C71 /* SDMSymbolTable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDMSymbolTable.c; sourceTree = "<group>"; };
 		22C17BC717EF83E500800C71 /* SDMHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDMHeader.h; sourceTree = "<group>"; };
+		22FD60A41822FD080052A1FF /* arm_decode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = arm_decode.c; path = Disasm/arm_decode.c; sourceTree = "<group>"; };
+		22FD60A51822FD080052A1FF /* arm_decode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = arm_decode.h; path = Disasm/arm_decode.h; sourceTree = "<group>"; };
+		22FD60A61822FD080052A1FF /* disasm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = disasm.c; path = Disasm/disasm.c; sourceTree = "<group>"; };
+		22FD60A71822FD080052A1FF /* disasm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = disasm.h; path = Disasm/disasm.h; sourceTree = "<group>"; };
+		22FD60A91822FD080052A1FF /* decode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = decode.c; sourceTree = "<group>"; };
+		22FD60AA1822FD080052A1FF /* decode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = decode.h; sourceTree = "<group>"; };
+		22FD60AB1822FD080052A1FF /* extern.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = extern.h; sourceTree = "<group>"; };
+		22FD60AC1822FD080052A1FF /* input.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = input.c; sourceTree = "<group>"; };
+		22FD60AD1822FD080052A1FF /* input.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = input.h; sourceTree = "<group>"; };
+		22FD60AE1822FD080052A1FF /* itab.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = itab.c; sourceTree = "<group>"; };
+		22FD60AF1822FD080052A1FF /* itab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = itab.h; sourceTree = "<group>"; };
+		22FD60B01822FD080052A1FF /* syn-att.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "syn-att.c"; sourceTree = "<group>"; };
+		22FD60B11822FD080052A1FF /* syn-intel.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "syn-intel.c"; sourceTree = "<group>"; };
+		22FD60B21822FD080052A1FF /* syn.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = syn.c; sourceTree = "<group>"; };
+		22FD60B31822FD080052A1FF /* syn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = syn.h; sourceTree = "<group>"; };
+		22FD60B41822FD080052A1FF /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = types.h; sourceTree = "<group>"; };
+		22FD60B51822FD080052A1FF /* udint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = udint.h; sourceTree = "<group>"; };
+		22FD60B61822FD080052A1FF /* udis86.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = udis86.c; sourceTree = "<group>"; };
+		22FD60B71822FD080052A1FF /* udis86.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = udis86.h; path = Disasm/udis86.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -140,6 +178,7 @@
 		22C17BAD17EF49A700800C71 = {
 			isa = PBXGroup;
 			children = (
+				22FD60A31822FCEA0052A1FF /* Disasm */,
 				22959040182181D8006E985D /* Auth */,
 				2295903A18217B17006E985D /* Daodan */,
 				2295903218217B0B006E985D /* Launchpad */,
@@ -157,6 +196,41 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		22FD60A31822FCEA0052A1FF /* Disasm */ = {
+			isa = PBXGroup;
+			children = (
+				22FD60A41822FD080052A1FF /* arm_decode.c */,
+				22FD60A51822FD080052A1FF /* arm_decode.h */,
+				22FD60A61822FD080052A1FF /* disasm.c */,
+				22FD60A71822FD080052A1FF /* disasm.h */,
+				22FD60A81822FD080052A1FF /* libudis86 */,
+				22FD60B71822FD080052A1FF /* udis86.h */,
+			);
+			name = Disasm;
+			sourceTree = "<group>";
+		};
+		22FD60A81822FD080052A1FF /* libudis86 */ = {
+			isa = PBXGroup;
+			children = (
+				22FD60A91822FD080052A1FF /* decode.c */,
+				22FD60AA1822FD080052A1FF /* decode.h */,
+				22FD60AB1822FD080052A1FF /* extern.h */,
+				22FD60AC1822FD080052A1FF /* input.c */,
+				22FD60AD1822FD080052A1FF /* input.h */,
+				22FD60AE1822FD080052A1FF /* itab.c */,
+				22FD60AF1822FD080052A1FF /* itab.h */,
+				22FD60B01822FD080052A1FF /* syn-att.c */,
+				22FD60B11822FD080052A1FF /* syn-intel.c */,
+				22FD60B21822FD080052A1FF /* syn.c */,
+				22FD60B31822FD080052A1FF /* syn.h */,
+				22FD60B41822FD080052A1FF /* types.h */,
+				22FD60B51822FD080052A1FF /* udint.h */,
+				22FD60B61822FD080052A1FF /* udis86.c */,
+			);
+			name = libudis86;
+			path = Disasm/libudis86;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -165,8 +239,18 @@
 			buildActionMask = 2147483647;
 			files = (
 				2295909A1822EAD3006E985D /* DaodanStore.h in Headers */,
+				22FD60B91822FD080052A1FF /* arm_decode.h in Headers */,
+				22FD60BD1822FD080052A1FF /* decode.h in Headers */,
+				22FD60BE1822FD080052A1FF /* extern.h in Headers */,
+				22FD60BB1822FD080052A1FF /* disasm.h in Headers */,
+				22FD60C01822FD080052A1FF /* input.h in Headers */,
 				22C17BC417EF696500800C71 /* SDMSymbolTable.h in Headers */,
+				22FD60C61822FD080052A1FF /* syn.h in Headers */,
+				22FD60C71822FD080052A1FF /* types.h in Headers */,
+				22FD60C81822FD080052A1FF /* udint.h in Headers */,
 				22C17BC017EF49C400800C71 /* Daodan.h in Headers */,
+				22FD60C21822FD080052A1FF /* itab.h in Headers */,
+				22FD60CA1822FD080052A1FF /* udis86.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -248,10 +332,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				22FD60C51822FD080052A1FF /* syn.c in Sources */,
+				22FD60C91822FD080052A1FF /* udis86.c in Sources */,
+				22FD60BF1822FD080052A1FF /* input.c in Sources */,
 				2295904218218202006E985D /* SDMLaunchProcess.c in Sources */,
+				22FD60C31822FD080052A1FF /* syn-att.c in Sources */,
 				22C17BBE17EF49B800800C71 /* Daodan.c in Sources */,
+				22FD60BA1822FD080052A1FF /* disasm.c in Sources */,
+				22FD60BC1822FD080052A1FF /* decode.c in Sources */,
 				2295909C1822EAE8006E985D /* DaodanStore.c in Sources */,
 				22C17BC617EF697800800C71 /* SDMSymbolTable.c in Sources */,
+				22FD60C11822FD080052A1FF /* itab.c in Sources */,
+				22FD60C41822FD080052A1FF /* syn-intel.c in Sources */,
+				22FD60B81822FD080052A1FF /* arm_decode.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

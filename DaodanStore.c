@@ -12,6 +12,7 @@
 #include "DaodanStore.h"
 #include <CoreFoundation/CoreFoundation.h>
 #include <mach-o/dyld.h>
+#include "disasm.h"
 
 char* SDMGetCurrentDateString() {
 	time_t epoch;
@@ -93,10 +94,12 @@ void SDMDaodanWriteDump(struct SDMSTLibrary *libTable) {
 	SDMDaodanCheckStorePath();
 	char *linkStore = SDMDaodanStorePath();
 	SDMDaodanWriteDumpForLibrary(linkStore, libTable);
+	/*
 	for (uint32_t i = 0x0; i < libTable->dependencyCount; i++) {
 		char *imagePath = (char*)(libTable->dependency[i].loadCmd+(libTable->dependency[i].dyl.dylib.name.offset));
 		SDMDaodanWriteDumpForImage(linkStore, imagePath, TRUE);
 	}
+	*/
 }
 
 #endif

@@ -91,6 +91,7 @@ typedef struct SDMSTSubroutine {
 	uintptr_t offset;
 	char *name;
 	uintptr_t sectionOffset;
+	uint32_t subSize;
 } ATR_PACK SDMSTSubroute;
 
 typedef struct SDMSTDependency {
