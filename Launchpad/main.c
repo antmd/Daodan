@@ -9,7 +9,6 @@
 #include "SDMLaunchProcess.h"
 #include <CoreFoundation/CoreFoundation.h>
 
-
 uint64_t iAmLaunchPad(int argc, const char *argv[]) {
 	uint64_t me = kiAmLaunchPad;
 	if (argc != 0x0) {

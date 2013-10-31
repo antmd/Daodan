@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
 
 #pragma mark -
 #pragma mark Types
@@ -78,5 +79,16 @@ typedef struct SDMSTRange {
 	} else {\
 		printf("[%s%s%s][%sDaodan%s][%s%s%s] ",COLOR_CYN,getprogname(),COLOR_NRM,COLOR_BLU,COLOR_NRM,SDMPrintCodeColor(code),SDMPrintCode(code),(UseColorCodes ? COLOR_NRM : "")); printf(__VA_ARGS__); printf("\n"); \
 	}
+
+
+inline bool makeNewFolderAt(char *path, int mode) {
+	bool result = false;
+	struct stat st;
+	if (stat(path, &st) == -1) {
+		int mkdirResult = mkdir(path, mode);
+		result = (mkdirResult == 0 ? true : false);
+	}
+	return result;
+}
 
 #endif

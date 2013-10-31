@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <sys/ptrace.h>
 #include <mach/mach.h>
+#include <dlfcn.h>
 #include <Security/Security.h>
 
 int acquireTaskForPortRight() {
@@ -55,6 +56,7 @@ void launchNewProcess(int argc, const char *argv[]) {
 			spawnFromLaunchpad(argc, argv);
 		}
 	} else {
+		
 		mach_port_t task;
 		int status = acquireTaskForPortRight();
 		if (status == 0x0) {

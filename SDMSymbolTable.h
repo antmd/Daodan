@@ -93,18 +93,25 @@ typedef struct SDMSTSubroutine {
 	uintptr_t sectionOffset;
 } ATR_PACK SDMSTSubroute;
 
-typedef struct SDMMOLibrarySymbolTable {
+typedef struct SDMSTDependency {
+	uintptr_t loadCmd;
+	struct dylib_command dyl;
+} ATR_PACK SDMSTDependency;
+
+typedef struct SDMSTLibrary {
 	uint32_t vmIndex;
 	bool couldLoad;
 	char *libraryPath;
 	uintptr_t* libraryHandle;
 	uint64_t librarySize;
 	struct SDMSTLibraryTableInfo *libInfo;
+	struct SDMSTDependency *dependency;
+	uint32_t dependencyCount;
 	struct SDMSTMachOSymbol *table;
 	uint32_t symbolCount;
 	struct SDMSTSubroutine *subroutine;
 	uint32_t subroutineCount;
-} ATR_PACK SDMMOLibrarySymbolTable;
+} ATR_PACK SDMSTLibrary;
 
 typedef struct SDMSTBinary {
 	uintptr_t *arch;
@@ -114,11 +121,11 @@ typedef struct SDMSTBinary {
 #pragma mark -
 #pragma mark Declarations
 
-struct SDMMOLibrarySymbolTable* SDMSTLoadLibrary(char *path, uint32_t index, bool silent);
-struct SDMSTFunction* SDMSTCreateFunction(struct SDMMOLibrarySymbolTable *libTable, char *name);
-struct SDMSTRange SDMSTRangeOfSubroutine(struct SDMSTSubroutine *subroutine, struct SDMMOLibrarySymbolTable *libTable);
-SDMSTFunctionCall SDMSTSymbolLookup(struct SDMMOLibrarySymbolTable *libTable, char *symbolName);
+struct SDMSTLibrary* SDMSTLoadLibrary(char *path, uint32_t index, bool silent);
+struct SDMSTFunction* SDMSTCreateFunction(struct SDMSTLibrary *libTable, char *name);
+struct SDMSTRange SDMSTRangeOfSubroutine(struct SDMSTSubroutine *subroutine, struct SDMSTLibrary *libTable);
+SDMSTFunctionCall SDMSTSymbolLookup(struct SDMSTLibrary *libTable, char *symbolName);
 void SDMSTFunctionRelease(struct SDMSTFunction *function);
-void SDMSTLibraryRelease(struct SDMMOLibrarySymbolTable *libTable);
+void SDMSTLibraryRelease(struct SDMSTLibrary *libTable);
 
 #endif

@@ -36,6 +36,7 @@
 #include <mach/mach.h>
 
 #include "SDMLaunchProcess.h"
+#include "DaodanStore.h"
 
 /*
  
@@ -172,7 +173,7 @@ DYLD_INTERPOSE(DAODAN__mac_syscall, __mac_syscall);
 
 /***************************************************/
 
-static struct SDMMOLibrarySymbolTable *binaryTable;
+static struct SDMSTLibrary *binaryTable;
 
 #define CHRYSALIS_LAUNCH "com.samdmarshall.Chrysalis.Launch"
 #define CHRYSALIS_RELOAD "com.samdmarshall.Chrysalis.ReloadPlugins"
@@ -377,6 +378,11 @@ bool locateLaunchpad() {
 	return found;
 }
 
+void dumpDaodan() {
+	SDMDaodanWriteDump(binaryTable);
+	unloadDaodan();
+}
+
 void initDaodan() {
 	_dyld_register_func_for_add_image(SDMAddImageHook);
 	_dyld_register_func_for_remove_image(SDMRemoveImageHook);
@@ -390,6 +396,8 @@ void initDaodan() {
 		SDMPrint(DEFAULT_LOGGER,PrintCode_ERR,"Could not load the MachO file, unloading Daodan now...");
 		unloadDaodan();
 	} else {
+		dumpDaodan();
+		/*
 		bool foundLaunchpad = locateLaunchpad();
 		if (foundLaunchpad) {
 			unloadDaodan();
@@ -397,8 +405,9 @@ void initDaodan() {
 			SDMPrint(DEFAULT_LOGGER,PrintCode_TRY,"Registering notify listeners for Chrysalis...");
 			setupChrysalisNotificationListeners();
 			setupDaodanMachPort();
-			setupChrysalisMachPort(0x1);
+			setupChrysalisMachPort(getpid());
 		}
+		 */
 	}
 }
 
@@ -415,16 +424,16 @@ void unloadDaodan() {
 	}
 	if (symbolAddress) {
 		SDMPrint(DEFAULT_LOGGER,PrintCode_OK,"Found Daodan.");
-		//void* daodanHandle = dlopen(libInfo.dli_fbase, RTLD_LAZY);
-		//if (daodanHandle) {
-		SDMPrint(DEFAULT_LOGGER,PrintCode_OK,"Unloading Daodan.");
-		//} else {
-		//	SDMPrint(FALSE,PrintCode_ERR,"Error creating handle to Daodan.");
-		//}
+		void* daodanHandle = dlopen(binaryTable->libraryPath, RTLD_LAZY);
+		if (daodanHandle) {
+			SDMPrint(DEFAULT_LOGGER,PrintCode_OK,"Unloading Daodan.");
+		} else {
+			SDMPrint(FALSE,PrintCode_ERR,"Error creating handle to Daodan.");
+		}
 		SDMSTLibraryRelease(binaryTable);
 		cancelChrysalisNotificationListeners();
 		closeDaodanMachPorts();
-		//dlclose(daodanHandle);
+		dlclose(daodanHandle);
 	} else {
 		SDMPrint(DEFAULT_LOGGER,PrintCode_ERR,"Could not find Daodan.\n");
 	}

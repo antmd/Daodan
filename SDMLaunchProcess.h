@@ -12,6 +12,7 @@
 #include "SDMHeader.h"
 
 #define kLaunchPadPath "/Volumes/Data/Users/sam/Projects/Daodan/build/Release/Launchpad"
+#define kDaodanPath "/Volumes/Data/Users/sam/Projects/Daodan/build/Release/libDaodan.dylib"
 
 int acquireTaskForPortRight();
 void spawnFromLaunchpad(int argc, const char *argv[]);

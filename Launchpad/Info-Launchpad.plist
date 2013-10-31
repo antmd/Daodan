@@ -5,11 +5,11 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.samdmarshall.libDaodan</string>
+	<string>com.samdmarshall.Launchpad</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>libDaodan</string>
+	<string>Launchpad</string>
 	<key>CFBundleVersion</key>
 	<string>2</string>
 	<key>SecTaskAccess</key>

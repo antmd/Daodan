@@ -63,20 +63,20 @@ static uint8_t Intel_x86_64bit_StackSetup[Intel_x86_64bit_StackSetupLength] = {0
 #pragma mark -
 #pragma mark Declarations
 
-void SDMSTBuildLibraryInfo(SDMMOLibrarySymbolTable *libTable, bool silent);
+void SDMSTBuildLibraryInfo(struct SDMSTLibrary *libTable, bool silent);
 int SDMSTCompareTableEntries(const void *entry1, const void *entry2);
-void SDMSTFindSubroutines(struct SDMMOLibrarySymbolTable *libTable, bool silent);
-void SDMSTGenerateSortedSymbolTable(struct SDMMOLibrarySymbolTable *libTable, bool silent);
+void SDMSTFindSubroutines(struct SDMSTLibrary *libTable, bool silent);
+void SDMSTGenerateSortedSymbolTable(struct SDMSTLibrary *libTable, bool silent);
 struct SDMSTBinary* SDMSTLoadBinaryFromFile(void* handle);
 void SDMSTBinaryRelease(struct SDMSTBinary *binary);
 uintptr_t* SDMSTGetCurrentArchFromBinary(struct SDMSTBinary *binary);
 bool SMDSTSymbolDemangleAndCompare(char *symFromTable, char *symbolName);
-SDMSTFunctionCall SDMSTSymbolLookup(struct SDMMOLibrarySymbolTable *libTable, char *symbolName);
+SDMSTFunctionCall SDMSTSymbolLookup(struct SDMSTLibrary *libTable, char *symbolName);
 
 #pragma mark -
 #pragma mark Functions
 
-void SDMSTBuildLibraryInfo(SDMMOLibrarySymbolTable *libTable, bool silent) {
+void SDMSTBuildLibraryInfo(struct SDMSTLibrary *libTable, bool silent) {
 	if (libTable->libInfo == NULL) {
 		libTable->libInfo = (struct SDMSTLibraryTableInfo *)calloc(0x1, sizeof(struct SDMSTLibraryTableInfo));
 		const struct mach_header *imageHeader;
@@ -103,6 +103,8 @@ void SDMSTBuildLibraryInfo(SDMMOLibrarySymbolTable *libTable, bool silent) {
 			struct load_command *loadCmd = (struct load_command *)((char*)libTable->libInfo->mhOffset + (libTable->libInfo->is64bit ? sizeof(struct mach_header_64) : sizeof(struct mach_header)));
 			libTable->libInfo->symtabCommands = (struct symtab_command *)calloc(0x1, sizeof(struct symtab_command));
 			libTable->libInfo->symtabCount = 0x0;
+			libTable->dependency = (struct SDMSTDependency *)calloc(0x1, sizeof(struct SDMSTDependency));
+			libTable->dependencyCount = 0x0;
 			for (uint32_t i = 0x0; i < libHeader->ncmds; i++) {
 				switch (loadCmd->cmd) {
 					case LC_SYMTAB: {
@@ -125,6 +127,11 @@ void SDMSTBuildLibraryInfo(SDMMOLibrarySymbolTable *libTable, bool silent) {
 						struct dylib_command *linkedLibrary = (struct dylib_command *)loadCmd;
 						if (loadCmd+linkedLibrary->dylib.name.offset) {
 							SDMPrint(silent,PrintCode_OK,"Found Dependency: %s",(char*)loadCmd+linkedLibrary->dylib.name.offset);
+							libTable->dependency = (struct SDMSTDependency *)realloc(libTable->dependency, sizeof(struct SDMSTDependency)*(libTable->dependencyCount+0x1));
+							libTable->dependency[libTable->dependencyCount].loadCmd = (uintptr_t)loadCmd;
+							libTable->dependency[libTable->dependencyCount].dyl = *linkedLibrary;
+							printf("%s\n",(char*)libTable->dependency[libTable->dependencyCount].loadCmd+libTable->dependency[libTable->dependencyCount].dyl.dylib.name.offset);
+							libTable->dependencyCount++;
 						}
 						break;
 					}
@@ -145,7 +152,7 @@ int SDMSTCompareTableEntries(const void *entry1, const void *entry2) {
 	return 0xdeadbeef;
 }
 
-void SDMSTFindSubroutines(struct SDMMOLibrarySymbolTable *libTable, bool silent) {
+void SDMSTFindSubroutines(struct SDMSTLibrary *libTable, bool silent) {
 	SDMPrint(silent,PrintCode_TRY,"Looking for subroutines...");
 	if (libTable->libInfo->arch.type == CPU_TYPE_X86_64 || libTable->libInfo->arch.type == CPU_TYPE_I386) {
 		libTable->subroutine = (struct SDMSTSubroutine *)calloc(0x1, sizeof(struct SDMSTSubroutine));
@@ -219,7 +226,7 @@ void SDMSTFindSubroutines(struct SDMMOLibrarySymbolTable *libTable, bool silent)
 	}
 }
 
-struct SDMSTRange SDMSTRangeOfSubroutine(struct SDMSTSubroutine *subroutine, struct SDMMOLibrarySymbolTable *libTable) {
+struct SDMSTRange SDMSTRangeOfSubroutine(struct SDMSTSubroutine *subroutine, struct SDMSTLibrary *libTable) {
 	struct SDMSTRange range = {0x0, 0x0};
 	for (uint32_t i = 0x0; i < libTable->subroutineCount; i++) {
 		if (libTable->subroutine[i].offset == subroutine->offset) {
@@ -244,7 +251,7 @@ struct SDMSTRange SDMSTRangeOfSubroutine(struct SDMSTSubroutine *subroutine, str
 	return range;
 }
 
-void SDMSTGenerateSortedSymbolTable(struct SDMMOLibrarySymbolTable *libTable, bool silent) {
+void SDMSTGenerateSortedSymbolTable(struct SDMSTLibrary *libTable, bool silent) {
 	SDMPrint(silent,PrintCode_TRY,"Looking for symbols...");
 	if (libTable->table == NULL) {
 		uintptr_t symbolAddress = 0x0;
@@ -348,8 +355,8 @@ uintptr_t* SDMSTGetCurrentArchFromBinary(struct SDMSTBinary *binary) {
 	return offset;
 }
 
-struct SDMMOLibrarySymbolTable* SDMSTLoadLibrary(char *path, uint32_t index, bool silent) {
-	struct SDMMOLibrarySymbolTable *table = (struct SDMMOLibrarySymbolTable *)calloc(0x1, sizeof(struct SDMMOLibrarySymbolTable));
+struct SDMSTLibrary* SDMSTLoadLibrary(char *path, uint32_t index, bool silent) {
+	struct SDMSTLibrary *table = (struct SDMSTLibrary *)calloc(0x1, sizeof(struct SDMSTLibrary));
 	bool inMemory = FALSE;
 	char *imagePath;
 	void* handle = NULL;
@@ -429,7 +436,7 @@ bool SMDSTSymbolDemangleAndCompare(char *symFromTable, char *symbolName) {
 	return matchesName;
 }
 
-SDMSTFunctionCall SDMSTSymbolLookup(struct SDMMOLibrarySymbolTable *libTable, char *symbolName) {
+SDMSTFunctionCall SDMSTSymbolLookup(struct SDMSTLibrary *libTable, char *symbolName) {
 	SDMSTFunctionCall symbolAddress = NULL;
 	for (uint32_t i = 0x0; i < libTable->symbolCount; i++)
 		if (SMDSTSymbolDemangleAndCompare(libTable->table[i].name, symbolName)) {
@@ -439,7 +446,7 @@ SDMSTFunctionCall SDMSTSymbolLookup(struct SDMMOLibrarySymbolTable *libTable, ch
 	return symbolAddress;
 }
 
-struct SDMSTFunction* SDMSTCreateFunction(struct SDMMOLibrarySymbolTable *libTable, char *name) {
+struct SDMSTFunction* SDMSTCreateFunction(struct SDMSTLibrary *libTable, char *name) {
 	struct SDMSTFunction *function = (struct SDMSTFunction*)calloc(0x1, sizeof(struct SDMSTFunction));
 	function->name = name;
 	function->offset = SDMSTSymbolLookup(libTable, name);
@@ -450,7 +457,7 @@ void SDMSTFunctionRelease(struct SDMSTFunction *function) {
 	free(function);
 }
 
-void SDMSTLibraryRelease(struct SDMMOLibrarySymbolTable *libTable) {
+void SDMSTLibraryRelease(struct SDMSTLibrary *libTable) {
 	free(libTable->libInfo);
 	for (uint32_t i = 0x0; i < libTable->symbolCount; i++) {
 		if (libTable->table[i].isStub)
