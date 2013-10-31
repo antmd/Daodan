@@ -17,22 +17,21 @@
 char* SDMGetCurrentDateString() {
 	time_t epoch;
 	time(&epoch);
-	char *secstr = calloc(1, 128);
-	strftime(secstr, 128, "%S", (struct tm*)&epoch);
+	char *secstr = calloc(0x1, sizeof(char)*0x80);
+	strftime(secstr, 0x80, "%S", (struct tm*)&epoch);
 	return secstr;
 }
 
 char* SDMCFStringGetString(CFStringRef str) {
-	char *cstr = calloc(1, CFStringGetLength(str)+1);
-	CFStringGetCString(str, cstr, CFStringGetLength(str)+1, CFStringGetFastestEncoding(str));
+	char *cstr = calloc(0x1, sizeof(char)*(CFStringGetLength(str)+0x1));
+	CFStringGetCString(str, cstr, CFStringGetLength(str)+0x1, CFStringGetFastestEncoding(str));
 	return cstr;
 }
 
 char* SDMDaodanInternalStoreDirectory() {
 	char *path = getenv("HOME");
-	char *storage = calloc(0x1, strlen(path)+17);
-	strcat(storage, path);
-	strcat(storage, "/Library/Daodan/");
+	char *storage = calloc(0x1, sizeof(char)*(strlen(path)+0x11));
+	sprintf(storage, "%s/Library/Daodan",path);
 	return storage;
 }
 
@@ -40,9 +39,8 @@ char *SDMDaodanInternalAppStoreDirectory() {
 	char *storage = SDMDaodanInternalStoreDirectory();
 	CFStringRef bundleId = CFBundleGetIdentifier(CFBundleGetMainBundle());
 	char *bundle = SDMCFStringGetString(bundleId);
-	storage = realloc(storage, strlen(storage)+strlen(bundle)+2);
-	strcat(storage, bundle);
-	strcat(storage, "/");
+	storage = realloc(storage, sizeof(char)*(strlen(storage)+strlen(bundle)+0x2));
+	sprintf(storage,"%s/",bundle);
 	free(bundle);
 	return storage;
 }
@@ -50,9 +48,8 @@ char *SDMDaodanInternalAppStoreDirectory() {
 char* SDMDaodanStorePath() {
 	char *storage = SDMDaodanInternalAppStoreDirectory();
 	char *launchTime = SDMGetCurrentDateString();
-	storage = realloc(storage, strlen(storage)+2+strlen(launchTime));
-	strcat(storage, launchTime);
-	strcat(storage, "/");
+	storage = realloc(storage, sizeof(char)*(strlen(storage)+0x2+strlen(launchTime)));
+	sprintf(storage,"%s/",launchTime);
 	free(launchTime);
 	return storage;
 }
@@ -60,20 +57,38 @@ char* SDMDaodanStorePath() {
 
 void SDMDaodanCheckStorePath() {
 	char *daodanStore = SDMDaodanInternalStoreDirectory();
-	makeNewFolderAt(daodanStore, 0700);
+	makeNewFolderAt(daodanStore, 0x2bc);
 	free(daodanStore);
 	
 	char *appStore = SDMDaodanInternalAppStoreDirectory();
-	makeNewFolderAt(appStore, 0700);
+	makeNewFolderAt(appStore, 0x2bc);
 	free(appStore);
 	
 	char *newDump = SDMDaodanStorePath();
-	makeNewFolderAt(newDump, 0700);
+	makeNewFolderAt(newDump, 0x2bc);
 	free(newDump);
 }
 
-void SDMDaodanWriteDumpForLibrary(char *dumpPath, struct SDMSTLibrary *libTable) {
+void SDMDaodanWriteSubroutine(struct SDMSTSubroutine *subroutine, FILE *file) {
 	
+}
+
+void SDMDaodanWriteDumpForLibrary(char *dumpPath, struct SDMSTLibrary *libTable) {
+	FILE *file = fopen(dumpPath, "rw");
+	
+	for (uint32_t i = 0x0; i < libTable->symbolCount; i++) {
+		
+	}
+	
+	for (uint32_t i = 0x0; i < libTable->dependencyCount; i++) {
+		
+	}
+	
+	for (uint32_t i = 0x0; i < libTable->subroutineCount; i++) {
+		SDMDaodanWriteSubroutine(&(libTable->subroutine[i]), file);
+	}
+	
+	fclose(file);
 }
 
 void SDMDaodanWriteDumpForImage(char *dumpPath, char *imagePath, bool skipDependencies) {

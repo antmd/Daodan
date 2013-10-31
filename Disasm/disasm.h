@@ -95,7 +95,7 @@ typedef struct SDMDisasmObject {
 	uint32_t remainder;
 } ATR_PACK SDMDisasmObject;
 
-typedef struct SDMDisasm {
+struct SDMDisasm {
 	CPUArchitecture arch;
 	bool is64Bit;
 	Endianness endian;
@@ -103,10 +103,10 @@ typedef struct SDMDisasm {
 	union {
 		SDMDisasmObject arm;
 	} handler;
-} SDMDisasm;
+};
 
 struct SDMDisasm SDM_disasm_init(struct mach_header *header);
-void SDM_disasm_setbuffer(SDMDisasm *disasm, uint32_t *buffer, uint32_t length);
-uint32_t SDM_disasm_parse(SDMDisasm disasm);
+void SDM_disasm_setbuffer(struct SDMDisasm *disasm, uint32_t *buffer, uint32_t length);
+uint32_t SDM_disasm_parse(struct SDMDisasm disasm);
 
 #endif

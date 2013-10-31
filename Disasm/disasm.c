@@ -55,8 +55,8 @@ Endianness SDM_disasm_get_endian(CPUArchitecture arch) {
 	}
 }
 
-SDMDisasm SDM_disasm_init(struct mach_header *header) {
-	SDMDisasm disasm;
+struct SDMDisasm SDM_disasm_init(struct mach_header *header) {
+	struct SDMDisasm disasm;
 	disasm.arch = SDM_disasm_get_arch(header->cputype, header->cpusubtype);
 	disasm.is64Bit = ((header->magic == MH_MAGIC_64 || header->magic == MH_CIGAM_64) ? true : false);
 	disasm.endian = SDM_disasm_get_endian(disasm.arch);
@@ -70,7 +70,7 @@ SDMDisasm SDM_disasm_init(struct mach_header *header) {
 	return disasm;
 }
 
-void SDM_disasm_setbuffer(SDMDisasm *disasm, uint32_t *buffer, uint32_t length) {
+void SDM_disasm_setbuffer(struct SDMDisasm *disasm, uint32_t *buffer, uint32_t length) {
 	if (disasm->arch == i386Arch || disasm->arch == x86_64Arch) {
 		ud_set_input_buffer(&disasm->obj, (uint8_t*)buffer, length);
 	} else if (disasm->arch == ARMv6Arch || disasm->arch == ARMv7Arch) {
@@ -84,12 +84,12 @@ ARMInstruction SDM_disasm_arm(uint32_t instruction) {
 	return in;
 }
 
-uint32_t SDM_disasm_parse(SDMDisasm disasm) {
+uint32_t SDM_disasm_parse(struct SDMDisasm disasm) {
 	uint32_t result = 0x0;
 	if (disasm.arch == i386Arch || disasm.arch == x86_64Arch) {
 		result = ud_disassemble(&disasm.obj);
 	} else if (disasm.arch == ARMv6Arch || disasm.arch == ARMv7Arch) {
-		if (disasm.handler.arm.remainder - 1 > 0) {
+		if (disasm.handler.arm.remainder - 0x1 > 0x0) {
 			uint32_t data = disasm.handler.arm.buffer[disasm.handler.arm.length-disasm.handler.arm.remainder];
 			ARMInstruction instruction = SDM_disasm_arm(data);
 			if (instruction.cc) {
@@ -101,5 +101,7 @@ uint32_t SDM_disasm_parse(SDMDisasm disasm) {
 	}
 	return result;
 }
+
+
 
 #endif
