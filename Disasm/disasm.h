@@ -105,8 +105,8 @@ struct SDMDisasm {
 	} handler;
 };
 
-struct SDMDisasm SDM_disasm_init(struct mach_header *header);
+struct SDMDisasm* SDM_disasm_init(struct mach_header *header);
 void SDM_disasm_setbuffer(struct SDMDisasm *disasm, uint32_t *buffer, uint32_t length);
-uint32_t SDM_disasm_parse(struct SDMDisasm disasm);
+uint32_t SDM_disasm_parse(struct SDMDisasm *disasm);
 
 #endif

@@ -81,6 +81,8 @@ struct SDMSTRange {
 	}
 
 
+#define FWRITE_STRING_TO_FILE(a,b) fwrite(a, sizeof(char), strlen(a), b)
+
 inline bool makeNewFolderAt(char *path, int mode) {
 	bool result = false;
 	struct stat st;

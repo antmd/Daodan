@@ -130,7 +130,6 @@ void SDMSTBuildLibraryInfo(struct SDMSTLibrary *libTable, bool silent) {
 							libTable->dependency = (struct SDMSTDependency *)realloc(libTable->dependency, sizeof(struct SDMSTDependency)*(libTable->dependencyCount+0x1));
 							libTable->dependency[libTable->dependencyCount].loadCmd = (uintptr_t)loadCmd;
 							libTable->dependency[libTable->dependencyCount].dyl = *linkedLibrary;
-							printf("%s\n",(char*)libTable->dependency[libTable->dependencyCount].loadCmd+libTable->dependency[libTable->dependencyCount].dyl.dylib.name.offset);
 							libTable->dependencyCount++;
 						}
 						break;

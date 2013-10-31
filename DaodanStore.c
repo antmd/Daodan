@@ -40,7 +40,7 @@ char *SDMDaodanInternalAppStoreDirectory() {
 	CFStringRef bundleId = CFBundleGetIdentifier(CFBundleGetMainBundle());
 	char *bundle = SDMCFStringGetString(bundleId);
 	storage = realloc(storage, sizeof(char)*(strlen(storage)+strlen(bundle)+0x2));
-	sprintf(storage,"%s/",bundle);
+	sprintf(storage,"%s/%s/",storage,bundle);
 	free(bundle);
 	return storage;
 }
@@ -48,25 +48,44 @@ char *SDMDaodanInternalAppStoreDirectory() {
 char* SDMDaodanStorePath() {
 	char *storage = SDMDaodanInternalAppStoreDirectory();
 	char *launchTime = SDMGetCurrentDateString();
-	storage = realloc(storage, sizeof(char)*(strlen(storage)+0x2+strlen(launchTime)));
-	sprintf(storage,"%s/",launchTime);
+	storage = realloc(storage, sizeof(char)*(strlen(storage)+0x1+strlen(launchTime)));
+	sprintf(storage,"%s%s/",storage,launchTime);
 	free(launchTime);
+	return storage;
+}
+
+char* SDMDaodanDumpStorePath() {
+	char *storage = SDMDaodanStorePath();
+	storage = realloc(storage, sizeof(char)*(strlen(storage)+0x1+strlen(getprogname())+0x5));
+	sprintf(storage,"%s%s.dump",storage,getprogname());
 	return storage;
 }
 
 
 void SDMDaodanCheckStorePath() {
 	char *daodanStore = SDMDaodanInternalStoreDirectory();
-	makeNewFolderAt(daodanStore, 0x2bc);
+	makeNewFolderAt(daodanStore, 0700);
 	free(daodanStore);
 	
 	char *appStore = SDMDaodanInternalAppStoreDirectory();
-	makeNewFolderAt(appStore, 0x2bc);
+	makeNewFolderAt(appStore, 0700);
 	free(appStore);
 	
 	char *newDump = SDMDaodanStorePath();
-	makeNewFolderAt(newDump, 0x2bc);
+	makeNewFolderAt(newDump, 0700);
 	free(newDump);
+}
+
+void SDMDaodanWriteHeaderInDumpFile(char *header, FILE *file) {
+	for (uint32_t i = 0x0; i < 0x50; i++) {
+		FWRITE_STRING_TO_FILE("=", file);
+	}
+	FWRITE_STRING_TO_FILE("\n",file);
+	FWRITE_STRING_TO_FILE(header, file);
+	for (uint32_t i = 0x0; i < 0x50; i++) {
+		FWRITE_STRING_TO_FILE("=", file);
+	}
+	FWRITE_STRING_TO_FILE("\n\n",file);
 }
 
 void SDMDaodanWriteSubroutine(struct SDMSTSubroutine *subroutine, struct SDMSTRange range, struct SDMDisasm *disasm, FILE *file) {
@@ -75,30 +94,38 @@ void SDMDaodanWriteSubroutine(struct SDMSTSubroutine *subroutine, struct SDMSTRa
 	fwrite(subroutineDefine, sizeof(char), strlen(subroutineDefine), file);
 	free(subroutineDefine);
 	SDM_disasm_setbuffer(disasm, (uint32_t*)range.offset, (uint32_t)range.length);
-	while (SDM_disasm_parse(*disasm)) {
+	while (SDM_disasm_parse(disasm)) {
 		char *line = (char*)ud_insn_asm(&(disasm->obj));
-		fwrite(line, sizeof(char), strlen(line), file);
-		fwrite("\n", sizeof(char), sizeof(char), file);
+		char *printLine = calloc(0x1, sizeof(char)*(strlen(line)+0x3));
+		sprintf(printLine,"\t%s\n",line);
+		fwrite(printLine, sizeof(char), strlen(printLine), file);
+		free(printLine);
 	}
 }
 
 void SDMDaodanWriteDumpForLibrary(char *dumpPath, struct SDMSTLibrary *libTable) {
-	FILE *file = fopen(dumpPath, "rw");
+	printf("%s\n",dumpPath);
+	FILE *file = fopen(dumpPath, "w+");
 	
+	SDMDaodanWriteHeaderInDumpFile("Header Information",file);
+	
+	SDMDaodanWriteHeaderInDumpFile("Symbol Table",file);
 	for (uint32_t i = 0x0; i < libTable->symbolCount; i++) {
 		
 	}
 	
+	SDMDaodanWriteHeaderInDumpFile("Linked Libraries",file);
 	for (uint32_t i = 0x0; i < libTable->dependencyCount; i++) {
 		
 	}
 	
-	struct SDMDisasm disasm = SDM_disasm_init((struct mach_header *)(libTable->libInfo->mhOffset));
+	SDMDaodanWriteHeaderInDumpFile("Subroutines",file);
+	struct SDMDisasm *disasm = SDM_disasm_init((struct mach_header *)(libTable->libInfo->mhOffset));
 	for (uint32_t i = 0x0; i < libTable->subroutineCount; i++) {
 		struct SDMSTRange range = SDMSTRangeOfSubroutine(&(libTable->subroutine[i]), libTable);
-		SDMDaodanWriteSubroutine(&(libTable->subroutine[i]), range, &disasm, file);
+		SDMDaodanWriteSubroutine(&(libTable->subroutine[i]), range, disasm, file);
 	}
-	
+	free(disasm);
 	fclose(file);
 }
 
@@ -118,7 +145,7 @@ void SDMDaodanWriteDumpForImage(char *dumpPath, char *imagePath, bool skipDepend
 
 void SDMDaodanWriteDump(struct SDMSTLibrary *libTable) {
 	SDMDaodanCheckStorePath();
-	char *linkStore = SDMDaodanStorePath();
+	char *linkStore = SDMDaodanDumpStorePath();
 	SDMDaodanWriteDumpForLibrary(linkStore, libTable);
 	/*
 	for (uint32_t i = 0x0; i < libTable->dependencyCount; i++) {
