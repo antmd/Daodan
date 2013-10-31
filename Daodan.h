@@ -41,7 +41,7 @@ void initDaodan();
 void unloadDaodan();
 uintptr_t daodanLookupFunction(char *name);
 void daodanLoadSymbolTableForImage(uint32_t index);
-
+uint32_t SDMGetIndexForLibraryPath(char *path);
 uint32_t SDMGetExecuteImage();
 uint32_t SDMGetImageLocation(const struct mach_header *mh, char **path);
 void SDMAddImageHook(const struct mach_header* mh, intptr_t vmaddr_slide);

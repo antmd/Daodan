@@ -200,9 +200,10 @@ void SDMSTFindSubroutines(struct SDMSTLibrary *libTable, bool silent) {
 							struct SDMSTSubroutine *aSubroutine = (struct SDMSTSubroutine *)calloc(0x1, sizeof(struct SDMSTSubroutine));
 							aSubroutine->offset = (uintptr_t)(address+offset);
 							
-							sprintf(buffer, "%x", (unsigned int)(aSubroutine->offset));
+							unsigned int offset = (unsigned int)(aSubroutine->offset-_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber));
+							sprintf(buffer, "%x", offset);
 							aSubroutine->name = calloc(0x5 + (strlen(buffer)), sizeof(char));
-							sprintf(aSubroutine->name, "sub_%x", (unsigned int)(aSubroutine->offset));
+							sprintf(aSubroutine->name, "sub_%x", offset);
 							
 							aSubroutine->sectionOffset = textSectionOffset;
 							

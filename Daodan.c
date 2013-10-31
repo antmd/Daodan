@@ -456,6 +456,15 @@ void daodanLoadSymbolTableForImage(uint32_t index) {
 	binaryTable = SDMSTLoadLibrary((char*)_dyld_get_image_name(index),index, FALSE);
 }
 
+uint32_t SDMGetIndexForLibraryPath(char *path) {
+	uint32_t index;
+	for (index = 0x0; index < _dyld_image_count(); index++) {
+		if (strcmp(path, _dyld_get_image_name(index)))
+			break;
+	}
+	return index;
+}
+
 uint32_t SDMGetExecuteImage() {
 	SDMPrint(DEFAULT_LOGGER,PrintCode_TRY,"Looking for application binary...");
 	struct mach_header *imageHeader;

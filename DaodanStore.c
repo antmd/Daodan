@@ -13,6 +13,7 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <mach-o/dyld.h>
 #include "disasm.h"
+#include "Daodan.h"
 
 char* SDMGetCurrentDateString() {
 	time_t epoch;
@@ -77,6 +78,7 @@ void SDMDaodanCheckStorePath() {
 }
 
 void SDMDaodanWriteHeaderInDumpFile(char *header, FILE *file) {
+	FWRITE_STRING_TO_FILE("\n",file);
 	for (uint32_t i = 0x0; i < 0x50; i++) {
 		FWRITE_STRING_TO_FILE("=", file);
 	}
@@ -85,7 +87,7 @@ void SDMDaodanWriteHeaderInDumpFile(char *header, FILE *file) {
 	for (uint32_t i = 0x0; i < 0x50; i++) {
 		FWRITE_STRING_TO_FILE("=", file);
 	}
-	FWRITE_STRING_TO_FILE("\n\n",file);
+	FWRITE_STRING_TO_FILE("\n",file);
 }
 
 void SDMDaodanWriteSubroutine(struct SDMSTSubroutine *subroutine, struct SDMSTRange range, struct SDMDisasm *disasm, FILE *file) {
@@ -107,19 +109,23 @@ void SDMDaodanWriteDumpForLibrary(char *dumpPath, struct SDMSTLibrary *libTable)
 	printf("%s\n",dumpPath);
 	FILE *file = fopen(dumpPath, "w+");
 	
-	SDMDaodanWriteHeaderInDumpFile("Header Information",file);
+	SDMDaodanWriteHeaderInDumpFile("Header Information\n",file);
 	
-	SDMDaodanWriteHeaderInDumpFile("Symbol Table",file);
+	SDMDaodanWriteHeaderInDumpFile("Symbol Table\n",file);
 	for (uint32_t i = 0x0; i < libTable->symbolCount; i++) {
 		
 	}
 	
-	SDMDaodanWriteHeaderInDumpFile("Linked Libraries",file);
+	SDMDaodanWriteHeaderInDumpFile("Linked Libraries\n",file);
 	for (uint32_t i = 0x0; i < libTable->dependencyCount; i++) {
-		
+		char *path = (char *)(libTable->dependency[i].loadCmd + libTable->dependency[i].dyl.dylib.name.offset);
+		uintptr_t slide = _dyld_get_image_vmaddr_slide(SDMGetIndexForLibraryPath(path));
+		char *slideAndPath = calloc(0x1, sizeof(char)*(strlen(path)+0xd));
+		sprintf(slideAndPath, "\t0x%08lx %s\n",slide,path);
+		FWRITE_STRING_TO_FILE(slideAndPath, file);
 	}
 	
-	SDMDaodanWriteHeaderInDumpFile("Subroutines",file);
+	SDMDaodanWriteHeaderInDumpFile("Subroutines\n",file);
 	struct SDMDisasm *disasm = SDM_disasm_init((struct mach_header *)(libTable->libInfo->mhOffset));
 	for (uint32_t i = 0x0; i < libTable->subroutineCount; i++) {
 		struct SDMSTRange range = SDMSTRangeOfSubroutine(&(libTable->subroutine[i]), libTable);
@@ -130,11 +136,7 @@ void SDMDaodanWriteDumpForLibrary(char *dumpPath, struct SDMSTLibrary *libTable)
 }
 
 void SDMDaodanWriteDumpForImage(char *dumpPath, char *imagePath, bool skipDependencies) {
-	uint32_t index;
-	for (index = 0x0; index < _dyld_image_count(); index++) {
-		if (strcmp(imagePath, _dyld_get_image_name(index)))
-			break;
-	}
+	uint32_t index = SDMGetIndexForLibraryPath(imagePath);
 	struct SDMSTLibrary *dumpLibrary = SDMSTLoadLibrary(imagePath, index, TRUE);
 	if (!skipDependencies) {
 		SDMDaodanWriteDump(dumpLibrary);
