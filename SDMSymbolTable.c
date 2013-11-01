@@ -103,7 +103,7 @@ void SDMSTBuildLibraryInfo(struct SDMSTLibrary *libTable, bool silent) {
 			libTable->libInfo->symtabCount = 0x0;
 			libTable->dependency = (struct SDMSTDependency *)calloc(0x1, sizeof(struct SDMSTDependency));
 			libTable->dependencyCount = 0x0;
-			libTable->libInfo->functCmd = (struct SDMSTFunctionCommand *)calloc(0x1, sizeof(struct SDMSTFunctionCommand));
+			libTable->libInfo->functCmd = NULL;
 			for (uint32_t i = 0x0; i < libHeader->ncmds; i++) {
 				switch (loadCmd->cmd) {
 					case LC_SYMTAB: {
@@ -169,6 +169,7 @@ void SDMSTFindFunctionAddress(uint8_t **fPointer, struct SDMSTLibrary *libTable)
 		sprintf(buffer, "%lx", (subroutine->offset));
 		subroutine->name = calloc(0x1, sizeof(char)*(0x5 + (strlen(buffer))));
 		sprintf(subroutine->name, "sub_%lx", (subroutine->offset));
+		subroutine->sectionOffset = 0xffffffff;
 		free(buffer);
 		libTable->subroutineCount++;
 	}
@@ -187,41 +188,30 @@ void SDMSTFindSubroutines(struct SDMSTLibrary *libTable, bool silent) {
 	bool hasLCFunctionStarts = FALSE;
 	libTable->subroutine = (struct SDMSTSubroutine *)calloc(0x1, sizeof(struct SDMSTSubroutine));
 	libTable->subroutineCount = 0x0;
+	uint32_t textSections = 0x0, flags = 0x0;
+	uint64_t pageZero = 0x0, size = 0x0, address = 0x0;
+	if (libTable->libInfo->is64bit) {
+		textSections = ((struct segment_command_64*)(libTable->libInfo->textSeg))->nsects;
+		pageZero = ((struct segment_command_64 *)(libTable->libInfo->textSeg))->vmaddr;
+	} else {
+		textSections = ((struct segment_command *)(libTable->libInfo->textSeg))->nsects;
+		pageZero = ((struct segment_command *)(libTable->libInfo->textSeg))->vmaddr;
+	}
+	uintptr_t textSectionOffset = (uintptr_t)(libTable->libInfo->textSeg);
+	if (libTable->libInfo->is64bit) {
+		textSectionOffset += sizeof(struct segment_command_64);
+	} else {
+		textSectionOffset += sizeof(struct segment_command);
+	}
 	if (libTable->libInfo->functCmd) {
 		hasLCFunctionStarts = TRUE;
-		struct stat fs;
-		stat(libTable->libraryPath, &fs);
-		FILE *fd = fopen(libTable->libraryPath, "r");
-		uint8_t *functionCalls = calloc(0x1, sizeof(uint8_t)*libTable->libInfo->functCmd->size);
-		uint32_t functionOffset = ((uint32_t)(libTable->libInfo->functCmd->offset));
-		fseek(fd, (long)functionOffset, SEEK_SET);
-		fread(functionCalls, sizeof(uint8_t), libTable->libInfo->functCmd->size, fd);
-		fclose(fd);
-		uint8_t *functionPointer = functionCalls;
-		while (functionPointer < (functionCalls + libTable->libInfo->functCmd->size)) {
+		uintptr_t functionOffset = (uintptr_t)(libTable->libInfo->functCmd->offset+_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber)+pageZero);
+		uint8_t *functionPointer = (uint8_t*)functionOffset;
+		while ((uintptr_t)functionPointer < (functionOffset + libTable->libInfo->functCmd->size)) {
 			SDMSTFindFunctionAddress(&functionPointer, libTable);
 		}
-		free(functionCalls);
 	}
 	if (libTable->libInfo->arch.type == CPU_TYPE_X86_64 || libTable->libInfo->arch.type == CPU_TYPE_I386) {
-		uint32_t textSections = 0x0;
-		uint64_t pageZero = 0x0;
-		if (libTable->libInfo->is64bit) {
-			textSections = ((struct segment_command_64*)(libTable->libInfo->textSeg))->nsects;
-			pageZero = ((struct segment_command_64 *)(libTable->libInfo->textSeg))->vmaddr;
-		} else {
-			textSections = ((struct segment_command *)(libTable->libInfo->textSeg))->nsects;
-			pageZero = ((struct segment_command *)(libTable->libInfo->textSeg))->vmaddr;
-		}
-		uintptr_t textSectionOffset = (uintptr_t)(libTable->libInfo->textSeg);
-		if (libTable->libInfo->is64bit) {
-			textSectionOffset += sizeof(struct segment_command_64);
-		} else {
-			textSectionOffset += sizeof(struct segment_command);
-		}
-		uint32_t flags = 0x0;
-		uint64_t size = 0x0;
-		uint64_t address = 0x0;
 		for (uint32_t i = 0x0; i < textSections; i++) {
 			if (libTable->libInfo->is64bit) {
 				flags = ((struct section_64 *)(textSectionOffset))->flags;
@@ -232,58 +222,62 @@ void SDMSTFindSubroutines(struct SDMSTLibrary *libTable, bool silent) {
 				size = ((struct section *)(textSectionOffset))->size;
 				address = ((struct section *)(textSectionOffset))->addr + _dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber);
 			}
-			Dl_info info;
-			uint32_t loaded = dladdr((void*)(address), &info);
-			if (loaded != 0x0) {
-				if (((flags & S_REGULAR)==0x0) && ((flags & S_ATTR_PURE_INSTRUCTIONS) || (flags & S_ATTR_SOME_INSTRUCTIONS))) {
-					uint64_t offset = 0x0;
-					bool isIntel64bitArch = (libTable->libInfo->is64bit && libTable->libInfo->arch.type == CPU_TYPE_X86_64);
-					while (offset < (size - (isIntel64bitArch ? Intel_x86_64bit_StackSetupLength : Intel_x86_32bit_StackSetupLength))) {
-						uint32_t result = 0x0;
-						if (isIntel64bitArch) {
-							result = memcmp((void*)(address+offset), &(Intel_x86_64bit_StackSetup[0x0]), Intel_x86_64bit_StackSetupLength);
-						} else {
-							result = memcmp((void*)(address+offset), &(Intel_x86_32bit_StackSetup[0x0]), Intel_x86_32bit_StackSetupLength);
+			if (hasLCFunctionStarts) {
+				for (uint32_t j = 0x0; j < libTable->subroutineCount; j++) {
+					if (libTable->subroutine[j].sectionOffset == 0xffffffff) {
+						uint64_t subOffset = pageZero+_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber)+libTable->subroutine[j].offset;
+						if (subOffset < (address+size)) {
+							libTable->subroutine[j].sectionOffset = textSectionOffset;
+							libTable->subroutine[j].offset = (uintptr_t)(pageZero+_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber)+libTable->subroutine[j].offset);
 						}
-						if (!result) {
-							if (hasLCFunctionStarts) {
-								for (uint32_t j = 0x0; j < libTable->subroutineCount; j++) {
-									uint64_t subOffset = pageZero+_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber)+libTable->subroutine[j].offset;
-									if (subOffset == (address+offset)) {
-										libTable->subroutine[j].sectionOffset = textSectionOffset;
-										libTable->subroutine[j].offset = (uintptr_t)(address+offset);
-									}
-								}
-							} else {
-								char *buffer = calloc(0x1, sizeof(char)*0x400);
-								libTable->subroutine = realloc(libTable->subroutine, ((libTable->subroutineCount+0x1)*sizeof(struct SDMSTSubroutine)));
-								struct SDMSTSubroutine *aSubroutine = (struct SDMSTSubroutine *)calloc(0x1, sizeof(struct SDMSTSubroutine));
-								aSubroutine->offset = (uintptr_t)(address+offset)-_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber);
-								
-								sprintf(buffer, "%lx", aSubroutine->offset);
-								aSubroutine->name = calloc(0x5 + (strlen(buffer)), sizeof(char));
-								sprintf(aSubroutine->name, "sub_%lx", aSubroutine->offset);
-								
-								aSubroutine->sectionOffset = textSectionOffset;
-								
-								memcpy(&(libTable->subroutine[libTable->subroutineCount]), aSubroutine, sizeof(struct SDMSTSubroutine));
-								free(aSubroutine);
-								free(buffer);
-								libTable->subroutineCount++;
-							}
-						}
-						offset++;
 					}
 				}
 			} else {
-				SDMPrint(silent,PrintCode_ERR,"Image for address (%08llx) is not loaded",address);
+				Dl_info info;
+				uint32_t loaded = dladdr((void*)(address), &info);
+				if (loaded != 0x0) {
+					if (((flags & S_REGULAR)==0x0) && ((flags & S_ATTR_PURE_INSTRUCTIONS) || (flags & S_ATTR_SOME_INSTRUCTIONS))) {
+						uint64_t offset = 0x0;
+						bool isIntel64bitArch = (libTable->libInfo->is64bit && libTable->libInfo->arch.type == CPU_TYPE_X86_64);
+						if (size) {
+							while (offset < (size - (isIntel64bitArch ? Intel_x86_64bit_StackSetupLength : Intel_x86_32bit_StackSetupLength))) {
+								uint32_t result = 0x0;
+								if (isIntel64bitArch) {
+									result = memcmp((void*)(address+offset), &(Intel_x86_64bit_StackSetup[0x0]), Intel_x86_64bit_StackSetupLength);
+								} else {
+									result = memcmp((void*)(address+offset), &(Intel_x86_32bit_StackSetup[0x0]), Intel_x86_32bit_StackSetupLength);
+								}
+								if (!result) {
+									char *buffer = calloc(0x1, sizeof(char)*0x400);
+									libTable->subroutine = realloc(libTable->subroutine, ((libTable->subroutineCount+0x1)*sizeof(struct SDMSTSubroutine)));
+									struct SDMSTSubroutine *aSubroutine = (struct SDMSTSubroutine *)calloc(0x1, sizeof(struct SDMSTSubroutine));
+									aSubroutine->offset = (uintptr_t)(address+offset);
+									
+									sprintf(buffer, "%lx", aSubroutine->offset);
+									aSubroutine->name = calloc(0x5 + (strlen(buffer)), sizeof(char));
+									sprintf(aSubroutine->name, "sub_%lx", aSubroutine->offset);
+									
+									aSubroutine->sectionOffset = textSectionOffset;
+									
+									memcpy(&(libTable->subroutine[libTable->subroutineCount]), aSubroutine, sizeof(struct SDMSTSubroutine));
+									free(aSubroutine);
+									free(buffer);
+									libTable->subroutineCount++;
+								}
+								offset++;
+							}
+						}
+					}
+				} else {
+					SDMPrint(silent,PrintCode_ERR,"Image for address (%08llx) is not loaded",address);
+				}
 			}
 			textSectionOffset += (libTable->libInfo->is64bit ? sizeof(struct section_64) : sizeof(struct section));
 		}
 		SDMPrint(silent,PrintCode_OK,"Found %i subroutines",libTable->subroutineCount);
 	} else {
 		SDMPrint(silent,PrintCode_ERR,"Daodan only supports subroutines on Intel binaries");
-	}
+	}	
 }
 
 struct SDMSTRange SDMSTRangeOfSubroutine(struct SDMSTSubroutine *subroutine, struct SDMSTLibrary *libTable) {
@@ -367,6 +361,21 @@ void SDMSTGenerateSortedSymbolTable(struct SDMSTLibrary *libTable, bool silent) 
 		qsort(libTable->table, libTable->symbolCount, sizeof(struct SDMSTMachOSymbol), SDMSTCompareTableEntries);
 	}
 	SDMPrint(silent,PrintCode_OK,"Found %i symbols",libTable->symbolCount);
+}
+
+void SDMSTMapSymbolsToSubroutines(struct SDMSTLibrary *libTable, bool silent) {
+	SDMPrint(silent,PrintCode_TRY,"Mapping Symbols to Subroutines...");
+	for (uint32_t i = 0x0; i < libTable->symbolCount; i++) {
+		for (uint32_t j = 0x0; j < libTable->subroutineCount; j++) {
+			if (libTable->table[i].offset == libTable->subroutine[j].offset) {
+				libTable->subroutine[j].name = realloc(libTable->subroutine[j].name, sizeof(char)*(strlen(libTable->table[i].name)+0x1));
+				memcpy(libTable->subroutine[j].name, libTable->table[i].name, sizeof(char)*strlen(libTable->table[i].name));
+			}
+		}
+	}
+	for (uint32_t i = 0x0; i < libTable->subroutineCount; i++) {
+		
+	}
 }
 
 struct SDMSTBinary* SDMSTLoadBinaryFromFile(void* handle) {
@@ -473,6 +482,7 @@ struct SDMSTLibrary* SDMSTLoadLibrary(char *path, uint32_t index, bool silent) {
 		SDMSTBuildLibraryInfo(table, silent);
 		SDMSTGenerateSortedSymbolTable(table, silent);
 		SDMSTFindSubroutines(table, silent);
+		SDMSTMapSymbolsToSubroutines(table, silent);
 	} else {
 		table->couldLoad = FALSE;
 		SDMPrint(silent,PrintCode_ERR,"Could not load MachO");
