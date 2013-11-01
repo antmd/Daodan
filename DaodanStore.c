@@ -95,13 +95,16 @@ void SDMDaodanWriteSubroutine(struct SDMSTSubroutine *subroutine, struct SDMSTRa
 	sprintf(subroutineDefine, "\n%s:\n",subroutine->name);
 	FWRITE_STRING_TO_FILE(subroutineDefine, file);
 	free(subroutineDefine);
-	SDM_disasm_setbuffer(disasm, (uint32_t*)range.offset, (uint32_t)range.length);
-	while (SDM_disasm_parse(disasm)) {
-		char *line = (char*)ud_insn_asm(&(disasm->obj));
-		char *printLine = calloc(0x1, sizeof(char)*(strlen(line)+0x3));
-		sprintf(printLine,"\t%s\n",line);
-		FWRITE_STRING_TO_FILE(printLine, file);
-		free(printLine);
+	printf("%016lx %lld\n",range.offset,range.length);
+	if (range.length) {
+		SDM_disasm_setbuffer(disasm, range.offset, range.length);
+		while (SDM_disasm_parse(disasm)) {
+			char *line = (char*)ud_insn_asm(&(disasm->obj));
+			char *printLine = calloc(0x1, sizeof(char)*(strlen(line)+0x3));
+			sprintf(printLine,"\t%s\n",line);
+			FWRITE_STRING_TO_FILE(printLine, file);
+			free(printLine);
+		}
 	}
 }
 
@@ -117,17 +120,25 @@ void SDMDaodanWriteDumpForLibrary(char *dumpPath, struct SDMSTLibrary *libTable)
 	SDMPrint(FALSE,PrintCode_TRY,"Writing Symbol Table...");
 	SDMDaodanWriteHeaderInDumpFile("Symbol Table\n",file);
 	for (uint32_t i = 0x0; i < libTable->symbolCount; i++) {
-		
+		char *symbolName = (char *)(libTable->table[i].name);
+		char *nameAndOffset = calloc(0x1, sizeof(char)*(strlen(symbolName)+0x15));
+		uintptr_t slide = _dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber);
+		sprintf(nameAndOffset, "\t0x%016lx %s\n",((libTable->table[i].offset)-slide),symbolName);
+		FWRITE_STRING_TO_FILE(nameAndOffset, file);
+		free(nameAndOffset);
 	}
+	
 	SDMPrint(FALSE,PrintCode_TRY,"Writing Linked Libraries...");
 	SDMDaodanWriteHeaderInDumpFile("Linked Libraries\n",file);
 	for (uint32_t i = 0x0; i < libTable->dependencyCount; i++) {
 		char *path = (char *)(libTable->dependency[i].loadCmd + libTable->dependency[i].dyl.dylib.name.offset);
 		uintptr_t slide = _dyld_get_image_vmaddr_slide(SDMGetIndexForLibraryPath(path));
-		char *slideAndPath = calloc(0x1, sizeof(char)*(strlen(path)+0xd));
-		sprintf(slideAndPath, "\t0x%08lx %s\n",slide,path);
+		char *slideAndPath = calloc(0x1, sizeof(char)*(strlen(path)+0x15));
+		sprintf(slideAndPath, "\t0x%016lx %s\n",slide,path);
 		FWRITE_STRING_TO_FILE(slideAndPath, file);
+		free(slideAndPath);
 	}
+	
 	SDMPrint(FALSE,PrintCode_TRY,"Writing Subroutines...");
 	SDMDaodanWriteHeaderInDumpFile("Subroutines\n",file);
 	struct SDMDisasm *disasm = SDM_disasm_init((struct mach_header *)(libTable->libInfo->mhOffset));
@@ -135,6 +146,7 @@ void SDMDaodanWriteDumpForLibrary(char *dumpPath, struct SDMSTLibrary *libTable)
 		struct SDMSTRange range = SDMSTRangeOfSubroutine(&(libTable->subroutine[i]), libTable);
 		SDMDaodanWriteSubroutine(&(libTable->subroutine[i]), range, disasm, file);
 	}
+	
 	free(disasm);
 	fclose(file);
 	SDMPrint(FALSE,PrintCode_OK,"Successfully written dump to path: %s",dumpPath);

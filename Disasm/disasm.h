@@ -90,9 +90,9 @@ typedef enum Endianness {
 } Endianness;
 
 typedef struct SDMDisasmObject {
-	uint32_t *buffer;
-	uint32_t length;
-	uint32_t remainder;
+	uintptr_t buffer;
+	uint64_t length;
+	uint64_t remainder;
 } ATR_PACK SDMDisasmObject;
 
 struct SDMDisasm {
@@ -106,7 +106,7 @@ struct SDMDisasm {
 };
 
 struct SDMDisasm* SDM_disasm_init(struct mach_header *header);
-void SDM_disasm_setbuffer(struct SDMDisasm *disasm, uint32_t *buffer, uint32_t length);
-uint32_t SDM_disasm_parse(struct SDMDisasm *disasm);
+void SDM_disasm_setbuffer(struct SDMDisasm *disasm, uintptr_t buffer, uint64_t length);
+uint64_t SDM_disasm_parse(struct SDMDisasm *disasm);
 
 #endif

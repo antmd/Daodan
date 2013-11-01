@@ -28,6 +28,12 @@
 #pragma mark -
 #pragma mark Types
 
+typedef struct SDMSTFunctionCommand {
+	struct load_command loadCmd;
+	uint32_t offset;
+	uint32_t size;
+} ATR_PACK SDMSTFunctionCommand;
+
 typedef struct SDMSTSymbolTableListEntry {
 	union {
 		uint32_t n_strx;
@@ -74,6 +80,7 @@ typedef struct SDMSTLibraryTableInfo {
 	struct SDMSTSegmentEntry *linkSeg;
 	struct symtab_command *symtabCommands;
 	uint32_t symtabCount;
+	struct SDMSTFunctionCommand *functCmd;
 	uint32_t headerMagic;
 	bool is64bit;
 	struct SDMSTLibraryArchitecture arch;
@@ -99,7 +106,6 @@ typedef struct SDMSTDependency {
 } ATR_PACK SDMSTDependency;
 
 typedef struct SDMSTLibrary {
-	uint32_t vmIndex;
 	bool couldLoad;
 	char *libraryPath;
 	uintptr_t* libraryHandle;
