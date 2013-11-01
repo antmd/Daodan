@@ -164,14 +164,17 @@ void SDMSTFindFunctionAddress(uint8_t **fPointer, struct SDMSTLibrary *libTable)
 		}
 	} while ((*pointer++ & 0x80) != 0x0);
 	
-	char *buffer = calloc(0x1, sizeof(char)*0x400);
-	libTable->subroutine = realloc(libTable->subroutine, sizeof(struct SDMSTSubroutine)*(libTable->subroutineCount+0x1));
-	struct SDMSTSubroutine *subroutine = &(libTable->subroutine[libTable->subroutineCount]);
-	subroutine->offset = offset + (libTable->subroutineCount ? libTable->subroutine[libTable->subroutineCount-0x1].offset : 0x0);
-	sprintf(buffer, "%lx", (subroutine->offset));
-	subroutine->name = calloc(0x1, sizeof(char)*(0x5 + (strlen(buffer))));
-	sprintf(subroutine->name, "sub_%lx", (subroutine->offset));
-	free(buffer);
+	if (offset) {
+		char *buffer = calloc(0x1, sizeof(char)*0x400);
+		libTable->subroutine = realloc(libTable->subroutine, sizeof(struct SDMSTSubroutine)*(libTable->subroutineCount+0x1));
+		struct SDMSTSubroutine *subroutine = &(libTable->subroutine[libTable->subroutineCount]);
+		subroutine->offset = offset + (libTable->subroutineCount ? libTable->subroutine[libTable->subroutineCount-0x1].offset : 0x0);
+		sprintf(buffer, "%lx", (subroutine->offset));
+		subroutine->name = calloc(0x1, sizeof(char)*(0x5 + (strlen(buffer))));
+		sprintf(subroutine->name, "sub_%lx", (subroutine->offset));
+		free(buffer);
+		libTable->subroutineCount++;
+	}
 	*fPointer = pointer;
 }
 
@@ -200,7 +203,6 @@ void SDMSTFindSubroutines(struct SDMSTLibrary *libTable, bool silent) {
 		uint8_t *functionPointer = functionCalls;
 		while (functionPointer < (functionCalls + libTable->libInfo->functCmd->size)) {
 			SDMSTFindFunctionAddress(&functionPointer, libTable);
-			libTable->subroutineCount++;
 		}
 		free(functionCalls);
 	}
@@ -299,10 +301,10 @@ struct SDMSTRange SDMSTRangeOfSubroutine(struct SDMSTSubroutine *subroutine, str
 				uint64_t size, address;
 				if (libTable->libInfo->is64bit) {
 					size = ((struct section_64 *)(subroutine->sectionOffset))->size;
-					address = ((struct section_64 *)(subroutine->sectionOffset))->addr;
+					address = ((struct section_64 *)(subroutine->sectionOffset))->addr + _dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber);
 				} else {
 					size = ((struct section *)(subroutine->sectionOffset))->size;
-					address = ((struct section *)(subroutine->sectionOffset))->addr;
+					address = ((struct section *)(subroutine->sectionOffset))->addr + _dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber);
 				}
 				range.length = ((address+size) - range.offset);
 			}
@@ -348,7 +350,6 @@ void SDMSTGenerateSortedSymbolTable(struct SDMSTLibrary *libTable, bool silent) 
 					if (aSymbol) {
 						aSymbol->tableNumber = i;
 						aSymbol->symbolNumber = j;
-						//printf("%08lx ",symbolAddress);
 						aSymbol->offset = (uintptr_t)symbolAddress + (libTable->couldLoad ? _dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber) : 0x0);
 						if (entry->n_un.n_strx && (entry->n_un.n_strx < cmd->strsize)) {
 							aSymbol->name = ((char *)strTable + entry->n_un.n_strx);
@@ -360,14 +361,13 @@ void SDMSTGenerateSortedSymbolTable(struct SDMSTLibrary *libTable, bool silent) 
 						}
 						memcpy(&(libTable->table[libTable->symbolCount]), aSymbol, sizeof(struct SDMSTMachOSymbol));
 						free(aSymbol);
-						//printf("%08lx is %s\n",libTable->table[libTable->symbolCount].offset, libTable->table[libTable->symbolCount].name);
 						libTable->symbolCount++;
 					}
 				}
 				entry = (struct SDMSTSymbolTableListEntry *)((char*)entry + (sizeof(struct SDMSTSymbolTableListEntry) + (libTable->libInfo->is64bit ? sizeof(uint64_t) : sizeof(uint32_t))));
 			}
 		}
-		//qsort(libTable->table, libTable->symbolCount, sizeof(struct SDMSTMachOSymbol), SDMSTCompareTableEntries);
+		qsort(libTable->table, libTable->symbolCount, sizeof(struct SDMSTMachOSymbol), SDMSTCompareTableEntries);
 	}
 	SDMPrint(silent,PrintCode_OK,"Found %i symbols",libTable->symbolCount);
 }

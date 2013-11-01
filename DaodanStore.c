@@ -95,7 +95,6 @@ void SDMDaodanWriteSubroutine(struct SDMSTSubroutine *subroutine, struct SDMSTRa
 	sprintf(subroutineDefine, "\n%s:\n",subroutine->name);
 	FWRITE_STRING_TO_FILE(subroutineDefine, file);
 	free(subroutineDefine);
-	printf("%016lx %lld\n",range.offset,range.length);
 	if (range.length) {
 		SDM_disasm_setbuffer(disasm, range.offset, range.length);
 		while (SDM_disasm_parse(disasm)) {
