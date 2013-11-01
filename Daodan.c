@@ -26,10 +26,9 @@
 #include <security/mac.h>
 #include <mach-o/dyld.h>
 #include <notify.h>
-
+#include <signal.h>
 #include <mach/std_types.h>
 #include <mach/mach_traps.h>
-#include <signal.h>
 #include <mach/mach_init.h>
 #include <mach/vm_map.h>
 #include <mach/mach_vm.h>

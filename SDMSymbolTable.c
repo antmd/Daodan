@@ -23,11 +23,9 @@
 #pragma mark Includes
 #include "SDMSymbolTable.h"
 #pragma mark sys/*
-#include <sys/stat.h>
 #include <sys/mman.h>
 #include <sys/sysctl.h>
 #include <sys/errno.h>
-#include <sys/types.h>
 #pragma mark mach/*
 #include <mach/mach.h>
 #pragma mark mach-o/*
@@ -38,7 +36,6 @@
 #pragma mark other
 #include <fcntl.h>
 #include <dlfcn.h>
-#include <math.h>
 
 #pragma mark -
 #pragma mark Defines

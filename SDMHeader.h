@@ -28,6 +28,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <math.h>
+#include <sys/types.h>
 #include <sys/stat.h>
 
 #pragma mark -
@@ -83,7 +85,7 @@ struct SDMSTRange {
 
 #define FWRITE_STRING_TO_FILE(a,b) fwrite(a, sizeof(char), strlen(a), b)
 
-inline bool makeNewFolderAt(char *path, int mode) {
+inline bool makeNewFolderAt(char *path, mode_t mode) {
 	bool result = false;
 	struct stat st;
 	if (stat(path, &st) == -1) {
