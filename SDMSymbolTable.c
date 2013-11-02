@@ -70,6 +70,7 @@ uintptr_t* SDMSTGetCurrentArchFromBinary(struct SDMSTBinary *binary);
 bool SMDSTSymbolDemangleAndCompare(char *symFromTable, char *symbolName);
 SDMSTFunctionCall SDMSTSymbolLookup(struct SDMSTLibrary *libTable, char *symbolName);
 void SDMSTFindFunctionAddress(uint8_t **fPointer, struct SDMSTLibrary *libTable);
+extern inline struct SDMSTObjcClass* SDMSTObjc2ClassCreateFromClass(struct SDMSTObjc2Class *cls, struct SDMSTObjc2Class *parentClass, struct SDMSTRange dataRange);
 
 #pragma mark -
 #pragma mark Functions
@@ -117,8 +118,18 @@ void SDMSTBuildLibraryInfo(struct SDMSTLibrary *libTable, bool silent) {
 						struct SDMSTSegmentEntry *seg = (struct SDMSTSegmentEntry *)loadCmd;
 						if ((libTable->libInfo->textSeg == NULL) && !strncmp(SEG_TEXT,seg->segname,sizeof(seg->segname))) {
 							libTable->libInfo->textSeg = (struct SDMSTSegmentEntry *)seg;
-						} else if ((libTable->libInfo->linkSeg == NULL) && !strncmp(SEG_LINKEDIT,seg->segname,sizeof(seg->segname))) {
+						}
+						if ((libTable->libInfo->linkSeg == NULL) && !strncmp(SEG_LINKEDIT,seg->segname,sizeof(seg->segname))) {
 							libTable->libInfo->linkSeg = (struct SDMSTSegmentEntry *)seg;
+						}
+						if (libTable->libInfo->is64bit) {
+							if ((libTable->libInfo->objcSeg == NULL) && !strncmp(SEG_DATA, seg->segname, sizeof(seg->segname))) {
+								libTable->libInfo->objcSeg = (struct SDMSTSegmentEntry *)seg;
+							}
+						} else {
+							if ((libTable->libInfo->objcSeg == NULL) && !strncmp(SEG_OBJC, seg->segname, sizeof(seg->segname))) {
+								libTable->libInfo->objcSeg = (struct SDMSTSegmentEntry *)seg;
+							}
 						}
 						break;
 					}
@@ -363,19 +374,99 @@ void SDMSTGenerateSortedSymbolTable(struct SDMSTLibrary *libTable, bool silent) 
 	SDMPrint(silent,PrintCode_OK,"Found %i symbols",libTable->symbolCount);
 }
 
+bool SDMSTMapObjcClasses32(struct SDMSTLibrary *libTable, bool silent) {
+	bool result = false;//(libTable->libInfo->objcSeg ? true : false);
+	if (result) {
+		/*struct SDMSTObjc *objcData = calloc(0x1, sizeof(struct SDMSTObjc));
+		objcData->moduleCount = 0x0;
+		uintptr_t *offset = (uintptr_t *)(((struct segment_command *)(libTable->libInfo->objcSeg)) + sizeof(struct segment_command));
+		uint32_t sectionCount = ((struct segment_command *)(libTable->libInfo->objcSeg))->nsects;
+		struct SDMSTObjcModuleRaw *module;
+		for (uint32_t i = 0x0; i < sectionCount; i++) {
+			char *sectionName = (char*)((struct section *)offset)->sectname;
+			if (strcmp(sectionName, kObjcModuleInfo) == 0x0) {
+				module = (struct SDMSTObjcModuleRaw *)(libTable->libInfo->mhOffset + ((struct section *)offset)->offset);
+				objcData->moduleCount = (((struct section *)offset)->size)/sizeof(struct SDMSTObjcModuleRaw);
+				break;
+			}
+			offset = offset + sizeof(struct section);
+		}
+		if (objcData->moduleCount) {
+			objcData->module = calloc(objcData->moduleCount, sizeof(struct SDMSTObjcModule));
+			for (uint32_t i = 0x0; i < objcData->moduleCount; i++) {
+				objcData->module[i].impName = (char*)&(module[i].name);
+				objcData->module[i].symbol = SDMSTObjcCreateClassFromSymbol(&(module[i].symtab));
+			}
+		}
+		free(objcData);*/
+	}
+	return result;
+}
+
+bool SDMSTMapObjcClasses64(struct SDMSTLibrary *libTable, bool silent) {
+	bool result = (libTable->libInfo->objcSeg ? true : false);
+	if (result) {
+		struct SDMSTObjc *objcData = calloc(0x1, sizeof(struct SDMSTObjc));
+		struct segment_command_64 *dataSeg = ((struct segment_command_64 *)(libTable->libInfo->objcSeg));
+		struct SDMSTRange dataRange = SDMSTRangeMake((uintptr_t)((uint64_t)(dataSeg->vmaddr&0xffffffff)+((uint64_t)(_dyld_get_image_header(libTable->libInfo->imageNumber)))),dataSeg->vmsize);
+		struct section_64 *section = (struct section_64 *)((uint64_t)(dataSeg)+(uint64_t)sizeof(struct segment_command_64));
+		uint32_t sectionCount = (dataSeg)->nsects;
+		for (uint32_t i = 0x0; i < sectionCount; i++) {
+			char *sectionName = (char*)(section->sectname);
+			if (strncmp(sectionName, kObjc2ClassList, sizeof(char)*0x10) == 0x0) {
+				objcData->clsCount = (uint32_t)((section->size)/sizeof(uint64_t));
+				break;
+			}
+			section = (struct section_64 *)((uint64_t)section + (uint64_t)sizeof(struct section_64));
+		}
+		if (objcData->clsCount) {
+			objcData->cls = calloc(objcData->clsCount, sizeof(struct SDMSTObjcClass));
+			for (uint32_t i = 0x0; i < objcData->clsCount; i++) {
+				uint64_t *classes = (uint64_t*)(((uint64_t)(section->addr)&0xffffffff)+((uint64_t)(_dyld_get_image_header(libTable->libInfo->imageNumber))));
+				struct SDMSTObjc2Class *cls = (struct SDMSTObjc2Class *)(classes[i]);
+				struct SDMSTObjcClass *objclass = SDMSTObjc2ClassCreateFromClass(cls, 0x0, dataRange);
+				printf("class: %s\n",objclass->className);
+				//memcpy(&(objcData->cls[i]), SDMSTObjc2ClassCreateFromClass(cls), sizeof(struct SDMSTObjcClass));
+			}
+		}
+		free(objcData);
+	}
+	return result;
+}
+
+void SDMSTMapMethodsToSubroutines(struct SDMSTLibrary *libTable, bool silent) {
+	
+}
+
 void SDMSTMapSymbolsToSubroutines(struct SDMSTLibrary *libTable, bool silent) {
+	uint32_t counter = 0x0;
 	SDMPrint(silent,PrintCode_TRY,"Mapping Symbols to Subroutines...");
 	for (uint32_t i = 0x0; i < libTable->symbolCount; i++) {
 		for (uint32_t j = 0x0; j < libTable->subroutineCount; j++) {
 			if (libTable->table[i].offset == libTable->subroutine[j].offset) {
 				libTable->subroutine[j].name = realloc(libTable->subroutine[j].name, sizeof(char)*(strlen(libTable->table[i].name)+0x1));
 				memcpy(libTable->subroutine[j].name, libTable->table[i].name, sizeof(char)*strlen(libTable->table[i].name));
+				counter++;
 			}
 		}
 	}
-	for (uint32_t i = 0x0; i < libTable->subroutineCount; i++) {
-		
+	SDMPrint(silent,PrintCode_OK,"Mapped %i Symbols to Subroutines",counter);
+}
+
+void SDMSTMapBinary(struct SDMSTLibrary *libTable, bool silent) {
+	SDMPrint(silent,PrintCode_TRY,"Mapping Binary...");
+	bool result;
+	if (libTable->libInfo->is64bit) {
+		result = SDMSTMapObjcClasses64(libTable, silent);
+	} else {
+		result = SDMSTMapObjcClasses32(libTable, silent);
 	}
+	if (result) {
+		SDMSTMapMethodsToSubroutines(libTable, silent);
+	} else {
+		SDMPrint(silent,PrintCode_ERR,"Cannot find class map.");
+	}
+	SDMSTMapSymbolsToSubroutines(libTable, silent);
 }
 
 struct SDMSTBinary* SDMSTLoadBinaryFromFile(void* handle) {
@@ -482,7 +573,7 @@ struct SDMSTLibrary* SDMSTLoadLibrary(char *path, uint32_t index, bool silent) {
 		SDMSTBuildLibraryInfo(table, silent);
 		SDMSTGenerateSortedSymbolTable(table, silent);
 		SDMSTFindSubroutines(table, silent);
-		SDMSTMapSymbolsToSubroutines(table, silent);
+		SDMSTMapBinary(table, silent);
 	} else {
 		table->couldLoad = FALSE;
 		SDMPrint(silent,PrintCode_ERR,"Could not load MachO");

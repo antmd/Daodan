@@ -109,6 +109,9 @@
 		22FD60B51822FD080052A1FF /* udint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = udint.h; sourceTree = "<group>"; };
 		22FD60B61822FD080052A1FF /* udis86.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = udis86.c; sourceTree = "<group>"; };
 		22FD60B71822FD080052A1FF /* udis86.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = udis86.h; path = Disasm/udis86.h; sourceTree = "<group>"; };
+		22FD60CB18259F340052A1FF /* SDMObjcRuntime1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDMObjcRuntime1.h; sourceTree = "<group>"; };
+		22FD60CC18259F440052A1FF /* SDMObjcRuntime2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDMObjcRuntime2.h; sourceTree = "<group>"; };
+		22FD60CD1825A3180052A1FF /* SDMObjcRuntime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDMObjcRuntime.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -147,6 +150,9 @@
 			children = (
 				22B56F78181EE2AB002AF48E /* Info.plist */,
 				22C17BC717EF83E500800C71 /* SDMHeader.h */,
+				22FD60CD1825A3180052A1FF /* SDMObjcRuntime.h */,
+				22FD60CB18259F340052A1FF /* SDMObjcRuntime1.h */,
+				22FD60CC18259F440052A1FF /* SDMObjcRuntime2.h */,
 				22C17BC317EF696500800C71 /* SDMSymbolTable.h */,
 				22C17BC517EF697800800C71 /* SDMSymbolTable.c */,
 				22C17BBF17EF49C400800C71 /* Daodan.h */,

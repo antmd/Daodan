@@ -31,8 +31,8 @@ char* SDMCFStringGetString(CFStringRef str) {
 
 char* SDMDaodanInternalStoreDirectory() {
 	char *path = getenv("HOME");
-	char *storage = calloc(0x1, sizeof(char)*(strlen(path)+0x11));
-	sprintf(storage, "%s/Library/Daodan",path);
+	char *storage = calloc(0x1, sizeof(char)*(strlen(path)+0x11+0x15));
+	sprintf(storage, "%s/Library/Application Support/Daodan",path);
 	return storage;
 }
 
@@ -57,8 +57,8 @@ char* SDMDaodanStorePath() {
 
 char* SDMDaodanDumpStorePath() {
 	char *storage = SDMDaodanStorePath();
-	storage = realloc(storage, sizeof(char)*(strlen(storage)+0x1+strlen(getprogname())+0x5));
-	sprintf(storage,"%s%s.dump",storage,getprogname());
+	storage = realloc(storage, sizeof(char)*(strlen(storage)+0x2+strlen(getprogname())));
+	sprintf(storage,"%s%s/",storage,getprogname());
 	return storage;
 }
 
@@ -75,6 +75,10 @@ void SDMDaodanCheckStorePath() {
 	char *newDump = SDMDaodanStorePath();
 	makeNewFolderAt(newDump, 0700);
 	free(newDump);
+	
+	char *appDump = SDMDaodanDumpStorePath();
+	makeNewFolderAt(appDump, 0700);
+	free(appDump);
 }
 
 void SDMDaodanWriteHeaderInDumpFile(char *header, FILE *file) {
@@ -107,16 +111,24 @@ void SDMDaodanWriteSubroutine(struct SDMSTSubroutine *subroutine, struct SDMSTRa
 	}
 }
 
-void SDMDaodanWriteDumpForLibrary(char *dumpPath, struct SDMSTLibrary *libTable) {
-	SDMPrint(FALSE,PrintCode_TRY,"Writing DumpFile...");
-	FILE *file = fopen(dumpPath, "w+");
-	
-	SDMPrint(FALSE,PrintCode_TRY,"Writing Binary Information...");
+void SDMDaodanDumpBinaryInfo(char *dumpPath, struct SDMSTLibrary *libTable) {
+	char *filePath = calloc(0x1, sizeof(char)*(strlen(dumpPath)+0x1+0xa));
+	sprintf(filePath, "%sBinary.txt",dumpPath);
+	FILE *file = fopen(filePath, "w+");
+
 	SDMDaodanWriteHeaderInDumpFile("Header Information\n",file);
 	FWRITE_STRING_TO_FILE(libTable->libraryPath, file);
 	FWRITE_STRING_TO_FILE("\n", file);
 	
-	SDMPrint(FALSE,PrintCode_TRY,"Writing Symbol Table...");
+	fclose(file);
+	free(filePath);
+}
+
+void SDMDaodanDumpSymbolInfo(char *dumpPath, struct SDMSTLibrary *libTable) {
+	char *filePath = calloc(0x1, sizeof(char)*(strlen(dumpPath)+0x1+0xb));
+	sprintf(filePath, "%sSymbols.txt",dumpPath);
+	FILE *file = fopen(filePath, "w+");
+	
 	SDMDaodanWriteHeaderInDumpFile("Symbol Table\n",file);
 	for (uint32_t i = 0x0; i < libTable->symbolCount; i++) {
 		char *symbolName = (char *)(libTable->table[i].name);
@@ -127,7 +139,15 @@ void SDMDaodanWriteDumpForLibrary(char *dumpPath, struct SDMSTLibrary *libTable)
 		free(nameAndOffset);
 	}
 	
-	SDMPrint(FALSE,PrintCode_TRY,"Writing Linked Libraries...");
+	fclose(file);
+	free(filePath);
+}
+
+void SDMDaodanDumpLibraryInfo(char *dumpPath, struct SDMSTLibrary *libTable) {
+	char *filePath = calloc(0x1, sizeof(char)*(strlen(dumpPath)+0x1+0xd));
+	sprintf(filePath, "%sLibraries.txt",dumpPath);
+	FILE *file = fopen(filePath, "w+");
+	
 	SDMDaodanWriteHeaderInDumpFile("Linked Libraries\n",file);
 	for (uint32_t i = 0x0; i < libTable->dependencyCount; i++) {
 		char *path = (char *)(libTable->dependency[i].loadCmd + libTable->dependency[i].dyl.dylib.name.offset);
@@ -138,16 +158,33 @@ void SDMDaodanWriteDumpForLibrary(char *dumpPath, struct SDMSTLibrary *libTable)
 		free(slideAndPath);
 	}
 	
-	SDMPrint(FALSE,PrintCode_TRY,"Writing Subroutines...");
+	fclose(file);
+	free(filePath);
+}
+
+void SDMDaodanDumpSubroutineInfo(char *dumpPath, struct SDMSTLibrary *libTable) {
+	char *filePath = calloc(0x1, sizeof(char)*(strlen(dumpPath)+0x1+0xd));
+	sprintf(filePath, "%sLibraries.txt",dumpPath);
+	FILE *file = fopen(filePath, "w+");
+	
 	SDMDaodanWriteHeaderInDumpFile("Subroutines\n",file);
 	struct SDMDisasm *disasm = SDM_disasm_init((struct mach_header *)(libTable->libInfo->mhOffset));
 	for (uint32_t i = 0x0; i < libTable->subroutineCount; i++) {
 		struct SDMSTRange range = SDMSTRangeOfSubroutine(&(libTable->subroutine[i]), libTable);
 		SDMDaodanWriteSubroutine(&(libTable->subroutine[i]), range, disasm, file);
 	}
-	
 	free(disasm);
+	
 	fclose(file);
+	free(filePath);
+}
+
+void SDMDaodanWriteDumpForLibrary(char *dumpPath, struct SDMSTLibrary *libTable) {
+	SDMPrint(FALSE,PrintCode_TRY,"Writing dump files...");
+	SDMDaodanDumpBinaryInfo(dumpPath, libTable);
+	SDMDaodanDumpSymbolInfo(dumpPath, libTable);
+	SDMDaodanDumpLibraryInfo(dumpPath, libTable);
+	SDMDaodanDumpSubroutineInfo(dumpPath, libTable);
 	SDMPrint(FALSE,PrintCode_OK,"Successfully written dump to path: %s",dumpPath);
 }
 

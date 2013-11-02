@@ -22,19 +22,20 @@
 #pragma mark -
 #pragma mark Includes
 #include "SDMHeader.h"
+#include "SDMObjcRuntime.h"
 #pragma mark mach-o/*
 #include <mach-o/loader.h>
 
 #pragma mark -
 #pragma mark Types
 
-typedef struct SDMSTFunctionCommand {
+struct SDMSTFunctionCommand {
 	struct load_command loadCmd;
 	uint32_t offset;
 	uint32_t size;
 } ATR_PACK SDMSTFunctionCommand;
 
-typedef struct SDMSTSymbolTableListEntry {
+struct SDMSTSymbolTableListEntry {
 	union {
 		uint32_t n_strx;
 	} n_un;
@@ -43,13 +44,13 @@ typedef struct SDMSTSymbolTableListEntry {
 	uint16_t n_desc;
 } ATR_PACK SDMSTSymbolTableListEntry;
 
-typedef struct SDMSTSeg32Data {
+struct SDMSTSeg32Data {
 	uint32_t vmaddr;
 	uint32_t vmsize;
 	uint32_t fileoff;
 } ATR_PACK SDMSTSeg32Data;
 
-typedef struct SDMSTSeg64Data {
+struct SDMSTSeg64Data {
 	uint64_t vmaddr;
 	uint64_t vmsize;
 	uint64_t fileoff;
@@ -57,27 +58,28 @@ typedef struct SDMSTSeg64Data {
 
 typedef uintptr_t* (*SDMSTFunctionCall)();
 
-typedef struct SDMSTFunction {
+struct SDMSTFunction {
 	char *name;
 	SDMSTFunctionCall offset;
 } ATR_PACK SDMSTFunction;
 
-typedef struct SDMSTSegmentEntry {
+struct SDMSTSegmentEntry {
 	uint32_t cmd;
 	uint32_t cmdsize;
 	char segname[0x10];
 } ATR_PACK SDMSTSegmentEntry;
 
-typedef struct SDMSTLibraryArchitecture {
+struct SDMSTLibraryArchitecture {
 	cpu_type_t type;
 	cpu_subtype_t subtype;
 } ATR_PACK SDMSTLibraryArchitecture;
 
-typedef struct SDMSTLibraryTableInfo {
+struct SDMSTLibraryTableInfo {
 	uint32_t imageNumber;
 	uintptr_t *mhOffset;
 	struct SDMSTSegmentEntry *textSeg;
 	struct SDMSTSegmentEntry *linkSeg;
+	struct SDMSTSegmentEntry *objcSeg;
 	struct symtab_command *symtabCommands;
 	uint32_t symtabCount;
 	struct SDMSTFunctionCommand *functCmd;
@@ -86,7 +88,7 @@ typedef struct SDMSTLibraryTableInfo {
 	struct SDMSTLibraryArchitecture arch;
 } ATR_PACK SDMSTLibraryTableInfo;
 
-typedef struct SDMSTMachOSymbol {
+struct SDMSTMachOSymbol {
 	uint32_t tableNumber;
 	uint32_t symbolNumber;
 	uintptr_t offset;
@@ -94,18 +96,18 @@ typedef struct SDMSTMachOSymbol {
 	bool isStub;
 } ATR_PACK SDMSTMachOSymbol;
 
-typedef struct SDMSTSubroutine {
+struct SDMSTSubroutine {
 	uintptr_t offset;
 	char *name;
 	uintptr_t sectionOffset;
 } ATR_PACK SDMSTSubroute;
 
-typedef struct SDMSTDependency {
+struct SDMSTDependency {
 	uintptr_t loadCmd;
 	struct dylib_command dyl;
 } ATR_PACK SDMSTDependency;
 
-typedef struct SDMSTLibrary {
+struct SDMSTLibrary {
 	bool couldLoad;
 	char *libraryPath;
 	uintptr_t* libraryHandle;
@@ -119,7 +121,7 @@ typedef struct SDMSTLibrary {
 	uint32_t subroutineCount;
 } ATR_PACK SDMSTLibrary;
 
-typedef struct SDMSTBinary {
+struct SDMSTBinary {
 	uintptr_t *arch;
 	uint32_t archCount;
 } ATR_PACK SDMSTBinary;
