@@ -420,9 +420,7 @@ bool SDMSTMapObjcClasses32(struct SDMSTLibrary *libTable, bool silent) {
 				SDMSTObjc1CreateClassFromSymbol(objcData, (struct SDMSTObjc1Symtab *)SDMSTCastSmallPointer(module[i].symtab));
 			}
 		}
-		libTable->objcInfo = calloc(0x1, sizeof(struct SDMSTObjc));
-		memcpy(libTable->objcInfo, objcData, sizeof(SDMSTObjc));
-		free(objcData);
+		libTable->objcInfo = objcData;
 	}
 	return result;
 }

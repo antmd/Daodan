@@ -179,12 +179,49 @@ void SDMDaodanDumpSubroutineInfo(char *dumpPath, struct SDMSTLibrary *libTable) 
 	free(filePath);
 }
 
+void SDMDaodanDumpObjectiveCClass(char *dumpPath, struct SDMSTObjcClass *cls) {
+	if (cls->className) {
+		printf("%s\n",cls->className);
+		char *filePath = calloc(0x1, sizeof(char)*(strlen(dumpPath)+0x5+strlen(cls->className)));
+		sprintf(filePath, "%s%s.txt",dumpPath,cls->className);
+		FILE *file = fopen(filePath, "w+");
+		
+		SDMDaodanWriteHeaderInDumpFile("Objective-C Class\n",file);
+		
+		for (uint32_t i = 0x0; i < cls->ivarCount; i++) {
+			
+		}
+		
+		for (uint32_t i = 0x0; i < cls->methodCount; i++) {
+			
+		}
+		
+		for (uint32_t i = 0x0; i < cls->protocolCount; i++) {
+			
+		}
+		
+		fclose(file);
+		free(filePath);
+	}
+}
+
+void SDMDaodanDumpObjectiveCInfo(char *dumpPath, struct SDMSTLibrary *libTable) {
+	char *filePath = calloc(0x1, sizeof(char)*(strlen(dumpPath)+0x1+0xc));
+	sprintf(filePath, "%sObjectiveC/",dumpPath);
+	makeNewFolderAt(filePath, 0700);
+	for (uint32_t i = 0x0; i < libTable->objcInfo->clsCount; i++) {
+		SDMDaodanDumpObjectiveCClass(filePath, &(libTable->objcInfo->cls[i]));
+	}
+	free(filePath);
+}
+
 void SDMDaodanWriteDumpForLibrary(char *dumpPath, struct SDMSTLibrary *libTable) {
 	SDMPrint(FALSE,PrintCode_TRY,"Writing dump files...");
 	SDMDaodanDumpBinaryInfo(dumpPath, libTable);
 	SDMDaodanDumpSymbolInfo(dumpPath, libTable);
 	SDMDaodanDumpLibraryInfo(dumpPath, libTable);
 	SDMDaodanDumpSubroutineInfo(dumpPath, libTable);
+	SDMDaodanDumpObjectiveCInfo(dumpPath, libTable);
 	SDMPrint(FALSE,PrintCode_OK,"Successfully written dump to path: %s",dumpPath);
 }
 

@@ -92,7 +92,7 @@ inline struct SDMSTObjcClass* SDMSTObjc1CreateClassFromClass(struct SDMSTObjc *o
 				newClass->superCls = (struct SDMSTObjcClass *)SDMSTCastSmallPointer(cls->superClass);
 			}
 			newClass->className = (char*)SDMSTCastSmallPointer(cls->name);
-
+			
 			struct SDMSTObjc1ClassIVarInfo *ivarInfo = ((struct SDMSTObjc1ClassIVarInfo *)SDMSTCastSmallPointer(cls->ivars));
 			if (ivarInfo) {
 				newClass->ivarCount = ivarInfo->count;
@@ -134,14 +134,14 @@ inline void SDMSTObjc1CreateClassFromSymbol(struct SDMSTObjc *objcData, struct S
 		if ((symbol[i].defintion >= objcData->classRange.offset) && (symbol[i].defintion <= ((uint64_t)(objcData->classRange.offset) + (uint64_t)objcData->classRange.length))) {
 			objcData->cls = realloc(objcData->cls, sizeof(struct SDMSTObjcClass)*(objcData->clsCount+0x1));
 			struct SDMSTObjcClass *newClass = SDMSTObjc1CreateClassFromClass(objcData, ((struct SDMSTObjc1Class *)SDMSTCastSmallPointer(symbol[i].defintion)));
-			memcpy(&(objcData->cls[i]), newClass, sizeof(struct SDMSTObjcClass));
+			memcpy(&(objcData->cls[objcData->clsCount]), newClass, sizeof(struct SDMSTObjcClass));
 			free(newClass);
 			objcData->clsCount++;
 		}
 		if ((symbol[i].defintion >= objcData->catRange.offset) && (symbol[i].defintion <= ((uint64_t)(objcData->catRange.offset) + (uint64_t)objcData->catRange.length))) {
 			objcData->cls = realloc(objcData->cls, sizeof(struct SDMSTObjcClass)*(objcData->clsCount+0x1));
 			struct SDMSTObjcClass *newClass = SDMSTObjc1CreateClassFromCategory(objcData, ((struct SDMSTObjc1Category *)SDMSTCastSmallPointer(symbol[i].defintion)));
-			memcpy(&(objcData->cls[i]), newClass, sizeof(struct SDMSTObjcClass));
+			memcpy(&(objcData->cls[objcData->clsCount]), newClass, sizeof(struct SDMSTObjcClass));
 			free(newClass);
 			objcData->clsCount++;
 		}
