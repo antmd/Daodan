@@ -221,7 +221,7 @@ void SDMSTFindSubroutines(struct SDMSTLibrary *libTable, bool silent) {
 				size = ((struct section *)(textSectionOffset))->size;
 				address = ((struct section *)(textSectionOffset))->addr + _dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber);
 			}
-			if (hasLCFunctionStarts) {
+			if (hasLCFunctionStarts && libTable->subroutineCount) {
 				for (uint32_t j = 0x0; j < libTable->subroutineCount; j++) {
 					if (libTable->subroutine[j].sectionOffset == 0xffffffff) {
 						uint64_t subOffset = pageZero+_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber)+libTable->subroutine[j].offset;
@@ -232,6 +232,7 @@ void SDMSTFindSubroutines(struct SDMSTLibrary *libTable, bool silent) {
 					}
 				}
 			} else {
+				// SDM: Fall back on manually parsing it if we cannot find the subroutine mappings...
 				Dl_info info;
 				uint32_t loaded = dladdr((void*)(address), &info);
 				if (loaded != 0x0) {

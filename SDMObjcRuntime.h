@@ -135,24 +135,26 @@ inline struct SDMSTObjcClass* SDMSTObjc1CreateClassFromClass(struct SDMSTObjc *o
 }
 
 inline void SDMSTObjc1CreateClassFromSymbol(struct SDMSTObjc *objcData, struct SDMSTObjc1Symtab *symtab) {
-	uint32_t counter = symtab->catCount + symtab->classCount;
-	struct SDMSTObjc1SymtabDefinition *symbol = (struct SDMSTObjc1SymtabDefinition *)((uint64_t)(symtab) + (uint64_t)sizeof(struct SDMSTObjc1Symtab));
-	for (uint32_t i = 0x0; i < counter; i++) {
-		if ((symbol[i].defintion >= objcData->classRange.offset) && (symbol[i].defintion <= ((uint64_t)(objcData->classRange.offset) + (uint64_t)objcData->classRange.length))) {
-			objcData->cls = realloc(objcData->cls, sizeof(struct SDMSTObjcClass)*(objcData->clsCount+0x1));
-			struct SDMSTObjcClass *newClass = SDMSTObjc1CreateClassFromClass(objcData, ((struct SDMSTObjc1Class *)SDMSTCastSmallPointer(symbol[i].defintion)));
-			memcpy(&(objcData->cls[objcData->clsCount]), newClass, sizeof(struct SDMSTObjcClass));
-			free(newClass);
-			objcData->clsCount++;
+	if (symtab) {
+		uint32_t counter = symtab->catCount + symtab->classCount;
+		struct SDMSTObjc1SymtabDefinition *symbol = (struct SDMSTObjc1SymtabDefinition *)((uint64_t)(symtab) + (uint64_t)sizeof(struct SDMSTObjc1Symtab));
+		for (uint32_t i = 0x0; i < counter; i++) {
+			if ((symbol[i].defintion >= objcData->classRange.offset) && (symbol[i].defintion <= ((uint64_t)(objcData->classRange.offset) + (uint64_t)objcData->classRange.length))) {
+				objcData->cls = realloc(objcData->cls, sizeof(struct SDMSTObjcClass)*(objcData->clsCount+0x1));
+				struct SDMSTObjcClass *newClass = SDMSTObjc1CreateClassFromClass(objcData, ((struct SDMSTObjc1Class *)SDMSTCastSmallPointer(symbol[i].defintion)));
+				memcpy(&(objcData->cls[objcData->clsCount]), newClass, sizeof(struct SDMSTObjcClass));
+				free(newClass);
+				objcData->clsCount++;
+			}
+			if ((symbol[i].defintion >= objcData->catRange.offset) && (symbol[i].defintion <= ((uint64_t)(objcData->catRange.offset) + (uint64_t)objcData->catRange.length))) {
+				objcData->cls = realloc(objcData->cls, sizeof(struct SDMSTObjcClass)*(objcData->clsCount+0x1));
+				struct SDMSTObjcClass *newClass = SDMSTObjc1CreateClassFromCategory(objcData, ((struct SDMSTObjc1Category *)SDMSTCastSmallPointer(symbol[i].defintion)));
+				memcpy(&(objcData->cls[objcData->clsCount]), newClass, sizeof(struct SDMSTObjcClass));
+				free(newClass);
+				objcData->clsCount++;
+			}
+			symbol = (struct SDMSTObjc1SymtabDefinition *)((uint64_t)symbol + (uint64_t)sizeof(struct SDMSTObjc1SymtabDefinition));
 		}
-		if ((symbol[i].defintion >= objcData->catRange.offset) && (symbol[i].defintion <= ((uint64_t)(objcData->catRange.offset) + (uint64_t)objcData->catRange.length))) {
-			objcData->cls = realloc(objcData->cls, sizeof(struct SDMSTObjcClass)*(objcData->clsCount+0x1));
-			struct SDMSTObjcClass *newClass = SDMSTObjc1CreateClassFromCategory(objcData, ((struct SDMSTObjc1Category *)SDMSTCastSmallPointer(symbol[i].defintion)));
-			memcpy(&(objcData->cls[objcData->clsCount]), newClass, sizeof(struct SDMSTObjcClass));
-			free(newClass);
-			objcData->clsCount++;
-		}
-		symbol = (struct SDMSTObjc1SymtabDefinition *)((uint64_t)symbol + (uint64_t)sizeof(struct SDMSTObjc1SymtabDefinition));
 	}
 }
 
