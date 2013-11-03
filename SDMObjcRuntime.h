@@ -69,7 +69,7 @@ struct SDMSTObjc {
 inline struct SDMSTObjcClass* SDMSTObjc1CreateClassFromProtocol(struct SDMSTObjc *objcData, struct SDMSTObjc1Protocol *prot) {
 	struct SDMSTObjcClass *newClass = calloc(0x1, sizeof(struct SDMSTObjcClass));
 	if (prot) {
-		newClass->className = (char*)*((uintptr_t*)&(prot->name));
+		newClass->className = (char*)SDMSTCastSmallPointer(prot->name);
 	}
 	return newClass;
 }
@@ -77,7 +77,7 @@ inline struct SDMSTObjcClass* SDMSTObjc1CreateClassFromProtocol(struct SDMSTObjc
 inline struct SDMSTObjcClass* SDMSTObjc1CreateClassFromCategory(struct SDMSTObjc *objcData, struct SDMSTObjc1Category *cat) {
 	struct SDMSTObjcClass *newClass = calloc(0x1, sizeof(struct SDMSTObjcClass));
 	if (cat) {
-		newClass->className = (char*)*((uintptr_t*)&(cat->name));
+		newClass->className = (char*)SDMSTCastSmallPointer(cat->name);
 	}
 	return newClass;
 }
@@ -91,8 +91,8 @@ inline struct SDMSTObjcClass* SDMSTObjc1CreateClassFromClass(struct SDMSTObjc *o
 			} else {
 				newClass->superCls = (struct SDMSTObjcClass *)SDMSTCastSmallPointer(cls->superClass);
 			}
-			newClass->className = (char*)*((uintptr_t*)&(cls->name));
-			printf("Class: %s\n",newClass->className);
+			newClass->className = (char*)SDMSTCastSmallPointer(cls->name);
+
 			struct SDMSTObjc1ClassIVarInfo *ivarInfo = ((struct SDMSTObjc1ClassIVarInfo *)SDMSTCastSmallPointer(cls->ivars));
 			if (ivarInfo) {
 				newClass->ivarCount = ivarInfo->count;
