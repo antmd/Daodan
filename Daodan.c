@@ -410,7 +410,7 @@ void initDaodan() {
 }
 
 void unloadDaodan() {
-	SDMPrint(DEFAULT_LOGGER,PrintCode_TRY,"Looking for Daodan.");
+	SDMPrint(DEFAULT_LOGGER,PrintCode_TRY,"Looking for Daodan...");
 	SDMSTFunctionCall symbolAddress = NULL;
 	for (uint32_t i = 0x0; i < _dyld_image_count(); i++) {
 		if (i != daodanExecutableImageIndex) {
@@ -423,10 +423,10 @@ void unloadDaodan() {
 		}
 	}
 	if (symbolAddress) {
-		SDMPrint(DEFAULT_LOGGER,PrintCode_OK,"Found Daodan.");
+		SDMPrint(DEFAULT_LOGGER,PrintCode_OK,"Found Daodan");
 		void* daodanHandle = dlopen(binaryTable->libraryPath, RTLD_LAZY);
 		if (daodanHandle) {
-			SDMPrint(DEFAULT_LOGGER,PrintCode_OK,"Unloading Daodan.");
+			SDMPrint(DEFAULT_LOGGER,PrintCode_OK,"Unloading Daodan");
 		} else {
 			SDMPrint(false,PrintCode_ERR,"Error creating handle to Daodan.");
 		}
