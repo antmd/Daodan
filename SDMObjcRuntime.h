@@ -102,7 +102,6 @@ inline struct SDMSTObjcClass* SDMSTObjc1CreateClassFromClass(struct SDMSTObjc *o
 					newClass->ivar[i].name = (char*)SDMSTCastSmallPointer(ivarOffset[i].name);
 					newClass->ivar[i].type = (char*)SDMSTCastSmallPointer(ivarOffset[i].type);
 					newClass->ivar[i].offset = (uintptr_t)(ivarOffset[i].offset);
-					printf("\t%s\n",newClass->ivar[i].name);
 				}
 				
 			}
