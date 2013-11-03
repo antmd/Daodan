@@ -191,6 +191,8 @@ void SDMDaodanDumpObjectiveCClass(char *dumpPath, struct SDMSTObjcClass *cls) {
 		FILE *file = fopen(filePath, "w");
 		if (file) {
 			SDMDaodanWriteHeaderInDumpFile("Objective-C Class\n",file);
+			FWRITE_STRING_TO_FILE(cls->className,file);
+			FWRITE_STRING_TO_FILE("\n", file);
 			
 			if (cls->ivarCount) {
 				SDMDaodanWriteHeaderInDumpFile("Instance Variables\n",file);
@@ -202,7 +204,11 @@ void SDMDaodanDumpObjectiveCClass(char *dumpPath, struct SDMSTObjcClass *cls) {
 						char *pointer = SDMSTObjcPointersForToken(&(type->token[0x0]));
 						if (type->token[0x0].typeName) {
 							ivarName = calloc(0x1, sizeof(char)*(strlen(cls->ivar[i].name)+0x5+strlen(pointer)+strlen(type->token[0x0].type)+strlen(type->token[0x0].typeName)));
-							sprintf(ivarName, "\t%s %s %s%s;\n",type->token[0x0].type,type->token[0x0].typeName,pointer,cls->ivar[i].name);
+							if ((strncmp((type->token[0x0].type), "id", sizeof(char)*0x2) == 0x0) && strlen(type->token[0x0].typeName)) {
+								sprintf(ivarName, "\t%s %s%s;\n",type->token[0x0].typeName,pointer,cls->ivar[i].name);
+							} else {
+								sprintf(ivarName, "\t%s %s %s%s;\n",type->token[0x0].type,type->token[0x0].typeName,pointer,cls->ivar[i].name);
+							}
 						} else {
 							ivarName = calloc(0x1, sizeof(char)*(strlen(cls->ivar[i].name)+0x5+strlen(pointer)+strlen(type->token[0x0].type)));
 							sprintf(ivarName, "\t%s %s%s;\n",type->token[0x0].type,pointer,cls->ivar[i].name);

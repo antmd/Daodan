@@ -267,10 +267,9 @@ struct SDMSTObjcType* SDMSTObjcDecodeType(char *type) {
 						uint64_t next = offset+0x1;
 						if (strncmp(&(type[next]), kObjcNameTokenStart, sizeof(char)) == 0x0) {
 							struct SDMSTRange nameRange = SDMSTObjcGetTokenRangeFromOffset(type, next+0x1, kObjcNameTokenEnd);
-							char *name = calloc(0x1, sizeof(char)*(0x3+(uint32_t)nameRange.length));
-							sprintf(name,"<");
-							memcpy(&(name[0x1]), &(type[nameRange.offset]), sizeof(char)*nameRange.length);
-							sprintf(name,"%s>",name);
+							char *name = calloc(0x1, sizeof(char)*(0x2+(uint32_t)nameRange.length));
+							memcpy(name, &(type[nameRange.offset]), sizeof(char)*nameRange.length);
+							sprintf(name,"%s*",name);
 							decode->token[decode->tokenCount].typeName = name;
 							parsedLength += nameRange.length + 0x2;
 						}
