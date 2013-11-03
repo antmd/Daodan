@@ -23,8 +23,20 @@
 #pragma mark Includes
 #include "SDMHeader.h"
 #include "SDMObjcRuntime.h"
+#pragma mark sys/*
+#include <sys/mman.h>
+#include <sys/sysctl.h>
+#include <sys/errno.h>
+#pragma mark mach/*
+#include <mach/mach.h>
 #pragma mark mach-o/*
-#include <mach-o/loader.h>
+#include <mach-o/ldsyms.h>
+#include <mach-o/dyld.h>
+#include <mach-o/nlist.h>
+#include <mach-o/fat.h>
+#pragma mark other
+#include <fcntl.h>
+#include <dlfcn.h>
 
 #pragma mark -
 #pragma mark Types

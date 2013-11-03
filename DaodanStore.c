@@ -11,7 +11,6 @@
 
 #include "DaodanStore.h"
 #include <CoreFoundation/CoreFoundation.h>
-#include <mach-o/dyld.h>
 #include "disasm.h"
 #include "Daodan.h"
 
@@ -247,18 +246,18 @@ void SDMDaodanDumpObjectiveCInfo(char *dumpPath, struct SDMSTLibrary *libTable) 
 }
 
 void SDMDaodanWriteDumpForLibrary(char *dumpPath, struct SDMSTLibrary *libTable) {
-	SDMPrint(FALSE,PrintCode_TRY,"Writing dump files...");
+	SDMPrint(false,PrintCode_TRY,"Writing dump files...");
 	SDMDaodanDumpBinaryInfo(dumpPath, libTable);
 	SDMDaodanDumpSymbolInfo(dumpPath, libTable);
 	SDMDaodanDumpLibraryInfo(dumpPath, libTable);
 	SDMDaodanDumpSubroutineInfo(dumpPath, libTable);
 	SDMDaodanDumpObjectiveCInfo(dumpPath, libTable);
-	SDMPrint(FALSE,PrintCode_OK,"Successfully written dump to path: %s",dumpPath);
+	SDMPrint(false,PrintCode_OK,"Successfully written dump to path: %s",dumpPath);
 }
 
 void SDMDaodanWriteDumpForImage(char *dumpPath, char *imagePath, bool skipDependencies) {
 	uint32_t index = SDMGetIndexForLibraryPath(imagePath);
-	struct SDMSTLibrary *dumpLibrary = SDMSTLoadLibrary(imagePath, index, TRUE);
+	struct SDMSTLibrary *dumpLibrary = SDMSTLoadLibrary(imagePath, index, true);
 	if (!skipDependencies) {
 		SDMDaodanWriteDump(dumpLibrary);
 	} else {
@@ -273,7 +272,7 @@ void SDMDaodanWriteDump(struct SDMSTLibrary *libTable) {
 	/*
 	for (uint32_t i = 0x0; i < libTable->dependencyCount; i++) {
 		char *imagePath = (char*)(libTable->dependency[i].loadCmd+(libTable->dependency[i].dyl.dylib.name.offset));
-		SDMDaodanWriteDumpForImage(linkStore, imagePath, TRUE);
+		SDMDaodanWriteDumpForImage(linkStore, imagePath, true);
 	}
 	*/
 }

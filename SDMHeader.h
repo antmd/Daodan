@@ -36,12 +36,12 @@
 #pragma mark Types
 
 #ifndef DEBUG
-	#define DEBUG_LOGGER TRUE
+	#define DEBUG_LOGGER true
 #else
-	#define DEBUG_LOGGER FALSE
+	#define DEBUG_LOGGER false
 #endif
 
-#define DEFAULT_LOGGER FALSE
+#define DEFAULT_LOGGER false
 
 #define kiAmLaunchPad 0x647068636E75616C // "launchpd"
 

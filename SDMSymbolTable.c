@@ -22,20 +22,6 @@
 #pragma mark -
 #pragma mark Includes
 #include "SDMSymbolTable.h"
-#pragma mark sys/*
-#include <sys/mman.h>
-#include <sys/sysctl.h>
-#include <sys/errno.h>
-#pragma mark mach/*
-#include <mach/mach.h>
-#pragma mark mach-o/*
-#include <mach-o/dyld.h>
-#include <mach-o/nlist.h>
-#include <mach-o/ldsyms.h>
-#include <mach-o/fat.h>
-#pragma mark other
-#include <fcntl.h>
-#include <dlfcn.h>
 
 #pragma mark -
 #pragma mark Defines
@@ -198,7 +184,7 @@ int SDMSTCompareTableEntries(const void *entry1, const void *entry2) {
 
 void SDMSTFindSubroutines(struct SDMSTLibrary *libTable, bool silent) {
 	SDMPrint(silent,PrintCode_TRY,"Looking for subroutines...");
-	bool hasLCFunctionStarts = FALSE;
+	bool hasLCFunctionStarts = false;
 	libTable->subroutine = (struct SDMSTSubroutine *)calloc(0x1, sizeof(struct SDMSTSubroutine));
 	libTable->subroutineCount = 0x0;
 	uint32_t textSections = 0x0, flags = 0x0;
@@ -217,7 +203,7 @@ void SDMSTFindSubroutines(struct SDMSTLibrary *libTable, bool silent) {
 		textSectionOffset += sizeof(struct segment_command);
 	}
 	if (libTable->libInfo->functCmd) {
-		hasLCFunctionStarts = TRUE;
+		hasLCFunctionStarts = true;
 		uintptr_t functionOffset = (uintptr_t)(libTable->libInfo->functCmd->offset+_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber)+pageZero);
 		uint8_t *functionPointer = (uint8_t*)functionOffset;
 		while ((uintptr_t)functionPointer < (functionOffset + libTable->libInfo->functCmd->size)) {
@@ -538,7 +524,7 @@ uintptr_t* SDMSTGetCurrentArchFromBinary(struct SDMSTBinary *binary) {
 
 struct SDMSTLibrary* SDMSTLoadLibrary(char *path, uint32_t index, bool silent) {
 	struct SDMSTLibrary *table = (struct SDMSTLibrary *)calloc(0x1, sizeof(struct SDMSTLibrary));
-	bool inMemory = FALSE;
+	bool inMemory = false;
 	char *imagePath;
 	void* handle = NULL;
 	uint32_t count = _dyld_image_count();
@@ -547,7 +533,7 @@ struct SDMSTLibrary* SDMSTLoadLibrary(char *path, uint32_t index, bool silent) {
 			imagePath = calloc(0x1, strlen(_dyld_get_image_name(index))+1);
 			strcpy(imagePath, _dyld_get_image_name(index));
 			if (strcmp(path, imagePath) == 0x0) {
-				inMemory = TRUE;
+				inMemory = true;
 				handle = (void*)_dyld_get_image_vmaddr_slide(index);
 				SDMPrint(silent, PrintCode_OK,"Found Mach-O: %s",path);
 				free(imagePath);
@@ -561,7 +547,7 @@ struct SDMSTLibrary* SDMSTLoadLibrary(char *path, uint32_t index, bool silent) {
 		if (!handle) {
 			SDMPrint(silent,PrintCode_ERR,"Code: %s Unable to load library at path: %s", dlerror(), path);
 			SDMPrint(silent,PrintCode_TRY,"Attempting to manually load and map...");
-			table->couldLoad = FALSE;
+			table->couldLoad = false;
 			struct stat fs;
 			int statResult = stat(path, &fs);
 			if (statResult == 0x0) {
@@ -578,7 +564,7 @@ struct SDMSTLibrary* SDMSTLoadLibrary(char *path, uint32_t index, bool silent) {
 			table->librarySize = 0x0;
 		}
 	} else {
-		table->couldLoad = TRUE;
+		table->couldLoad = true;
 		table->librarySize = 0x0;
 	}
 	if (handle || inMemory) {
@@ -598,7 +584,7 @@ struct SDMSTLibrary* SDMSTLoadLibrary(char *path, uint32_t index, bool silent) {
 		SDMSTFindSubroutines(table, silent);
 		SDMSTMapBinary(table, silent);
 	} else {
-		table->couldLoad = FALSE;
+		table->couldLoad = false;
 		SDMPrint(silent,PrintCode_ERR,"Could not load MachO");
 	}
 	return table;

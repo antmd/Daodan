@@ -22,12 +22,9 @@
 #pragma mark -
 #pragma mark Includes
 #include "Daodan.h"
-#include <dlfcn.h>
 #include <security/mac.h>
-#include <mach-o/dyld.h>
 #include <notify.h>
 #include <signal.h>
-#include <mach/std_types.h>
 #include <mach/mach_traps.h>
 #include <mach/mach_init.h>
 #include <mach/vm_map.h>
@@ -183,7 +180,7 @@ static int daodan_notify_token[DAODAN_NOTIFY_COUNT];
 
 #define DAODAN_RECV_LENGTH (sizeof(struct DaodanMachMessage)+sizeof(mach_msg_header_t))
 
-#define MACH_SEND_ENABLED FALSE
+#define MACH_SEND_ENABLED false
 
 static mach_port_name_t portSend = MACH_PORT_NULL;
 static dispatch_source_t dispatchSend = NULL;
@@ -233,10 +230,10 @@ void setupChrysalisNotificationListeners() {
 		sprintf(&(data[0x0]),"Chrysalis is quitting!");
 		sendDaodanMachMessage(data);
 	});
-	bool statusOK = TRUE;
+	bool statusOK = true;
 	for (uint32_t i = 0x0; i < DAODAN_NOTIFY_COUNT; i++) {
 		if (result[i] != NOTIFY_STATUS_OK) {
-			statusOK = FALSE;
+			statusOK = false;
 			break;
 		}
 	}
@@ -262,7 +259,7 @@ static dispatch_block_t portSendHandler = ^{
 	message->header.msgh_size = sizeof(struct DaodanMachMessage);
 	uint32_t result = mach_msg(&(message->header), MACH_SEND_MSG, sizeof(struct DaodanMachMessage), 0x0, portReceive, MACH_SEND_TIMEOUT, MACH_PORT_NULL);
 	if (result != KERN_SUCCESS) {
-		SDMPrint(FALSE,PrintCode_ERR,"error %08x %s",result,mach_error_string(result));
+		SDMPrint(false,PrintCode_ERR,"error %08x %s",result,mach_error_string(result));
 	}
 	printf("+++%s\n",&(message->data[0x0]));
 	free(message);
@@ -277,7 +274,7 @@ static dispatch_block_t portReceiveHandler = ^{
 	message->header.msgh_size = DAODAN_RECV_LENGTH;
 	uint32_t result = mach_msg(&(message->header), MACH_RCV_MSG, 0x0, DAODAN_RECV_LENGTH, portReceive, MACH_RCV_TIMEOUT, MACH_PORT_NULL);
 	if (result != KERN_SUCCESS) {
-		SDMPrint(FALSE,PrintCode_ERR,"error %08x %s",result,mach_error_string(result));
+		SDMPrint(false,PrintCode_ERR,"error %08x %s",result,mach_error_string(result));
 	}
 	printf("---%s\n",&(message->data[0x0]));
 	free(message);
@@ -367,13 +364,13 @@ void closeDaodanMachPorts() {
 }
 
 bool locateLaunchpad() {
-	bool found = FALSE;
+	bool found = false;
 	SDMSTFunctionCall symbolAddress = SDMSTSymbolLookup(binaryTable, "_iAmLaunchPad");
 	if (symbolAddress) {
 		uint64_t result = (uint64_t)symbolAddress(NULL, NULL);
 		if (result == kiAmLaunchPad) {
 			SDMPrint(DEFAULT_LOGGER,PrintCode_OK,"Found Launchpad");
-			found = TRUE;
+			found = true;
 		}
 	}
 	return found;
@@ -389,7 +386,7 @@ void initDaodan() {
 	_dyld_register_func_for_remove_image(SDMRemoveImageHook);
 	uint32_t result = daodanExecutableImageIndex = SDMGetExecuteImage();
 	if (result != k32BitMask) {
-		binaryTable = SDMSTLoadLibrary((char*)_dyld_get_image_name(result), result, FALSE);
+		binaryTable = SDMSTLoadLibrary((char*)_dyld_get_image_name(result), result, false);
 	} else {
 		SDMPrint(DEFAULT_LOGGER,PrintCode_ERR,"Could not find an executable binary image.");
 	}
@@ -418,7 +415,7 @@ void unloadDaodan() {
 	for (uint32_t i = 0x0; i < _dyld_image_count(); i++) {
 		if (i != daodanExecutableImageIndex) {
 			SDMSTLibraryRelease(binaryTable);
-			binaryTable = SDMSTLoadLibrary((char*)_dyld_get_image_name(i), i, TRUE);
+			binaryTable = SDMSTLoadLibrary((char*)_dyld_get_image_name(i), i, true);
 			symbolAddress = SDMSTSymbolLookup(binaryTable, "_initDaodan");
 			if (symbolAddress) {
 				break;
@@ -431,7 +428,7 @@ void unloadDaodan() {
 		if (daodanHandle) {
 			SDMPrint(DEFAULT_LOGGER,PrintCode_OK,"Unloading Daodan.");
 		} else {
-			SDMPrint(FALSE,PrintCode_ERR,"Error creating handle to Daodan.");
+			SDMPrint(false,PrintCode_ERR,"Error creating handle to Daodan.");
 		}
 		SDMSTLibraryRelease(binaryTable);
 		cancelChrysalisNotificationListeners();
@@ -456,7 +453,7 @@ uintptr_t daodanLookupFunction(char *name) {
 void daodanLoadSymbolTableForImage(uint32_t index) {
 	if (binaryTable)
 		SDMSTLibraryRelease(binaryTable);
-	binaryTable = SDMSTLoadLibrary((char*)_dyld_get_image_name(index),index, FALSE);
+	binaryTable = SDMSTLoadLibrary((char*)_dyld_get_image_name(index),index, false);
 }
 
 uint32_t SDMGetIndexForLibraryPath(char *path) {
@@ -472,12 +469,12 @@ uint32_t SDMGetExecuteImage() {
 	SDMPrint(DEFAULT_LOGGER,PrintCode_TRY,"Looking for application binary...");
 	struct mach_header *imageHeader;
 	uint32_t count = _dyld_image_count();
-	bool foundBinary = FALSE;
+	bool foundBinary = false;
 	uint32_t index;
 	for (index = 0x0; index < count; index++) {
 		imageHeader = (struct mach_header *)_dyld_get_image_header(index);
 		if (imageHeader->filetype == MH_EXECUTE) {
-			foundBinary = TRUE;
+			foundBinary = true;
 			break;
 		}
 	}

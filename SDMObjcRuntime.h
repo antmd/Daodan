@@ -8,7 +8,6 @@
 
 #ifndef Daodan_SDMObjcRuntime_h
 #define Daodan_SDMObjcRuntime_h
-#include <mach-o/dyld.h>
 #include "SDMObjcLexer.h"
 #include "SDMObjcRuntime1.h"
 #include "SDMObjcRuntime2.h"
