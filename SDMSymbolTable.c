@@ -73,9 +73,9 @@ void SDMSTFindFunctionAddress(uint8_t **fPointer, struct SDMSTLibrary *libTable)
 
 
 extern inline struct SDMSTObjcClass* SDMSTObjc2ClassCreateFromClass(struct SDMSTObjc2Class *cls, struct SDMSTObjc2Class *parentClass, struct SDMSTRange dataRange);
-extern inline struct SDMSTObjcClass* SDMSTObjc1CreateClassFromProtocol(struct SDMSTObjc1Protocol *prot);
-extern inline struct SDMSTObjcClass* SDMSTObjc1CreateClassFromCategory(struct SDMSTObjc1Category *cat);
-extern inline struct SDMSTObjcClass* SDMSTObjc1CreateClassFromClass(struct SDMSTObjc1Class *cls);
+extern inline struct SDMSTObjcClass* SDMSTObjc1CreateClassFromProtocol(struct SDMSTObjc *objcData, struct SDMSTObjc1Protocol *prot);
+extern inline struct SDMSTObjcClass* SDMSTObjc1CreateClassFromCategory(struct SDMSTObjc *objcData, struct SDMSTObjc1Category *cat);
+extern inline struct SDMSTObjcClass* SDMSTObjc1CreateClassFromClass(struct SDMSTObjc *objcData, struct SDMSTObjc1Class *cls);
 extern inline void SDMSTObjc1CreateClassFromSymbol(struct SDMSTObjc *objcData, struct SDMSTObjc1Symtab *symtab);
 
 #pragma mark -
@@ -404,6 +404,12 @@ bool SDMSTMapObjcClasses32(struct SDMSTLibrary *libTable, bool silent) {
 			}
 			if (strncmp(sectionName, kObjcProtocol, sizeof(char)*0x10) == 0x0) {
 				objcData->protRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)(_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber))), section->size);
+			}
+			if (strncmp(sectionName, kObjcClsMeth, sizeof(char)*0x10) == 0x0) {
+				objcData->clsMRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)(_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber))), section->size);
+			}
+			if (strncmp(sectionName, kObjcInstMeth, sizeof(char)*0x10) == 0x0) {
+				objcData->instMRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)(_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber))), section->size);
 			}
 			section = (struct section *)((uint64_t)section + (uint64_t)sizeof(struct section));
 		}
