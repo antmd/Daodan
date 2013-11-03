@@ -195,6 +195,8 @@ static dispatch_queue_t dispatchReceiveQueue = NULL;
 
 static mach_msg_id_t messageCounter = 0x0;
 
+static uint32_t daodanExecutableImageIndex = 0x0;
+
 // SDM: TODO: create encode and decode functions for processing data in MachMessage
 
 uint32_t sendDaodanMachMessage(char data[0x400]) {
@@ -385,7 +387,7 @@ void dumpDaodan() {
 void initDaodan() {
 	_dyld_register_func_for_add_image(SDMAddImageHook);
 	_dyld_register_func_for_remove_image(SDMRemoveImageHook);
-	uint32_t result = SDMGetExecuteImage();
+	uint32_t result = daodanExecutableImageIndex = SDMGetExecuteImage();
 	if (result != 0xffffffff) {
 		binaryTable = SDMSTLoadLibrary((char*)_dyld_get_image_name(result), result, FALSE);
 	} else {
@@ -414,11 +416,13 @@ void unloadDaodan() {
 	SDMPrint(DEFAULT_LOGGER,PrintCode_TRY,"Looking for Daodan.");
 	SDMSTFunctionCall symbolAddress = NULL;
 	for (uint32_t i = 0x0; i < _dyld_image_count(); i++) {
-		SDMSTLibraryRelease(binaryTable);
-		binaryTable = SDMSTLoadLibrary((char*)_dyld_get_image_name(i), i, TRUE);
-		symbolAddress = SDMSTSymbolLookup(binaryTable, "_initDaodan");
-		if (symbolAddress) {
-			break;
+		if (i != daodanExecutableImageIndex) {
+			SDMSTLibraryRelease(binaryTable);
+			binaryTable = SDMSTLoadLibrary((char*)_dyld_get_image_name(i), i, TRUE);
+			symbolAddress = SDMSTSymbolLookup(binaryTable, "_initDaodan");
+			if (symbolAddress) {
+				break;
+			}
 		}
 	}
 	if (symbolAddress) {

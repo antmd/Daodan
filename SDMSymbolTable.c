@@ -429,6 +429,8 @@ bool SDMSTMapObjcClasses64(struct SDMSTLibrary *libTable, bool silent) {
 				free(objclass);
 			}
 		}
+		libTable->objcInfo = calloc(0x1, sizeof(struct SDMSTObjc));
+		memcpy(libTable->objcInfo, objcData, sizeof(SDMSTObjc));
 		free(objcData);
 	}
 	return result;

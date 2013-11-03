@@ -119,6 +119,7 @@ struct SDMSTLibrary {
 	uint32_t symbolCount;
 	struct SDMSTSubroutine *subroutine;
 	uint32_t subroutineCount;
+	struct SDMSTObjc *objcInfo;
 } ATR_PACK SDMSTLibrary;
 
 struct SDMSTBinary {
