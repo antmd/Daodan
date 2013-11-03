@@ -78,7 +78,8 @@ enum SDMSTObjcLexerTokenType {
 
 #define kObjcStructDefinitionToken "="
 
-#define SDMObjcLexerConvertIndexToken(a) (enum SDMSTObjcLexerTokenType)(a+0x1)
+#define SDMObjcLexerConvertIndexToToken(a) (enum SDMSTObjcLexerTokenType)(a+0x1)
+#define SDMObjcLexerConvertTokenToIndex(a) (uint32_t)(a-0x1)
 
 struct SDMSTObjcLexerToken {
 	char *type;
@@ -86,6 +87,7 @@ struct SDMSTObjcLexerToken {
 	enum SDMSTObjcLexerTokenType typeClass;
 	struct SDMSTObjcLexerToken *children;
 	uint32_t childrenCount;
+	bool isPointer;
 } ATR_PACK SDMSTObjcLexerToken;
 
 struct SDMSTObjcType {
