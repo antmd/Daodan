@@ -392,23 +392,23 @@ bool SDMSTMapObjcClasses32(struct SDMSTLibrary *libTable, bool silent) {
 		struct SDMSTObjcModuleRaw *module;
 		for (uint32_t i = 0x0; i < sectionCount; i++) {
 			char *sectionName = (char*)(section->sectname);
-			if (strncmp(sectionName, kObjcModuleInfo, sizeof(char)*0x10) == 0x0) {
+			if (strncmp(sectionName, kObjc1ModuleInfo, sizeof(char)*0x10) == 0x0) {
 				module = (struct SDMSTObjcModuleRaw *)((uint64_t)(libTable->libInfo->mhOffset) + (uint64_t)(section->offset));
 				moduleCount = (section->size)/sizeof(struct SDMSTObjcModuleRaw);
 			}
-			if (strncmp(sectionName, kObjcClass, sizeof(char)*0x10) == 0x0) {
+			if (strncmp(sectionName, kObjc1Class, sizeof(char)*0x10) == 0x0) {
 				objcData->classRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)(_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber))), section->size);
 			}
-			if (strncmp(sectionName, kObjcCategory, sizeof(char)*0x10) == 0x0) {
+			if (strncmp(sectionName, kObjc1Category, sizeof(char)*0x10) == 0x0) {
 				objcData->catRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)(_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber))), section->size);
 			}
-			if (strncmp(sectionName, kObjcProtocol, sizeof(char)*0x10) == 0x0) {
+			if (strncmp(sectionName, kObjc1Protocol, sizeof(char)*0x10) == 0x0) {
 				objcData->protRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)(_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber))), section->size);
 			}
-			if (strncmp(sectionName, kObjcClsMeth, sizeof(char)*0x10) == 0x0) {
+			if (strncmp(sectionName, kObjc1ClsMeth, sizeof(char)*0x10) == 0x0) {
 				objcData->clsMRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)(_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber))), section->size);
 			}
-			if (strncmp(sectionName, kObjcInstMeth, sizeof(char)*0x10) == 0x0) {
+			if (strncmp(sectionName, kObjc1InstMeth, sizeof(char)*0x10) == 0x0) {
 				objcData->instMRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)(_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber))), section->size);
 			}
 			section = (struct section *)((uint64_t)section + (uint64_t)sizeof(struct section));

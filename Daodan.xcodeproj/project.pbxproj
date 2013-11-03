@@ -53,6 +53,7 @@
 		22FD60C81822FD080052A1FF /* udint.h in Headers */ = {isa = PBXBuildFile; fileRef = 22FD60B51822FD080052A1FF /* udint.h */; };
 		22FD60C91822FD080052A1FF /* udis86.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60B61822FD080052A1FF /* udis86.c */; };
 		22FD60CA1822FD080052A1FF /* udis86.h in Headers */ = {isa = PBXBuildFile; fileRef = 22FD60B71822FD080052A1FF /* udis86.h */; };
+		22FD60CE1825FE0A0052A1FF /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2295903D18217F01006E985D /* CoreFoundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -128,6 +129,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				22FD60CE1825FE0A0052A1FF /* CoreFoundation.framework in Frameworks */,
 				22959047182182FB006E985D /* Security.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -28,8 +28,7 @@ enum DAODAN_QUEUE {
 };
 
 typedef struct SDMDaodanBundle {
-	char *path;
-	
+	char path[0x400];
 } ATR_PACK SDMDaodanBundle;
 
 typedef struct DaodanMachMessage {
