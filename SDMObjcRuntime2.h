@@ -39,10 +39,20 @@ struct SDMSTObjc2ClassPropertyInfo {
 	uint32_t count;
 } ATR_PACK SDMSTObjc2ClassPropertyInfo;
 
+struct SDMSTObjc2ClassMethod {
+	uint64_t name;
+	uint64_t type;
+	uint64_t imp;
+} ATR_PACK SDMSTObjc2ClassMethod;
+
+struct SDMSTObjc2ClassProtocol {
+	uint64_t offset;
+} ATR_PACK SDMSTObjc2ClassProtocol;
+
 struct SDMSTObjc2ClassIVar {
 	uint64_t offset;
-	char *name;
-	char *type;
+	uint64_t name;
+	uint64_t type;
 	uint32_t align;
 	uint32_t size;
 } ATR_PACK SDMSTObjc2ClassIVar;
@@ -51,6 +61,8 @@ struct SDMSTObjc2ClassProperty {
 	char *name;
 	char *attributes;
 } ATR_PACK SDMSTObjc2ClassProperty;
+
+
 
 struct SDMSTObjc2ClassData {
 	uint32_t flags;

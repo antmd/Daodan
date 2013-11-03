@@ -425,8 +425,8 @@ bool SDMSTMapObjcClasses64(struct SDMSTLibrary *libTable, bool silent) {
 				uint64_t *classes = (uint64_t*)(((uint64_t)(section->addr)&0xffffffff)+((uint64_t)(_dyld_get_image_header(libTable->libInfo->imageNumber))));
 				struct SDMSTObjc2Class *cls = (struct SDMSTObjc2Class *)(classes[i]);
 				struct SDMSTObjcClass *objclass = SDMSTObjc2ClassCreateFromClass(cls, 0x0, dataRange);
-				printf("class: %s\n",objclass->className);
-				//memcpy(&(objcData->cls[i]), SDMSTObjc2ClassCreateFromClass(cls), sizeof(struct SDMSTObjcClass));
+				memcpy(&(objcData->cls[i]), objclass, sizeof(struct SDMSTObjcClass));
+				free(objclass);
 			}
 		}
 		free(objcData);
