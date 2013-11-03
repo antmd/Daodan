@@ -190,11 +190,20 @@ void SDMDaodanDumpObjectiveCClass(char *dumpPath, struct SDMSTObjcClass *cls) {
 		if (cls->ivarCount) {
 			SDMDaodanWriteHeaderInDumpFile("Instance Variables\n",file);
 			for (uint32_t i = 0x0; i < cls->ivarCount; i++) {
-				char *ivarType = SDMSTConvertEncodedType(cls->ivar[i].type);
-				char *ivarName = calloc(0x1, sizeof(char)*(strlen(cls->ivar[i].name)+0x4+strlen(ivarType)));
-				sprintf(ivarName, "\t%s %s\n",ivarType,cls->ivar[i].name);
-				FWRITE_STRING_TO_FILE(ivarName, file);
-				free(ivarName);
+				char *ivarType = cls->ivar[i].type;
+				struct SDMSTObjcType *type = SDMSTObjcDecodeType(ivarType);
+				if (type->tokenCount) {
+					char *ivarName;
+					if (type->token[0x0].typeName) {
+						ivarName = calloc(0x1, sizeof(char)*(strlen(cls->ivar[i].name)+0x5+strlen(type->token[0x0].type)+strlen(type->token[0x0].typeName)));
+						sprintf(ivarName, "\t%s%s %s;\n",type->token[0x0].type,type->token[0x0].typeName,cls->ivar[i].name);
+					} else {
+						ivarName = calloc(0x1, sizeof(char)*(strlen(cls->ivar[i].name)+0x5+strlen(type->token[0x0].type)));
+						sprintf(ivarName, "\t%s %s;\n",type->token[0x0].type,cls->ivar[i].name);
+					}
+					FWRITE_STRING_TO_FILE(ivarName, file);
+					free(ivarName);
+				}
 			}
 		}
 		

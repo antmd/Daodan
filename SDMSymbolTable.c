@@ -71,12 +71,7 @@ bool SMDSTSymbolDemangleAndCompare(char *symFromTable, char *symbolName);
 SDMSTFunctionCall SDMSTSymbolLookup(struct SDMSTLibrary *libTable, char *symbolName);
 void SDMSTFindFunctionAddress(uint8_t **fPointer, struct SDMSTLibrary *libTable);
 
-
-extern inline struct SDMSTObjcClass* SDMSTObjc2ClassCreateFromClass(struct SDMSTObjc2Class *cls, struct SDMSTObjc2Class *parentClass, struct SDMSTRange dataRange);
-extern inline struct SDMSTObjcClass* SDMSTObjc1CreateClassFromProtocol(struct SDMSTObjc *objcData, struct SDMSTObjc1Protocol *prot);
-extern inline struct SDMSTObjcClass* SDMSTObjc1CreateClassFromCategory(struct SDMSTObjc *objcData, struct SDMSTObjc1Category *cat);
-extern inline struct SDMSTObjcClass* SDMSTObjc1CreateClassFromClass(struct SDMSTObjc *objcData, struct SDMSTObjc1Class *cls);
-extern inline void SDMSTObjc1CreateClassFromSymbol(struct SDMSTObjc *objcData, struct SDMSTObjc1Symtab *symtab);
+SDMObjcRuntimeExternDefinitions
 
 #pragma mark -
 #pragma mark Functions

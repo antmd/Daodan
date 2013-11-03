@@ -54,6 +54,7 @@
 		22FD60C91822FD080052A1FF /* udis86.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60B61822FD080052A1FF /* udis86.c */; };
 		22FD60CA1822FD080052A1FF /* udis86.h in Headers */ = {isa = PBXBuildFile; fileRef = 22FD60B71822FD080052A1FF /* udis86.h */; };
 		22FD60CE1825FE0A0052A1FF /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2295903D18217F01006E985D /* CoreFoundation.framework */; };
+		22FD60D11826A1DB0052A1FF /* SDMObjcLexer.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60D01826A1DB0052A1FF /* SDMObjcLexer.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -113,6 +114,8 @@
 		22FD60CB18259F340052A1FF /* SDMObjcRuntime1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDMObjcRuntime1.h; sourceTree = "<group>"; };
 		22FD60CC18259F440052A1FF /* SDMObjcRuntime2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDMObjcRuntime2.h; sourceTree = "<group>"; };
 		22FD60CD1825A3180052A1FF /* SDMObjcRuntime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDMObjcRuntime.h; sourceTree = "<group>"; };
+		22FD60CF18268F450052A1FF /* SDMObjcLexer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDMObjcLexer.h; sourceTree = "<group>"; };
+		22FD60D01826A1DB0052A1FF /* SDMObjcLexer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDMObjcLexer.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,6 +155,8 @@
 			children = (
 				22B56F78181EE2AB002AF48E /* Info.plist */,
 				22C17BC717EF83E500800C71 /* SDMHeader.h */,
+				22FD60CF18268F450052A1FF /* SDMObjcLexer.h */,
+				22FD60D01826A1DB0052A1FF /* SDMObjcLexer.c */,
 				22FD60CD1825A3180052A1FF /* SDMObjcRuntime.h */,
 				22FD60CB18259F340052A1FF /* SDMObjcRuntime1.h */,
 				22FD60CC18259F440052A1FF /* SDMObjcRuntime2.h */,
@@ -347,6 +352,7 @@
 				22FD60C31822FD080052A1FF /* syn-att.c in Sources */,
 				22C17BBE17EF49B800800C71 /* Daodan.c in Sources */,
 				22FD60BA1822FD080052A1FF /* disasm.c in Sources */,
+				22FD60D11826A1DB0052A1FF /* SDMObjcLexer.c in Sources */,
 				22FD60BC1822FD080052A1FF /* decode.c in Sources */,
 				2295909C1822EAE8006E985D /* DaodanStore.c in Sources */,
 				22C17BC617EF697800800C71 /* SDMSymbolTable.c in Sources */,
