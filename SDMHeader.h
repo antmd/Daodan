@@ -91,6 +91,8 @@ struct SDMSTRange {
 
 #define SDMSTCastSmallPointer(a) (*(uintptr_t*)&(a))
 
+#define SDMGetNumberOfDigits(a) (a > 0 ? (int)log10(a)+1 : 1)
+
 inline bool makeNewFolderAt(char *path, mode_t mode) {
 	bool result = false;
 	struct stat st;

@@ -87,7 +87,7 @@ struct SDMSTObjcLexerToken {
 	enum SDMSTObjcLexerTokenType typeClass;
 	struct SDMSTObjcLexerToken *children;
 	uint32_t childrenCount;
-	bool isPointer;
+	uint32_t pointerCount;
 } ATR_PACK SDMSTObjcLexerToken;
 
 struct SDMSTObjcType {
@@ -97,5 +97,7 @@ struct SDMSTObjcType {
 
 struct SDMSTObjcType* SDMSTObjcDecodeType(char *type);
 struct SDMSTRange SDMSTObjcGetTokenRangeFromOffset(char *type, uint64_t offset, char *token);
+char* SDMSTObjcPointersForToken(struct SDMSTObjcLexerToken *token);
+char* SDMSTObjcCreateMethodDescription(struct SDMSTObjcType *type, char *name);
 
 #endif

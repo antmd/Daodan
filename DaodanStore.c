@@ -194,16 +194,17 @@ void SDMDaodanDumpObjectiveCClass(char *dumpPath, struct SDMSTObjcClass *cls) {
 				struct SDMSTObjcType *type = SDMSTObjcDecodeType(ivarType);
 				if (type->tokenCount) {
 					char *ivarName;
-					char *pointer = (char*)(type->token[0x0].isPointer?"*":"");
+					char *pointer = SDMSTObjcPointersForToken(&(type->token[0x0]));
 					if (type->token[0x0].typeName) {
 						ivarName = calloc(0x1, sizeof(char)*(strlen(cls->ivar[i].name)+0x5+strlen(pointer)+strlen(type->token[0x0].type)+strlen(type->token[0x0].typeName)));
-						sprintf(ivarName, "\t%s%s %s%s;\n",type->token[0x0].type,type->token[0x0].typeName,pointer,cls->ivar[i].name);
+						sprintf(ivarName, "\t%s %s %s%s;\n",type->token[0x0].type,type->token[0x0].typeName,pointer,cls->ivar[i].name);
 					} else {
 						ivarName = calloc(0x1, sizeof(char)*(strlen(cls->ivar[i].name)+0x5+strlen(pointer)+strlen(type->token[0x0].type)));
 						sprintf(ivarName, "\t%s %s%s;\n",type->token[0x0].type,pointer,cls->ivar[i].name);
 					}
 					FWRITE_STRING_TO_FILE(ivarName, file);
 					free(ivarName);
+					free(pointer);
 				}
 			}
 		}
@@ -211,14 +212,22 @@ void SDMDaodanDumpObjectiveCClass(char *dumpPath, struct SDMSTObjcClass *cls) {
 		if (cls->methodCount) {
 			SDMDaodanWriteHeaderInDumpFile("Methods\n",file);
 			for (uint32_t i = 0x0; i < cls->methodCount; i++) {
-				
+				char *methodType = cls->method[i].type;
+				struct SDMSTObjcType *type = SDMSTObjcDecodeType(methodType);
+				if (type->tokenCount) {
+					char *methodDescription = SDMSTObjcCreateMethodDescription(type, (cls->method[i].name));
+					FWRITE_STRING_TO_FILE("\t", file);
+					FWRITE_STRING_TO_FILE(methodDescription, file);
+					FWRITE_STRING_TO_FILE("\n", file);
+					free(methodDescription);
+				}
 			}
 		}
 		
 		if (cls->protocolCount) {
 			SDMDaodanWriteHeaderInDumpFile("Protocols\n",file);
 			for (uint32_t i = 0x0; i < cls->protocolCount; i++) {
-				
+
 			}
 		}
 		
