@@ -311,7 +311,7 @@ void setupDaodanMachPort() {
 		dispatchSend = dispatch_source_create(DISPATCH_SOURCE_TYPE_MACH_SEND, portSend, 0x0, dispatchSendQueue);
 		dispatch_source_set_event_handler(dispatchSend, portSendHandler);
 		dispatch_source_set_cancel_handler(dispatchSend, ^{
-			mach_port_mod_refs(mach_task_self(), portSend, MACH_PORT_RIGHT_RECEIVE, 0xffffffff);
+			mach_port_mod_refs(mach_task_self(), portSend, MACH_PORT_RIGHT_RECEIVE, k32BitMask);
 			dispatch_release(dispatchSendQueue);
 			dispatch_release(dispatchSend);
 			mach_port_deallocate(mach_task_self(), portSend);
@@ -330,7 +330,7 @@ void setupDaodanMachPort() {
 		dispatchReceive = dispatch_source_create(DISPATCH_SOURCE_TYPE_MACH_RECV, portReceive, 0x0, dispatchReceiveQueue);
 		dispatch_source_set_event_handler(dispatchReceive, portReceiveHandler);
 		dispatch_source_set_cancel_handler(dispatchReceive, ^{
-			mach_port_mod_refs(mach_task_self(), portReceive, MACH_PORT_RIGHT_RECEIVE, 0xffffffff);
+			mach_port_mod_refs(mach_task_self(), portReceive, MACH_PORT_RIGHT_RECEIVE, k32BitMask);
 			dispatch_release(dispatchReceiveQueue);
 			dispatch_release(dispatchReceive);
 			mach_port_deallocate(mach_task_self(), portReceive);
@@ -388,7 +388,7 @@ void initDaodan() {
 	_dyld_register_func_for_add_image(SDMAddImageHook);
 	_dyld_register_func_for_remove_image(SDMRemoveImageHook);
 	uint32_t result = daodanExecutableImageIndex = SDMGetExecuteImage();
-	if (result != 0xffffffff) {
+	if (result != k32BitMask) {
 		binaryTable = SDMSTLoadLibrary((char*)_dyld_get_image_name(result), result, FALSE);
 	} else {
 		SDMPrint(DEFAULT_LOGGER,PrintCode_ERR,"Could not find an executable binary image.");
@@ -481,7 +481,7 @@ uint32_t SDMGetExecuteImage() {
 			break;
 		}
 	}
-	return (foundBinary ? index : 0xffffffff);
+	return (foundBinary ? index : k32BitMask);
 }
 
 uint32_t SDMGetImageLocation(const struct mach_header *mh, char **path) {

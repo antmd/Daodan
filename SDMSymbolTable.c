@@ -70,7 +70,13 @@ uintptr_t* SDMSTGetCurrentArchFromBinary(struct SDMSTBinary *binary);
 bool SMDSTSymbolDemangleAndCompare(char *symFromTable, char *symbolName);
 SDMSTFunctionCall SDMSTSymbolLookup(struct SDMSTLibrary *libTable, char *symbolName);
 void SDMSTFindFunctionAddress(uint8_t **fPointer, struct SDMSTLibrary *libTable);
+
+
 extern inline struct SDMSTObjcClass* SDMSTObjc2ClassCreateFromClass(struct SDMSTObjc2Class *cls, struct SDMSTObjc2Class *parentClass, struct SDMSTRange dataRange);
+extern inline struct SDMSTObjcClass* SDMSTObjc1CreateClassFromProtocol(struct SDMSTObjc1Protocol *prot);
+extern inline struct SDMSTObjcClass* SDMSTObjc1CreateClassFromCategory(struct SDMSTObjc1Category *cat);
+extern inline struct SDMSTObjcClass* SDMSTObjc1CreateClassFromClass(struct SDMSTObjc1Class *cls);
+extern inline void SDMSTObjc1CreateClassFromSymbol(struct SDMSTObjc *objcData, struct SDMSTObjc1Symtab *symtab);
 
 #pragma mark -
 #pragma mark Functions
@@ -105,6 +111,7 @@ void SDMSTBuildLibraryInfo(struct SDMSTLibrary *libTable, bool silent) {
 			libTable->dependency = (struct SDMSTDependency *)calloc(0x1, sizeof(struct SDMSTDependency));
 			libTable->dependencyCount = 0x0;
 			libTable->libInfo->functCmd = NULL;
+			libTable->libInfo->objcSeg = NULL;
 			for (uint32_t i = 0x0; i < libHeader->ncmds; i++) {
 				switch (loadCmd->cmd) {
 					case LC_SYMTAB: {
@@ -375,30 +382,41 @@ void SDMSTGenerateSortedSymbolTable(struct SDMSTLibrary *libTable, bool silent) 
 }
 
 bool SDMSTMapObjcClasses32(struct SDMSTLibrary *libTable, bool silent) {
-	bool result = false;//(libTable->libInfo->objcSeg ? true : false);
+	bool result = (libTable->libInfo->objcSeg ? true : false);
 	if (result) {
-		/*struct SDMSTObjc *objcData = calloc(0x1, sizeof(struct SDMSTObjc));
-		objcData->moduleCount = 0x0;
-		uintptr_t *offset = (uintptr_t *)(((struct segment_command *)(libTable->libInfo->objcSeg)) + sizeof(struct segment_command));
-		uint32_t sectionCount = ((struct segment_command *)(libTable->libInfo->objcSeg))->nsects;
+		struct SDMSTObjc *objcData = calloc(0x1, sizeof(struct SDMSTObjc));
+		struct segment_command *objcSeg = ((struct segment_command *)(libTable->libInfo->objcSeg));
+		uint32_t moduleCount = 0x0;
+		struct section *section = (struct section *)((uint64_t)(objcSeg) + (uint64_t)sizeof(struct segment_command));
+		uint32_t sectionCount = objcSeg->nsects;
 		struct SDMSTObjcModuleRaw *module;
 		for (uint32_t i = 0x0; i < sectionCount; i++) {
-			char *sectionName = (char*)((struct section *)offset)->sectname;
-			if (strcmp(sectionName, kObjcModuleInfo) == 0x0) {
-				module = (struct SDMSTObjcModuleRaw *)(libTable->libInfo->mhOffset + ((struct section *)offset)->offset);
-				objcData->moduleCount = (((struct section *)offset)->size)/sizeof(struct SDMSTObjcModuleRaw);
-				break;
+			char *sectionName = (char*)(section->sectname);
+			if (strncmp(sectionName, kObjcModuleInfo, sizeof(char)*0x10) == 0x0) {
+				module = (struct SDMSTObjcModuleRaw *)((uint64_t)(libTable->libInfo->mhOffset) + (uint64_t)(section->offset));
+				moduleCount = (section->size)/sizeof(struct SDMSTObjcModuleRaw);
 			}
-			offset = offset + sizeof(struct section);
+			if (strncmp(sectionName, kObjcClass, sizeof(char)*0x10) == 0x0) {
+				objcData->classRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)(_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber))), section->size);
+			}
+			if (strncmp(sectionName, kObjcCategory, sizeof(char)*0x10) == 0x0) {
+				objcData->catRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)(_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber))), section->size);
+			}
+			if (strncmp(sectionName, kObjcProtocol, sizeof(char)*0x10) == 0x0) {
+				objcData->protRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)(_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber))), section->size);
+			}
+			section = (struct section *)((uint64_t)section + (uint64_t)sizeof(struct section));
 		}
-		if (objcData->moduleCount) {
-			objcData->module = calloc(objcData->moduleCount, sizeof(struct SDMSTObjcModule));
-			for (uint32_t i = 0x0; i < objcData->moduleCount; i++) {
-				objcData->module[i].impName = (char*)&(module[i].name);
-				objcData->module[i].symbol = SDMSTObjcCreateClassFromSymbol(&(module[i].symtab));
+		if (moduleCount) {
+			objcData->cls = calloc(0x1, sizeof(struct SDMSTObjcClass));
+			objcData->clsCount = 0x0;
+			for (uint32_t i = 0x0; i < moduleCount; i++) {
+				SDMSTObjc1CreateClassFromSymbol(objcData, (struct SDMSTObjc1Symtab *)SDMSTCastSmallPointer(module[i].symtab));
 			}
 		}
-		free(objcData);*/
+		libTable->objcInfo = calloc(0x1, sizeof(struct SDMSTObjc));
+		memcpy(libTable->objcInfo, objcData, sizeof(SDMSTObjc));
+		free(objcData);
 	}
 	return result;
 }
@@ -408,7 +426,7 @@ bool SDMSTMapObjcClasses64(struct SDMSTLibrary *libTable, bool silent) {
 	if (result) {
 		struct SDMSTObjc *objcData = calloc(0x1, sizeof(struct SDMSTObjc));
 		struct segment_command_64 *dataSeg = ((struct segment_command_64 *)(libTable->libInfo->objcSeg));
-		struct SDMSTRange dataRange = SDMSTRangeMake((uintptr_t)((uint64_t)(dataSeg->vmaddr&0xffffffff)+((uint64_t)(_dyld_get_image_header(libTable->libInfo->imageNumber)))),dataSeg->vmsize);
+		struct SDMSTRange dataRange = SDMSTRangeMake((uintptr_t)((uint64_t)(dataSeg->vmaddr&k32BitMask)+((uint64_t)(_dyld_get_image_header(libTable->libInfo->imageNumber)))),dataSeg->vmsize);
 		struct section_64 *section = (struct section_64 *)((uint64_t)(dataSeg)+(uint64_t)sizeof(struct segment_command_64));
 		uint32_t sectionCount = (dataSeg)->nsects;
 		for (uint32_t i = 0x0; i < sectionCount; i++) {
@@ -422,7 +440,7 @@ bool SDMSTMapObjcClasses64(struct SDMSTLibrary *libTable, bool silent) {
 		if (objcData->clsCount) {
 			objcData->cls = calloc(objcData->clsCount, sizeof(struct SDMSTObjcClass));
 			for (uint32_t i = 0x0; i < objcData->clsCount; i++) {
-				uint64_t *classes = (uint64_t*)(((uint64_t)(section->addr)&0xffffffff)+((uint64_t)(_dyld_get_image_header(libTable->libInfo->imageNumber))));
+				uint64_t *classes = (uint64_t*)(((uint64_t)(section->addr)&k32BitMask)+((uint64_t)(_dyld_get_image_header(libTable->libInfo->imageNumber))));
 				struct SDMSTObjc2Class *cls = (struct SDMSTObjc2Class *)(classes[i]);
 				struct SDMSTObjcClass *objclass = SDMSTObjc2ClassCreateFromClass(cls, 0x0, dataRange);
 				memcpy(&(objcData->cls[i]), objclass, sizeof(struct SDMSTObjcClass));
@@ -546,14 +564,18 @@ struct SDMSTLibrary* SDMSTLoadLibrary(char *path, uint32_t index, bool silent) {
 			SDMPrint(silent,PrintCode_TRY,"Attempting to manually load and map...");
 			table->couldLoad = FALSE;
 			struct stat fs;
-			stat(path, &fs);
-			int fd = open(path, O_RDONLY);
-			uint32_t header = 0xdeadbeef;
-			read(fd, &header, sizeof(uint32_t));
-			uint32_t size = (uint32_t)fs.st_size;
-			uint32_t offset = 0x0;
-			handle = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, offset);
-			close(fd);
+			int statResult = stat(path, &fs);
+			if (statResult == 0x0) {
+				int fd = open(path, O_RDONLY);
+				if (fd != k32BitMask) {
+					uint32_t header = 0xdeadbeef;
+					read(fd, &header, sizeof(uint32_t));
+					uint32_t size = (uint32_t)fs.st_size;
+					uint32_t offset = 0x0;
+					handle = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, offset);
+					close(fd);
+				}
+			}
 			table->librarySize = 0x0;
 		}
 	} else {

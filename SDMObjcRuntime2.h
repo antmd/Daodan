@@ -62,8 +62,6 @@ struct SDMSTObjc2ClassProperty {
 	char *attributes;
 } ATR_PACK SDMSTObjc2ClassProperty;
 
-
-
 struct SDMSTObjc2ClassData {
 	uint32_t flags;
 	uint32_t instanceStart;

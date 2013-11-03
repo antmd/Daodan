@@ -87,6 +87,10 @@ struct SDMSTRange {
 
 #define SDMSTRangeMake(a,b) ((struct SDMSTRange){a, b})
 
+#define k32BitMask 0xffffffff
+
+#define SDMSTCastSmallPointer(a) (*(uintptr_t*)&(a))
+
 inline bool makeNewFolderAt(char *path, mode_t mode) {
 	bool result = false;
 	struct stat st;
