@@ -181,23 +181,35 @@ void SDMDaodanDumpSubroutineInfo(char *dumpPath, struct SDMSTLibrary *libTable) 
 
 void SDMDaodanDumpObjectiveCClass(char *dumpPath, struct SDMSTObjcClass *cls) {
 	if (cls->className) {
-		printf("%s\n",cls->className);
 		char *filePath = calloc(0x1, sizeof(char)*(strlen(dumpPath)+0x5+strlen(cls->className)));
 		sprintf(filePath, "%s%s.txt",dumpPath,cls->className);
 		FILE *file = fopen(filePath, "w+");
 		
 		SDMDaodanWriteHeaderInDumpFile("Objective-C Class\n",file);
 		
-		for (uint32_t i = 0x0; i < cls->ivarCount; i++) {
-			
+		if (cls->ivarCount) {
+			SDMDaodanWriteHeaderInDumpFile("Instance Variables\n",file);
+			for (uint32_t i = 0x0; i < cls->ivarCount; i++) {
+				char *ivarType = SDMSTConvertEncodedType(cls->ivar[i].type);
+				char *ivarName = calloc(0x1, sizeof(char)*(strlen(cls->ivar[i].name)+0x4+strlen(ivarType)));
+				sprintf(ivarName, "\t%s %s\n",ivarType,cls->ivar[i].name);
+				FWRITE_STRING_TO_FILE(ivarName, file);
+				free(ivarName);
+			}
 		}
 		
-		for (uint32_t i = 0x0; i < cls->methodCount; i++) {
-			
+		if (cls->methodCount) {
+			SDMDaodanWriteHeaderInDumpFile("Methods\n",file);
+			for (uint32_t i = 0x0; i < cls->methodCount; i++) {
+				
+			}
 		}
 		
-		for (uint32_t i = 0x0; i < cls->protocolCount; i++) {
-			
+		if (cls->protocolCount) {
+			SDMDaodanWriteHeaderInDumpFile("Protocols\n",file);
+			for (uint32_t i = 0x0; i < cls->protocolCount; i++) {
+				
+			}
 		}
 		
 		fclose(file);
@@ -206,8 +218,8 @@ void SDMDaodanDumpObjectiveCClass(char *dumpPath, struct SDMSTObjcClass *cls) {
 }
 
 void SDMDaodanDumpObjectiveCInfo(char *dumpPath, struct SDMSTLibrary *libTable) {
-	char *filePath = calloc(0x1, sizeof(char)*(strlen(dumpPath)+0x1+0xc));
-	sprintf(filePath, "%sObjectiveC/",dumpPath);
+	char *filePath = calloc(0x1, sizeof(char)*(strlen(dumpPath)+0x1+0xd));
+	sprintf(filePath, "%sObjective-C/",dumpPath);
 	makeNewFolderAt(filePath, 0700);
 	for (uint32_t i = 0x0; i < libTable->objcInfo->clsCount; i++) {
 		SDMDaodanDumpObjectiveCClass(filePath, &(libTable->objcInfo->cls[i]));

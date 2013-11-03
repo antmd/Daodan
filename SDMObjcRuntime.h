@@ -66,6 +66,37 @@ struct SDMSTObjc {
 	struct SDMSTRange instMRange;
 } ATR_PACK SDMSTObjc;
 
+#define kObjcCharEncoding "c"
+#define kObjcIntEncoding "i"
+#define kObjcShortEncoding "s"
+#define kObjcLongEncoding "l"
+#define kObjcLLongEncoding "q"
+#define kObjcUCharEncoding "C"
+#define kObjcUIntEncoding "I"
+#define kObjcUShortEncoding "S"
+#define kObjcULongEncoding "L"
+#define kObjcULLongEncoding "Q"
+#define kObjcFloatEncoding "f"
+#define kObjcDoubleEncoding "d"
+#define kObjcBoolEncoding "B"
+#define kObjcVoidEncoding "v"
+#define kObjcStringEncoding "*"
+#define kObjcIdEncoding "@"
+#define kObjcClassEncoding "#"
+#define kObjcSelEncoding ":"
+#define kObjcPointerEncoding "^"
+#define kObjcUnknownEncoding "?"
+
+inline char* SDMSTConvertEncodedType(char *type) {
+	char *decoded = calloc(0x1, sizeof(char));
+	for (uint32_t i = 0x0; i < strlen(type); i++) {
+		decoded = realloc(decoded, sizeof(char)*(i+0x1));
+		decoded[i] = type[i];
+	}
+	
+	return decoded;
+}
+
 inline struct SDMSTObjcClass* SDMSTObjc1CreateClassFromProtocol(struct SDMSTObjc *objcData, struct SDMSTObjc1Protocol *prot) {
 	struct SDMSTObjcClass *newClass = calloc(0x1, sizeof(struct SDMSTObjcClass));
 	if (prot) {
