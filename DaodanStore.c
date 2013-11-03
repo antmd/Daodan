@@ -217,6 +217,7 @@ void SDMDaodanDumpObjectiveCClass(char *dumpPath, struct SDMSTObjcClass *cls) {
 						free(ivarName);
 						free(pointer);
 					}
+					free(type);
 				}
 			}
 			
@@ -232,6 +233,7 @@ void SDMDaodanDumpObjectiveCClass(char *dumpPath, struct SDMSTObjcClass *cls) {
 						FWRITE_STRING_TO_FILE("\n", file);
 						free(methodDescription);
 					}
+					free(type);
 				}
 			}
 			
@@ -245,6 +247,8 @@ void SDMDaodanDumpObjectiveCClass(char *dumpPath, struct SDMSTObjcClass *cls) {
 			fclose(file);
 		}
 		free(filePath);
+	} else {
+		SDMPrint(false,PrintCode_ERR,"Could not write Objective-C to dump file: %s",dumpPath);
 	}
 }
 
