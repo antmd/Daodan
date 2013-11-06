@@ -22,6 +22,8 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		223C2B0B182AFA15001BE2F1 /* SDMHeader.c in Sources */ = {isa = PBXBuildFile; fileRef = 223C2B0A182AFA15001BE2F1 /* SDMHeader.c */; };
+		223C2B0C182AFA15001BE2F1 /* SDMHeader.c in Sources */ = {isa = PBXBuildFile; fileRef = 223C2B0A182AFA15001BE2F1 /* SDMHeader.c */; };
 		2295903418217B0B006E985D /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 2295903318217B0B006E985D /* main.c */; };
 		2295903E18217F01006E985D /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2295903D18217F01006E985D /* CoreFoundation.framework */; };
 		2295904218218202006E985D /* SDMLaunchProcess.c in Sources */ = {isa = PBXBuildFile; fileRef = 2295904118218202006E985D /* SDMLaunchProcess.c */; };
@@ -75,6 +77,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		223C2B0A182AFA15001BE2F1 /* SDMHeader.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDMHeader.c; sourceTree = "<group>"; };
 		2295903118217B0B006E985D /* Launchpad */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Launchpad; sourceTree = BUILT_PRODUCTS_DIR; };
 		2295903318217B0B006E985D /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		2295903D18217F01006E985D /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
@@ -155,6 +158,7 @@
 			children = (
 				22B56F78181EE2AB002AF48E /* Info.plist */,
 				22C17BC717EF83E500800C71 /* SDMHeader.h */,
+				223C2B0A182AFA15001BE2F1 /* SDMHeader.c */,
 				22FD60CF18268F450052A1FF /* SDMObjcLexer.h */,
 				22FD60D01826A1DB0052A1FF /* SDMObjcLexer.c */,
 				22FD60CD1825A3180052A1FF /* SDMObjcRuntime.h */,
@@ -337,6 +341,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				22959044182182CF006E985D /* SDMLaunchProcess.c in Sources */,
+				223C2B0C182AFA15001BE2F1 /* SDMHeader.c in Sources */,
 				2295903418217B0B006E985D /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -346,6 +351,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				22FD60C51822FD080052A1FF /* syn.c in Sources */,
+				223C2B0B182AFA15001BE2F1 /* SDMHeader.c in Sources */,
 				22FD60C91822FD080052A1FF /* udis86.c in Sources */,
 				22FD60BF1822FD080052A1FF /* input.c in Sources */,
 				2295904218218202006E985D /* SDMLaunchProcess.c in Sources */,
