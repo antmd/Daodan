@@ -23,8 +23,11 @@ char* SDMGetCurrentDateString() {
 }
 
 char* SDMCFStringGetString(CFStringRef str) {
-	char *cstr = calloc(0x1, sizeof(char)*(CFStringGetLength(str)+0x1));
-	CFStringGetCString(str, cstr, CFStringGetLength(str)+0x1, CFStringGetFastestEncoding(str));
+	char *cstr = NULL;
+	if (str) {
+		cstr = calloc(0x1, sizeof(char)*(CFStringGetLength(str)+0x1));
+		CFStringGetCString(str, cstr, CFStringGetLength(str)+0x1, CFStringGetFastestEncoding(str));
+	}
 	return cstr;
 }
 
@@ -39,6 +42,10 @@ char *SDMDaodanInternalAppStoreDirectory() {
 	char *storage = SDMDaodanInternalStoreDirectory();
 	CFStringRef bundleId = CFBundleGetIdentifier(CFBundleGetMainBundle());
 	char *bundle = SDMCFStringGetString(bundleId);
+	if (!bundle) {
+		bundle = calloc(0x1, sizeof(char)*(strlen((char *)getprogname())+0x1));
+		memcpy(bundle, getprogname(), strlen(getprogname()));
+	}
 	storage = realloc(storage, sizeof(char)*(strlen(storage)+strlen(bundle)+0x2));
 	sprintf(storage,"%s/%s/",storage,bundle);
 	free(bundle);
