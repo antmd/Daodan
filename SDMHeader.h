@@ -93,6 +93,8 @@ struct SDMSTRange {
 
 #define SDMGetNumberOfDigits(a) (a > 0 ? (int)log10(a)+1 : 1)
 
+extern inline bool makeNewFolderAt(char *path, mode_t mode);
+
 inline bool makeNewFolderAt(char *path, mode_t mode) {
 	bool result = false;
 	struct stat st;

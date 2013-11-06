@@ -447,7 +447,7 @@ uintptr_t daodanLookupFunction(char *name) {
 	} else {
 		SDMPrint(DEFAULT_LOGGER,PrintCode_ERR,"Could not find symbol with name \"%s\".",name);
 	}
-	return (uintptr_t)symbol->offset;
+	return (uintptr_t)(symbol->offset);
 }
 
 void daodanLoadSymbolTableForImage(uint32_t index) {
