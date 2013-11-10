@@ -171,9 +171,9 @@ DYLD_INTERPOSE(DAODAN__mac_syscall, __mac_syscall);
 
 static struct SDMSTLibrary *binaryTable;
 
-#define CHRYSALIS_LAUNCH "com.samdmarshall.Chrysalis.Launch"
-#define CHRYSALIS_RELOAD "com.samdmarshall.Chrysalis.ReloadPlugins"
-#define CHRYSALIS_QUIT "com.samdmarshall.Chrysalis.Quit"
+#define CHRYSALIS_LAUNCH "com.samdmarshall.DaodanController.Launch"
+#define CHRYSALIS_RELOAD "com.samdmarshall.DaodanController.ReloadPlugins"
+#define CHRYSALIS_QUIT "com.samdmarshall.DaodanController.Quit"
 
 #define DAODAN_NOTIFY_COUNT 0x3
 static int daodan_notify_token[DAODAN_NOTIFY_COUNT];
@@ -213,11 +213,11 @@ uint32_t sendDaodanMachMessage(char data[0x400]) {
 	}
 }
 
-void setupChrysalisNotificationListeners() {
+void setupDaodanControllerNotificationListeners() {
 	uint32_t result[DAODAN_NOTIFY_COUNT];
 	result[0x0] = notify_register_dispatch(CHRYSALIS_LAUNCH, &daodan_notify_token[0x0], dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^(int token){
 		char data[0x400];
-		sprintf(&(data[0x0]),"Chrysalis is launching!");
+		sprintf(&(data[0x0]),"DaodanController is launching!");
 		sendDaodanMachMessage(data);
 	});
 	result[0x1] = notify_register_dispatch(CHRYSALIS_RELOAD, &daodan_notify_token[0x1], dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^(int token){
@@ -227,7 +227,7 @@ void setupChrysalisNotificationListeners() {
 	});
 	result[0x2] = notify_register_dispatch(CHRYSALIS_QUIT, &daodan_notify_token[0x2], dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^(int token){
 		char data[0x400];
-		sprintf(&(data[0x0]),"Chrysalis is quitting!");
+		sprintf(&(data[0x0]),"DaodanController is quitting!");
 		sendDaodanMachMessage(data);
 	});
 	bool statusOK = true;
@@ -240,11 +240,11 @@ void setupChrysalisNotificationListeners() {
 	if (statusOK) {
 		SDMPrint(PrintCode_OK,"Successfully registered notify listeners");
 	} else {
-		SDMPrint(PrintCode_ERR,"Unable to registery notify listeners, Daodan will be unable to communicate with Chrysalis");
+		SDMPrint(PrintCode_ERR,"Unable to registery notify listeners, Daodan will be unable to communicate with DaodanController");
 	}
 }
 
-void cancelChrysalisNotificationListeners() {
+void cancelDaodanControllerNotificationListeners() {
 	for (uint32_t i = 0x0; i < DAODAN_NOTIFY_COUNT; i++) {
 		notify_cancel(daodan_notify_token[i]);
 	}
@@ -340,14 +340,14 @@ void setupDaodanMachPort() {
 	}
 }
 
-void setupChrysalisMachPort(pid_t chrysalisPID) {
+void setupDaodanControllerMachPort(pid_t chrysalisPID) {
 	vm_map_t task = mach_task_self();
 	mach_port_t target;
 	// get pid and store here
 	kern_return_t taskResult = task_for_pid(task, chrysalisPID, &target);
 	if (taskResult == KERN_SUCCESS) {
 		// do stuff
-		SDMPrint(PrintCode_OK,"Successfully called task_for_pid(%i) back to Chrysalis",chrysalisPID);
+		SDMPrint(PrintCode_OK,"Successfully called task_for_pid(%i) back to DaodanController",chrysalisPID);
 	} else {
 		SDMPrint(PrintCode_ERR,"Unable to attach task_for_pid(%i), error: %s.",chrysalisPID,mach_error_string(taskResult));
 		SDMPrint(PrintCode_ERR,"Please relaunch using Launchpad");
@@ -396,17 +396,17 @@ void initDaodan() {
 			unloadDaodan();
 		} else {
 			dumpDaodan();
-			SDMPrint(PrintCode_TRY,"Registering notify listeners for Chrysalis...");
-			setupChrysalisNotificationListeners();
+			SDMPrint(PrintCode_TRY,"Registering notify listeners for DaodanController...");
+			setupDaodanControllerNotificationListeners();
 			setupDaodanMachPort();
-			setupChrysalisMachPort(384);
+			setupDaodanControllerMachPort(384);
 		}
 	}
 }
 
 void unloadDaodan() {
 	SDMSTLibraryRelease(binaryTable);
-	cancelChrysalisNotificationListeners();
+	cancelDaodanControllerNotificationListeners();
 	closeDaodanMachPorts();
 }
 
