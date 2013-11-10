@@ -68,10 +68,22 @@ enum SDMPrintCodes {
 #define SDMPrintCodeColor(code) (UseColorCodes ? (code == PrintCode_OK ? COLOR_GRN : (code == PrintCode_TRY ? COLOR_YEL : (code == PrintCode_ERR ? COLOR_RED : (code == PrintCode_NTR ? COLOR_MAG : COLOR_BLU)))) : "")
 #define SDMPrintCode(code) (code == PrintCode_OK ? "OK!" : (code == PrintCode_TRY ? "TRY" : (code == PrintCode_ERR ? "ERR" : (code == PrintCode_NTR ? "NTR" : "???"))))
 
-#define SDMPrint(silent,code,...) if (silent) {\
+#define LoggingLibrary true
+#ifdef LoggingLibrary
+#define LoggingLibraryName "Daodan"
+#endif
+
+#define SDMPrint(silent,code,...) \
+	if (silent) { \
 		printf(""); \
-	} else {\
-		printf("[%s%s%s][%sDaodan%s][%s%s%s] ",COLOR_CYN,getprogname(),COLOR_NRM,COLOR_BLU,COLOR_NRM,SDMPrintCodeColor(code),SDMPrintCode(code),(UseColorCodes ? COLOR_NRM : "")); printf(__VA_ARGS__); printf("\n"); \
+	} else { \
+		printf("[%s%s%s]",COLOR_CYN,getprogname(),COLOR_NRM); \
+		if (LoggingLibrary) { \
+		printf("[%s%s%s]",COLOR_BLU,LoggingLibraryName,COLOR_NRM); \
+		} \
+		printf("[%s%s%s] ",SDMPrintCodeColor(code),SDMPrintCode(code),(UseColorCodes ? COLOR_NRM : "")); \
+		printf(__VA_ARGS__); \
+		printf("\n"); \
 	}
 
 #pragma mark -
