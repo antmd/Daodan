@@ -166,17 +166,112 @@
 			path = ObjectiveC;
 			sourceTree = "<group>";
 		};
-		2295903218217B0B006E985D /* Launchpad */ = {
+		224D440D183033FF00FEEDCA /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				22C17BBF17EF49C400800C71 /* Daodan.h */,
+				22C17BBD17EF49B800800C71 /* Daodan.c */,
+			);
+			name = Core;
+			sourceTree = "<group>";
+		};
+		224D440E1830340A00FEEDCA /* Dump */ = {
+			isa = PBXGroup;
+			children = (
+				229590991822EAD3006E985D /* DaodanStore.h */,
+				2295909B1822EAE8006E985D /* DaodanStore.c */,
+			);
+			name = Dump;
+			sourceTree = "<group>";
+		};
+		224D440F1830341700FEEDCA /* Generated Code */ = {
 			isa = PBXGroup;
 			children = (
 				224D43FF18300EDF00FEEDCA /* exc.defs */,
 				224D43FD18300BAD00FEEDCA /* mach_exc.defs */,
-				229590981822DCA1006E985D /* Info-Launchpad.plist */,
-				2295903318217B0B006E985D /* main.m */,
+			);
+			name = "Generated Code";
+			sourceTree = "<group>";
+		};
+		224D44101830342400FEEDCA /* Exception Handling */ = {
+			isa = PBXGroup;
+			children = (
 				224D43FC18300A6100FEEDCA /* SDMExceptionHandler.h */,
 				224D43FA18300A4900FEEDCA /* SDMExceptionHandler.c */,
+				224D440F1830341700FEEDCA /* Generated Code */,
+			);
+			name = "Exception Handling";
+			sourceTree = "<group>";
+		};
+		224D44111830343400FEEDCA /* Process Management */ = {
+			isa = PBXGroup;
+			children = (
 				2295904318218215006E985D /* SDMLaunchProcess.h */,
 				2295904118218202006E985D /* SDMLaunchProcess.m */,
+			);
+			name = "Process Management";
+			sourceTree = "<group>";
+		};
+		224D44121830344700FEEDCA /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				2295903318217B0B006E985D /* main.m */,
+			);
+			name = Core;
+			sourceTree = "<group>";
+		};
+		224D44131830345500FEEDCA /* MachO */ = {
+			isa = PBXGroup;
+			children = (
+				22C17BC317EF696500800C71 /* SDMSymbolTable.h */,
+				22C17BC517EF697800800C71 /* SDMSymbolTable.c */,
+			);
+			name = MachO;
+			sourceTree = "<group>";
+		};
+		224D44141830346700FEEDCA /* ARM */ = {
+			isa = PBXGroup;
+			children = (
+				22FD60A41822FD080052A1FF /* arm_decode.c */,
+				22FD60A51822FD080052A1FF /* arm_decode.h */,
+			);
+			name = ARM;
+			sourceTree = "<group>";
+		};
+		224D44151830346D00FEEDCA /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				22FD60A61822FD080052A1FF /* disasm.c */,
+				22FD60A71822FD080052A1FF /* disasm.h */,
+			);
+			name = Core;
+			sourceTree = "<group>";
+		};
+		224D44161830347400FEEDCA /* x86 */ = {
+			isa = PBXGroup;
+			children = (
+				22FD60A81822FD080052A1FF /* libudis86 */,
+				22FD60B71822FD080052A1FF /* udis86.h */,
+			);
+			name = x86;
+			sourceTree = "<group>";
+		};
+		224D44171830349500FEEDCA /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				22C17BC717EF83E500800C71 /* SDMHeader.h */,
+				223C2B0A182AFA15001BE2F1 /* SDMHeader.c */,
+			);
+			name = Core;
+			sourceTree = "<group>";
+		};
+		2295903218217B0B006E985D /* Launchpad */ = {
+			isa = PBXGroup;
+			children = (
+				224D44121830344700FEEDCA /* Core */,
+				224D44111830343400FEEDCA /* Process Management */,
+				224D44101830342400FEEDCA /* Exception Handling */,
+				229590981822DCA1006E985D /* Info-Launchpad.plist */,
 			);
 			path = Launchpad;
 			sourceTree = "<group>";
@@ -184,14 +279,11 @@
 		2295903A18217B17006E985D /* Daodan */ = {
 			isa = PBXGroup;
 			children = (
+				224D44131830345500FEEDCA /* MachO */,
+				224D440E1830340A00FEEDCA /* Dump */,
+				224D440D183033FF00FEEDCA /* Core */,
 				224D440C183032DC00FEEDCA /* ObjectiveC */,
 				22B56F78181EE2AB002AF48E /* Info-Daodan.plist */,
-				22C17BC317EF696500800C71 /* SDMSymbolTable.h */,
-				22C17BC517EF697800800C71 /* SDMSymbolTable.c */,
-				22C17BBF17EF49C400800C71 /* Daodan.h */,
-				22C17BBD17EF49B800800C71 /* Daodan.c */,
-				229590991822EAD3006E985D /* DaodanStore.h */,
-				2295909B1822EAE8006E985D /* DaodanStore.c */,
 			);
 			path = Daodan;
 			sourceTree = "<group>";
@@ -209,8 +301,7 @@
 		22C17BAD17EF49A700800C71 = {
 			isa = PBXGroup;
 			children = (
-				22C17BC717EF83E500800C71 /* SDMHeader.h */,
-				223C2B0A182AFA15001BE2F1 /* SDMHeader.c */,
+				224D44171830349500FEEDCA /* Core */,
 				22FD60A31822FCEA0052A1FF /* Disasm */,
 				2295903A18217B17006E985D /* Daodan */,
 				2295903218217B0B006E985D /* Launchpad */,
@@ -231,12 +322,9 @@
 		22FD60A31822FCEA0052A1FF /* Disasm */ = {
 			isa = PBXGroup;
 			children = (
-				22FD60A41822FD080052A1FF /* arm_decode.c */,
-				22FD60A51822FD080052A1FF /* arm_decode.h */,
-				22FD60A61822FD080052A1FF /* disasm.c */,
-				22FD60A71822FD080052A1FF /* disasm.h */,
-				22FD60A81822FD080052A1FF /* libudis86 */,
-				22FD60B71822FD080052A1FF /* udis86.h */,
+				224D44161830347400FEEDCA /* x86 */,
+				224D44151830346D00FEEDCA /* Core */,
+				224D44141830346700FEEDCA /* ARM */,
 			);
 			name = Disasm;
 			sourceTree = "<group>";
