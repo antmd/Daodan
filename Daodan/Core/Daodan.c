@@ -171,9 +171,9 @@ DYLD_INTERPOSE(DAODAN__mac_syscall, __mac_syscall);
 
 static struct SDMSTLibrary *binaryTable;
 
-#define CHRYSALIS_LAUNCH "com.samdmarshall.DaodanController.Launch"
-#define CHRYSALIS_RELOAD "com.samdmarshall.DaodanController.ReloadPlugins"
-#define CHRYSALIS_QUIT "com.samdmarshall.DaodanController.Quit"
+#define DC_LAUNCH "com.samdmarshall.DaodanController.Launch"
+#define DC_RELOAD "com.samdmarshall.DaodanController.ReloadPlugins"
+#define DC_QUIT "com.samdmarshall.DaodanController.Quit"
 
 #define DAODAN_NOTIFY_COUNT 0x3
 static int daodan_notify_token[DAODAN_NOTIFY_COUNT];
@@ -215,17 +215,17 @@ uint32_t sendDaodanMachMessage(char data[0x400]) {
 
 void setupDaodanControllerNotificationListeners() {
 	uint32_t result[DAODAN_NOTIFY_COUNT];
-	result[0x0] = notify_register_dispatch(CHRYSALIS_LAUNCH, &daodan_notify_token[0x0], dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^(int token){
+	result[0x0] = notify_register_dispatch(DC_LAUNCH, &daodan_notify_token[0x0], dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^(int token){
 		char data[0x400];
 		sprintf(&(data[0x0]),"DaodanController is launching!");
 		sendDaodanMachMessage(data);
 	});
-	result[0x1] = notify_register_dispatch(CHRYSALIS_RELOAD, &daodan_notify_token[0x1], dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^(int token){
+	result[0x1] = notify_register_dispatch(DC_RELOAD, &daodan_notify_token[0x1], dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^(int token){
 		char data[0x400];
 		sprintf(&(data[0x0]),"Reload Plugins!");
 		sendDaodanMachMessage(data);
 	});
-	result[0x2] = notify_register_dispatch(CHRYSALIS_QUIT, &daodan_notify_token[0x2], dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^(int token){
+	result[0x2] = notify_register_dispatch(DC_QUIT, &daodan_notify_token[0x2], dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^(int token){
 		char data[0x400];
 		sprintf(&(data[0x0]),"DaodanController is quitting!");
 		sendDaodanMachMessage(data);
