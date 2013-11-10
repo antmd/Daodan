@@ -378,7 +378,6 @@ bool locateLaunchpad() {
 
 void dumpDaodan() {
 	SDMDaodanWriteDump(binaryTable);
-	unloadDaodan();
 }
 
 void initDaodan() {
@@ -402,7 +401,7 @@ void initDaodan() {
 		} else {
 			SDMPrint(DEFAULT_LOGGER,PrintCode_TRY,"Registering notify listeners for Chrysalis...");
 			setupChrysalisNotificationListeners();
-			setupDaodanMachPort();
+			setupDbaodanMachPort();
 			setupChrysalisMachPort(getpid());
 		}
 		 */
@@ -410,33 +409,9 @@ void initDaodan() {
 }
 
 void unloadDaodan() {
-	SDMPrint(DEFAULT_LOGGER,PrintCode_TRY,"Looking for Daodan...");
-	SDMSTFunctionCall symbolAddress = NULL;
-	for (uint32_t i = 0x0; i < _dyld_image_count(); i++) {
-		if (i != daodanExecutableImageIndex) {
-			SDMSTLibraryRelease(binaryTable);
-			binaryTable = SDMSTLoadLibrary((char*)_dyld_get_image_name(i), i, true);
-			symbolAddress = SDMSTSymbolLookup(binaryTable, "_initDaodan");
-			if (symbolAddress) {
-				break;
-			}
-		}
-	}
-	if (symbolAddress) {
-		SDMPrint(DEFAULT_LOGGER,PrintCode_OK,"Found Daodan");
-		void* daodanHandle = dlopen(binaryTable->libraryPath, RTLD_LAZY);
-		if (daodanHandle) {
-			SDMPrint(DEFAULT_LOGGER,PrintCode_OK,"Unloading Daodan");
-		} else {
-			SDMPrint(false,PrintCode_ERR,"Error creating handle to Daodan.");
-		}
-		SDMSTLibraryRelease(binaryTable);
-		cancelChrysalisNotificationListeners();
-		closeDaodanMachPorts();
-		dlclose(daodanHandle);
-	} else {
-		SDMPrint(DEFAULT_LOGGER,PrintCode_ERR,"Could not find Daodan.\n");
-	}
+	SDMSTLibraryRelease(binaryTable);
+	cancelChrysalisNotificationListeners();
+	closeDaodanMachPorts();
 }
 
 uintptr_t daodanLookupFunction(char *name) {

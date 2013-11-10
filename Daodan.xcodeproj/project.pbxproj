@@ -24,6 +24,7 @@
 /* Begin PBXBuildFile section */
 		223C2B0B182AFA15001BE2F1 /* SDMHeader.c in Sources */ = {isa = PBXBuildFile; fileRef = 223C2B0A182AFA15001BE2F1 /* SDMHeader.c */; };
 		223C2B0C182AFA15001BE2F1 /* SDMHeader.c in Sources */ = {isa = PBXBuildFile; fileRef = 223C2B0A182AFA15001BE2F1 /* SDMHeader.c */; };
+		223C2B0E182FD817001BE2F1 /* SDMObjcRuntime.c in Sources */ = {isa = PBXBuildFile; fileRef = 223C2B0D182FD817001BE2F1 /* SDMObjcRuntime.c */; };
 		2295903418217B0B006E985D /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 2295903318217B0B006E985D /* main.c */; };
 		2295903E18217F01006E985D /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2295903D18217F01006E985D /* CoreFoundation.framework */; };
 		2295904218218202006E985D /* SDMLaunchProcess.c in Sources */ = {isa = PBXBuildFile; fileRef = 2295904118218202006E985D /* SDMLaunchProcess.c */; };
@@ -78,6 +79,7 @@
 
 /* Begin PBXFileReference section */
 		223C2B0A182AFA15001BE2F1 /* SDMHeader.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDMHeader.c; sourceTree = "<group>"; };
+		223C2B0D182FD817001BE2F1 /* SDMObjcRuntime.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDMObjcRuntime.c; sourceTree = "<group>"; };
 		2295903118217B0B006E985D /* Launchpad */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Launchpad; sourceTree = BUILT_PRODUCTS_DIR; };
 		2295903318217B0B006E985D /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		2295903D18217F01006E985D /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
@@ -162,6 +164,7 @@
 				22FD60CF18268F450052A1FF /* SDMObjcLexer.h */,
 				22FD60D01826A1DB0052A1FF /* SDMObjcLexer.c */,
 				22FD60CD1825A3180052A1FF /* SDMObjcRuntime.h */,
+				223C2B0D182FD817001BE2F1 /* SDMObjcRuntime.c */,
 				22FD60CB18259F340052A1FF /* SDMObjcRuntime1.h */,
 				22FD60CC18259F440052A1FF /* SDMObjcRuntime2.h */,
 				22C17BC317EF696500800C71 /* SDMSymbolTable.h */,
@@ -357,6 +360,7 @@
 				2295904218218202006E985D /* SDMLaunchProcess.c in Sources */,
 				22FD60C31822FD080052A1FF /* syn-att.c in Sources */,
 				22C17BBE17EF49B800800C71 /* Daodan.c in Sources */,
+				223C2B0E182FD817001BE2F1 /* SDMObjcRuntime.c in Sources */,
 				22FD60BA1822FD080052A1FF /* disasm.c in Sources */,
 				22FD60D11826A1DB0052A1FF /* SDMObjcLexer.c in Sources */,
 				22FD60BC1822FD080052A1FF /* decode.c in Sources */,

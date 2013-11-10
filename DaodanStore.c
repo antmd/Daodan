@@ -260,15 +260,17 @@ void SDMDaodanDumpObjectiveCClass(char *dumpPath, struct SDMSTObjcClass *cls) {
 }
 
 void SDMDaodanDumpObjectiveCInfo(char *dumpPath, struct SDMSTLibrary *libTable) {
-	char *filePath = calloc(0x1, sizeof(char)*(strlen(dumpPath)+0x1+0xd));
-	sprintf(filePath, "%sObjective-C/",dumpPath);
-	bool result = makeNewFolderAt(filePath, 0700);
-	if (result) {
-		for (uint32_t i = 0x0; i < libTable->objcInfo->clsCount; i++) {
-			SDMDaodanDumpObjectiveCClass(filePath, &(libTable->objcInfo->cls[i]));
+	if (libTable->objcInfo) {
+		char *filePath = calloc(0x1, sizeof(char)*(strlen(dumpPath)+0x1+0xd));
+		sprintf(filePath, "%sObjective-C/",dumpPath);
+		bool result = makeNewFolderAt(filePath, 0700);
+		if (result) {
+			for (uint32_t i = 0x0; i < libTable->objcInfo->clsCount; i++) {
+				SDMDaodanDumpObjectiveCClass(filePath, &(libTable->objcInfo->cls[i]));
+			}
 		}
+		free(filePath);
 	}
-	free(filePath);
 }
 
 void SDMDaodanWriteDumpForLibrary(char *dumpPath, struct SDMSTLibrary *libTable) {

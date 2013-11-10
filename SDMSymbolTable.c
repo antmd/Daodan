@@ -57,8 +57,6 @@ bool SMDSTSymbolDemangleAndCompare(char *symFromTable, char *symbolName);
 SDMSTFunctionCall SDMSTSymbolLookup(struct SDMSTLibrary *libTable, char *symbolName);
 void SDMSTFindFunctionAddress(uint8_t **fPointer, struct SDMSTLibrary *libTable);
 
-SDMObjcRuntimeExternDefinitions
-
 #pragma mark -
 #pragma mark Functions
 
