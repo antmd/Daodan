@@ -18,4 +18,6 @@ struct SDMDaodanPayload {
 	uint32_t symbolCount;
 } ATR_PACK SDMDaodanPayload;
 
+
+
 #endif

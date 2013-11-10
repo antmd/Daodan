@@ -14,6 +14,8 @@
 #include "disasm.h"
 #include "Daodan.h"
 
+#define FWRITE_STRING_TO_FILE(a,b) fwrite(a, sizeof(char), strlen(a), b)
+
 char* SDMGetCurrentDateString() {
 	time_t epoch;
 	time(&epoch);

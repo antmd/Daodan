@@ -35,37 +35,9 @@
 #include <sys/stat.h>
 
 #pragma mark -
-#pragma mark Types
-
-#ifndef DEBUG
-	#define DEBUG_LOGGER true
-#else
-	#define DEBUG_LOGGER false
-#endif
-
-#define DEFAULT_LOGGER false
-
-#define kiAmLaunchPad 0x647068636E75616C // "launchpd"
-
-#define ATR_PACK __attribute__ ((packed))
-
-enum SDMPrintCodes {
-	PrintCode_OK = 0x1,
-	PrintCode_TRY = 0x2,
-	PrintCode_ERR = 0x3,
-	PrintCode_NTR = 0x4
-};
-
-struct SDMSTRange {
-	uintptr_t offset;
-	uint64_t length;
-} ATR_PACK SDMSTRange;
-
-#pragma mark -
 #pragma mark Color Codes
 
 #define UseColorCodes true // SDM: Xcode console doesn't like these, but they work fine in a terminal
-
 #define COLOR_NRM  "\x1B[0m"
 #define COLOR_RED  "\x1B[31m"
 #define COLOR_GRN  "\x1B[32m"
@@ -74,6 +46,24 @@ struct SDMSTRange {
 #define COLOR_MAG  "\x1B[35m"
 #define COLOR_CYN  "\x1B[36m"
 #define COLOR_WHT  "\x1B[37m"
+
+
+#pragma mark -
+#pragma mark Logging
+
+#ifndef DEBUG
+	#define DEBUG_LOGGER true
+#else
+	#define DEBUG_LOGGER false
+#endif
+#define DEFAULT_LOGGER false
+
+enum SDMPrintCodes {
+	PrintCode_OK = 0x1,
+	PrintCode_TRY = 0x2,
+	PrintCode_ERR = 0x3,
+	PrintCode_NTR = 0x4
+};
 
 #define SDMPrintCodeColor(code) (UseColorCodes ? (code == PrintCode_OK ? COLOR_GRN : (code == PrintCode_TRY ? COLOR_YEL : (code == PrintCode_ERR ? COLOR_RED : (code == PrintCode_NTR ? COLOR_MAG : COLOR_BLU)))) : "")
 #define SDMPrintCode(code) (code == PrintCode_OK ? "OK!" : (code == PrintCode_TRY ? "TRY" : (code == PrintCode_ERR ? "ERR" : (code == PrintCode_NTR ? "NTR" : "???"))))
@@ -84,19 +74,35 @@ struct SDMSTRange {
 		printf("[%s%s%s][%sDaodan%s][%s%s%s] ",COLOR_CYN,getprogname(),COLOR_NRM,COLOR_BLU,COLOR_NRM,SDMPrintCodeColor(code),SDMPrintCode(code),(UseColorCodes ? COLOR_NRM : "")); printf(__VA_ARGS__); printf("\n"); \
 	}
 
+#pragma mark -
+#pragma mark Attributes
+#define ATR_PACK __attribute__ ((packed))
+#define ATR_FUNC(name) __attribute__ ((ifunc(name)))
 
-#define FWRITE_STRING_TO_FILE(a,b) fwrite(a, sizeof(char), strlen(a), b)
 
-#define SDMSTRangeMake(a,b) ((struct SDMSTRange){a, b})
+#pragma mark -
+#pragma mark Types
 
-#define k32BitMask 0xffffffff
-
-#define SDMSTCastSmallPointer(a) (*(uintptr_t*)&(a))
-
-#define SDMGetNumberOfDigits(a) (a > 0 ? (int)log10(a)+1 : 1)
+struct SDMSTRange {
+	uintptr_t offset;
+	uint64_t length;
+} ATR_PACK SDMSTRange;
 
 typedef uintptr_t* (*Pointer)();
 
+
+#pragma mark -
+#pragma mark Pointers
+
+#define k32BitMask 0xffffffff
+#define SDMSTCastSmallPointer(a) (*(uintptr_t*)&(a))
+
+
+#pragma mark -
+#pragma mark Functions
+
+#define SDMGetNumberOfDigits(a) (a > 0 ? (int)log10(a)+1 : 1)
+#define SDMSTRangeMake(a,b) ((struct SDMSTRange){a, b})
 bool makeNewFolderAt(char *path, mode_t mode);
 
 #endif
