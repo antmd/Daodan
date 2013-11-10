@@ -32,6 +32,8 @@
 #include "SDMLaunchProcess.h"
 #include "DaodanStore.h"
 
+#include "SDMDaodanPayload.h"
+
 /*
  
 ** How to implement function hooks:
