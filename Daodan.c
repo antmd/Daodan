@@ -350,9 +350,10 @@ void setupChrysalisMachPort(pid_t chrysalisPID) {
 		SDMPrint(DEFAULT_LOGGER,PrintCode_OK,"Successfully called task_for_pid(%i) back to Chrysalis",chrysalisPID);
 	} else {
 		SDMPrint(DEFAULT_LOGGER,PrintCode_ERR,"Unable to attach task_for_pid(%i), error: %s.",chrysalisPID,mach_error_string(taskResult));
-		SDMPrint(DEFAULT_LOGGER,PrintCode_TRY,"Attempting to relaunch via Launchpad...");
+		SDMPrint(DEFAULT_LOGGER,PrintCode_ERR,"Please relaunch using Launchpad");
 		const char *argv[] = { binaryTable->libraryPath, kLaunchPadPath, binaryTable->libraryPath, NULL};
-		spawnFromLaunchpad(0x3, argv);
+		spawnLaunchpad(0x3, argv);
+		exit(0);
 	}
 }
 
@@ -393,18 +394,16 @@ void initDaodan() {
 		SDMPrint(DEFAULT_LOGGER,PrintCode_ERR,"Could not load the MachO file, unloading Daodan now...");
 		unloadDaodan();
 	} else {
-		dumpDaodan();
-		/*
 		bool foundLaunchpad = locateLaunchpad();
 		if (foundLaunchpad) {
 			unloadDaodan();
 		} else {
+			dumpDaodan();
 			SDMPrint(DEFAULT_LOGGER,PrintCode_TRY,"Registering notify listeners for Chrysalis...");
 			setupChrysalisNotificationListeners();
-			setupDbaodanMachPort();
-			setupChrysalisMachPort(getpid());
+			setupDaodanMachPort();
+			setupChrysalisMachPort(384);
 		}
-		 */
 	}
 }
 

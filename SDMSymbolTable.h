@@ -148,5 +148,6 @@ struct SDMSTRange SDMSTRangeOfSubroutine(struct SDMSTSubroutine *subroutine, str
 SDMSTFunctionCall SDMSTSymbolLookup(struct SDMSTLibrary *libTable, char *symbolName);
 void SDMSTFunctionRelease(struct SDMSTFunction *function);
 void SDMSTLibraryRelease(struct SDMSTLibrary *libTable);
+struct SDMSTLibraryArchitecture SDMSTGetArchitecture();
 
 #endif

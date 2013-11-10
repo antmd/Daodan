@@ -293,10 +293,17 @@ void SDMDaodanWriteDumpForImage(char *dumpPath, char *imagePath, bool skipDepend
 	}
 }
 
+bool SDMDaodanHasHome() {
+	return (getenv("HOME") ? true : false);
+}
+
 void SDMDaodanWriteDump(struct SDMSTLibrary *libTable) {
-	SDMDaodanCheckStorePath();
-	char *linkStore = SDMDaodanDumpStorePath();
-	SDMDaodanWriteDumpForLibrary(linkStore, libTable);
+	bool canWriteDump = SDMDaodanHasHome();
+	if (canWriteDump) {
+		SDMDaodanCheckStorePath();
+		char *linkStore = SDMDaodanDumpStorePath();
+		SDMDaodanWriteDumpForLibrary(linkStore, libTable);
+	}
 	/*
 	for (uint32_t i = 0x0; i < libTable->dependencyCount; i++) {
 		char *imagePath = (char*)(libTable->dependency[i].loadCmd+(libTable->dependency[i].dyl.dylib.name.offset));

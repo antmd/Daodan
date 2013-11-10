@@ -13,9 +13,12 @@
 
 #define kLaunchPadPath "/Volumes/Data/Users/sam/Projects/Daodan/build/Release/Launchpad"
 #define kDaodanPath "/Volumes/Data/Users/sam/Projects/Daodan/build/Release/libDaodan.dylib"
+#define kArchPath "/usr/bin/arch"
+#define kDAODAN_RUN_ARCH "DAODAN_RUN_ARCH"
+#define kDYLD_INSERT_LIBRARIES "DYLD_INSERT_LIBRARIES"
 
 int acquireTaskForPortRight();
-void spawnFromLaunchpad(int argc, const char *argv[]);
+void spawnLaunchpad(int argc, const char *argv[]);
 void launchNewProcess(int argc, const char *argv[]);
 extern uint64_t iAmLaunchPad(int argc, const char *argv[]);
 

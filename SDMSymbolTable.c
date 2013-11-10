@@ -492,31 +492,36 @@ void SDMSTBinaryRelease(struct SDMSTBinary *binary) {
 	free(binary);
 }
 
+struct SDMSTLibraryArchitecture SDMSTGetArchitecture() {
+	struct SDMSTLibraryArchitecture cpuArch = {0x0,0x0};
+	int mib[CTL_MAXNAME];
+	size_t mibLen;
+	size_t cpuTypeSize;
+	pid_t pid = getpid();
+	mibLen  = CTL_MAXNAME;
+	int err = sysctlnametomib("sysctl.proc_cputype", mib, &mibLen);
+	if (!err) {
+		mib[mibLen] = pid;
+		mibLen += 0x1;
+		cpuTypeSize = sizeof(cpuArch.type);
+		err = sysctl(mib, (u_int)mibLen, &(cpuArch.type), &cpuTypeSize, 0x0, 0x0);
+		if (err) {
+			SDMPrint(false,PrintCode_ERR,"Could not find CPU Architecture");
+		}
+	}
+	return cpuArch;
+}
+
 uintptr_t* SDMSTGetCurrentArchFromBinary(struct SDMSTBinary *binary) {
 	uintptr_t *offset = NULL;
 	if (binary) {
-		cpu_type_t cpuType;
-		size_t cpuTypeSize;
-		int mib[CTL_MAXNAME];
-		size_t mibLen;
-		pid_t pid = getpid();
-		mibLen  = CTL_MAXNAME;
-		int err = sysctlnametomib("sysctl.proc_cputype", mib, &mibLen);
-		if (!err) {
-			mib[mibLen] = pid;
-			mibLen += 0x1;
-			cpuTypeSize = sizeof(cpuType);
-			err = sysctl(mib, (u_int)mibLen, &cpuType, &cpuTypeSize, 0x0, 0x0);
-			if (!err) {
-				for (uint32_t i = 0x0; i < binary->archCount; i++) {
-					struct mach_header *header = (struct mach_header *)(binary->arch[i]);
-					if (header->cputype == cpuType) {
-						offset = (uintptr_t *)header;
-					}
-				}
+		struct SDMSTLibraryArchitecture arch = SDMSTGetArchitecture();
+		for (uint32_t i = 0x0; i < binary->archCount; i++) {
+			struct mach_header *header = (struct mach_header *)(binary->arch[i]);
+			if (header->cputype == arch.type) {
+				offset = (uintptr_t *)header;
 			}
 		}
-
 	}
 	return offset;
 }
