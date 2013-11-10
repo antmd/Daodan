@@ -309,8 +309,9 @@ void SDMSTGenerateSortedSymbolTable(struct SDMSTLibrary *libTable, bool silent) 
 		uintptr_t symbolAddress = 0x0;
 		libTable->table = (struct SDMSTMachOSymbol *)calloc(0x1, sizeof(struct SDMSTMachOSymbol));
 		libTable->symbolCount = 0x0;
-		if (libTable->libInfo == NULL)
+		if (libTable->libInfo == NULL) {
 			SDMSTBuildLibraryInfo(libTable, silent);
+		}
 		for (uint32_t i = 0x0; i < libTable->libInfo->symtabCount; i++) {
 			struct symtab_command *cmd = (struct symtab_command *)(&(libTable->libInfo->symtabCommands[i]));
 			uint64_t fslide = 0x0;
@@ -603,8 +604,9 @@ bool SMDSTSymbolDemangleAndCompare(char *symFromTable, char *symbolName) {
 			char *offset = strstr(symFromTable, symbolName);
 			if (offset) {
 				uint32_t originOffset = (uint32_t)(offset - symFromTable);
-				if (tabSymLength-originOffset == symLength)
+				if (tabSymLength-originOffset == symLength) {
 					matchesName = (strcmp(&symFromTable[originOffset], symbolName) == 0x0);
+				}
 			}
 		}
 	}
@@ -635,18 +637,20 @@ void SDMSTFunctionRelease(struct SDMSTFunction *function) {
 void SDMSTLibraryRelease(struct SDMSTLibrary *libTable) {
 	free(libTable->libInfo);
 	for (uint32_t i = 0x0; i < libTable->symbolCount; i++) {
-		if (libTable->table[i].isStub)
+		if (libTable->table[i].isStub) {
 			free(libTable->table[i].name);
+		}
 	}
 	free(libTable->table);
 	for (uint32_t i = 0x0; i < libTable->subroutineCount; i++) {
 		free(libTable->subroutine[i].name);
 	}
 	free(libTable->subroutine);
-	if (libTable->couldLoad)
+	if (libTable->couldLoad) {
 		dlclose(libTable->libraryHandle);
-	else
+	} else {
 		munmap(libTable->libraryHandle, (size_t)libTable->librarySize);
+	}
 	free(libTable);
 }
 
