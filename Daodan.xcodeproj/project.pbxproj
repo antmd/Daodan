@@ -13,6 +13,7 @@
 			buildPhases = (
 			);
 			dependencies = (
+				224D443218303CBB00FEEDCA /* PBXTargetDependency */,
 				2295904F18218570006E985D /* PBXTargetDependency */,
 				2295904D1821856E006E985D /* PBXTargetDependency */,
 			);
@@ -28,6 +29,11 @@
 		224D43FB18300A4900FEEDCA /* SDMExceptionHandler.c in Sources */ = {isa = PBXBuildFile; fileRef = 224D43FA18300A4900FEEDCA /* SDMExceptionHandler.c */; };
 		224D440A183031FC00FEEDCA /* mach_exc.defs in Sources */ = {isa = PBXBuildFile; fileRef = 224D43FD18300BAD00FEEDCA /* mach_exc.defs */; settings = {ATTRIBUTES = (Client, Server, ); }; };
 		224D440B1830320200FEEDCA /* exc.defs in Sources */ = {isa = PBXBuildFile; fileRef = 224D43FF18300EDF00FEEDCA /* exc.defs */; settings = {ATTRIBUTES = (Client, Server, ); }; };
+		224D441E183037E600FEEDCA /* SDMDaodanPayload.h in Headers */ = {isa = PBXBuildFile; fileRef = 224D441D183037E600FEEDCA /* SDMDaodanPayload.h */; };
+		224D44201830380500FEEDCA /* SDMDaodanPayload.c in Sources */ = {isa = PBXBuildFile; fileRef = 224D441F1830380500FEEDCA /* SDMDaodanPayload.c */; };
+		224D442618303C9400FEEDCA /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2295903D18217F01006E985D /* CoreFoundation.framework */; };
+		224D442C18303C9400FEEDCA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 224D442A18303C9400FEEDCA /* InfoPlist.strings */; };
+		224D443418303D1F00FEEDCA /* SDMDaodanInjection_Template.c in Sources */ = {isa = PBXBuildFile; fileRef = 224D443318303D1F00FEEDCA /* SDMDaodanInjection_Template.c */; };
 		2295903418217B0B006E985D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2295903318217B0B006E985D /* main.m */; };
 		22959044182182CF006E985D /* SDMLaunchProcess.m in Sources */ = {isa = PBXBuildFile; fileRef = 2295904118218202006E985D /* SDMLaunchProcess.m */; };
 		2295905018219DC3006E985D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22959046182182FB006E985D /* Security.framework */; };
@@ -66,6 +72,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		224D443118303CBB00FEEDCA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 22C17BAE17EF49A700800C71 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 224D442418303C9300FEEDCA;
+			remoteInfo = DaodanTemplate;
+		};
 		2295904C1821856E006E985D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 22C17BAE17EF49A700800C71 /* Project object */;
@@ -89,6 +102,14 @@
 		224D43FC18300A6100FEEDCA /* SDMExceptionHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDMExceptionHandler.h; sourceTree = "<group>"; };
 		224D43FD18300BAD00FEEDCA /* mach_exc.defs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.mig; name = mach_exc.defs; path = usr/include/mach/mach_exc.defs; sourceTree = SDKROOT; };
 		224D43FF18300EDF00FEEDCA /* exc.defs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.mig; name = exc.defs; path = usr/include/mach/exc.defs; sourceTree = SDKROOT; };
+		224D4419183035D100FEEDCA /* SDMDaodanInjection_Template.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDMDaodanInjection_Template.h; sourceTree = "<group>"; };
+		224D441D183037E600FEEDCA /* SDMDaodanPayload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDMDaodanPayload.h; sourceTree = "<group>"; };
+		224D441F1830380500FEEDCA /* SDMDaodanPayload.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDMDaodanPayload.c; sourceTree = "<group>"; };
+		224D442518303C9300FEEDCA /* DaodanTemplate.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DaodanTemplate.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		224D442918303C9400FEEDCA /* DaodanTemplate-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "DaodanTemplate-Info.plist"; sourceTree = "<group>"; };
+		224D442B18303C9400FEEDCA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		224D442D18303C9400FEEDCA /* DaodanTemplate-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DaodanTemplate-Prefix.pch"; sourceTree = "<group>"; };
+		224D443318303D1F00FEEDCA /* SDMDaodanInjection_Template.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDMDaodanInjection_Template.c; sourceTree = "<group>"; };
 		2295903118217B0B006E985D /* Launchpad */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Launchpad; sourceTree = BUILT_PRODUCTS_DIR; };
 		2295903318217B0B006E985D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		2295903D18217F01006E985D /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
@@ -133,6 +154,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		224D442218303C9300FEEDCA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				224D442618303C9400FEEDCA /* CoreFoundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2295902E18217B0B006E985D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -153,7 +182,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		224D440C183032DC00FEEDCA /* ObjectiveC */ = {
+		224D440C183032DC00FEEDCA /* Objective C */ = {
 			isa = PBXGroup;
 			children = (
 				22FD60CF18268F450052A1FF /* SDMObjcLexer.h */,
@@ -163,7 +192,7 @@
 				22FD60CB18259F340052A1FF /* SDMObjcRuntime1.h */,
 				22FD60CC18259F440052A1FF /* SDMObjcRuntime2.h */,
 			);
-			path = ObjectiveC;
+			path = "Objective C";
 			sourceTree = "<group>";
 		};
 		224D440D183033FF00FEEDCA /* Core */ = {
@@ -172,7 +201,7 @@
 				22C17BBF17EF49C400800C71 /* Daodan.h */,
 				22C17BBD17EF49B800800C71 /* Daodan.c */,
 			);
-			name = Core;
+			path = Core;
 			sourceTree = "<group>";
 		};
 		224D440E1830340A00FEEDCA /* Dump */ = {
@@ -181,7 +210,7 @@
 				229590991822EAD3006E985D /* DaodanStore.h */,
 				2295909B1822EAE8006E985D /* DaodanStore.c */,
 			);
-			name = Dump;
+			path = Dump;
 			sourceTree = "<group>";
 		};
 		224D440F1830341700FEEDCA /* Generated Code */ = {
@@ -200,7 +229,7 @@
 				224D43FA18300A4900FEEDCA /* SDMExceptionHandler.c */,
 				224D440F1830341700FEEDCA /* Generated Code */,
 			);
-			name = "Exception Handling";
+			path = "Exception Handling";
 			sourceTree = "<group>";
 		};
 		224D44111830343400FEEDCA /* Process Management */ = {
@@ -209,7 +238,7 @@
 				2295904318218215006E985D /* SDMLaunchProcess.h */,
 				2295904118218202006E985D /* SDMLaunchProcess.m */,
 			);
-			name = "Process Management";
+			path = "Process Management";
 			sourceTree = "<group>";
 		};
 		224D44121830344700FEEDCA /* Core */ = {
@@ -217,7 +246,7 @@
 			children = (
 				2295903318217B0B006E985D /* main.m */,
 			);
-			name = Core;
+			path = Core;
 			sourceTree = "<group>";
 		};
 		224D44131830345500FEEDCA /* MachO */ = {
@@ -226,7 +255,7 @@
 				22C17BC317EF696500800C71 /* SDMSymbolTable.h */,
 				22C17BC517EF697800800C71 /* SDMSymbolTable.c */,
 			);
-			name = MachO;
+			path = MachO;
 			sourceTree = "<group>";
 		};
 		224D44141830346700FEEDCA /* ARM */ = {
@@ -262,7 +291,52 @@
 				22C17BC717EF83E500800C71 /* SDMHeader.h */,
 				223C2B0A182AFA15001BE2F1 /* SDMHeader.c */,
 			);
-			name = Core;
+			path = Core;
+			sourceTree = "<group>";
+		};
+		224D44181830354C00FEEDCA /* Template */ = {
+			isa = PBXGroup;
+			children = (
+				224D4419183035D100FEEDCA /* SDMDaodanInjection_Template.h */,
+				224D443318303D1F00FEEDCA /* SDMDaodanInjection_Template.c */,
+			);
+			path = Template;
+			sourceTree = "<group>";
+		};
+		224D441B1830373900FEEDCA /* Payload */ = {
+			isa = PBXGroup;
+			children = (
+				224D441D183037E600FEEDCA /* SDMDaodanPayload.h */,
+				224D441F1830380500FEEDCA /* SDMDaodanPayload.c */,
+			);
+			path = Payload;
+			sourceTree = "<group>";
+		};
+		224D441C183037A600FEEDCA /* Injection */ = {
+			isa = PBXGroup;
+			children = (
+				224D441B1830373900FEEDCA /* Payload */,
+				224D44181830354C00FEEDCA /* Template */,
+			);
+			path = Injection;
+			sourceTree = "<group>";
+		};
+		224D442718303C9400FEEDCA /* DaodanTemplate */ = {
+			isa = PBXGroup;
+			children = (
+				224D442818303C9400FEEDCA /* Supporting Files */,
+			);
+			path = DaodanTemplate;
+			sourceTree = "<group>";
+		};
+		224D442818303C9400FEEDCA /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				224D442918303C9400FEEDCA /* DaodanTemplate-Info.plist */,
+				224D442A18303C9400FEEDCA /* InfoPlist.strings */,
+				224D442D18303C9400FEEDCA /* DaodanTemplate-Prefix.pch */,
+			);
+			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
 		2295903218217B0B006E985D /* Launchpad */ = {
@@ -279,10 +353,11 @@
 		2295903A18217B17006E985D /* Daodan */ = {
 			isa = PBXGroup;
 			children = (
+				224D441C183037A600FEEDCA /* Injection */,
 				224D44131830345500FEEDCA /* MachO */,
 				224D440E1830340A00FEEDCA /* Dump */,
 				224D440D183033FF00FEEDCA /* Core */,
-				224D440C183032DC00FEEDCA /* ObjectiveC */,
+				224D440C183032DC00FEEDCA /* Objective C */,
 				22B56F78181EE2AB002AF48E /* Info-Daodan.plist */,
 			);
 			path = Daodan;
@@ -305,6 +380,7 @@
 				22FD60A31822FCEA0052A1FF /* Disasm */,
 				2295903A18217B17006E985D /* Daodan */,
 				2295903218217B0B006E985D /* Launchpad */,
+				224D442718303C9400FEEDCA /* DaodanTemplate */,
 				2295903F182181CF006E985D /* Frameworks */,
 				22C17BB717EF49A700800C71 /* Products */,
 			);
@@ -315,6 +391,7 @@
 			children = (
 				22C17BB617EF49A700800C71 /* libDaodan.dylib */,
 				2295903118217B0B006E985D /* Launchpad */,
+				224D442518303C9300FEEDCA /* DaodanTemplate.bundle */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -363,6 +440,7 @@
 				22FD60BD1822FD080052A1FF /* decode.h in Headers */,
 				22FD60BE1822FD080052A1FF /* extern.h in Headers */,
 				22FD60BB1822FD080052A1FF /* disasm.h in Headers */,
+				224D441E183037E600FEEDCA /* SDMDaodanPayload.h in Headers */,
 				22FD60C01822FD080052A1FF /* input.h in Headers */,
 				22C17BC417EF696500800C71 /* SDMSymbolTable.h in Headers */,
 				22FD60C61822FD080052A1FF /* syn.h in Headers */,
@@ -377,6 +455,23 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		224D442418303C9300FEEDCA /* InjectableTemplate */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 224D442E18303C9400FEEDCA /* Build configuration list for PBXNativeTarget "InjectableTemplate" */;
+			buildPhases = (
+				224D442118303C9300FEEDCA /* Sources */,
+				224D442218303C9300FEEDCA /* Frameworks */,
+				224D442318303C9300FEEDCA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = InjectableTemplate;
+			productName = DaodanTemplate;
+			productReference = 224D442518303C9300FEEDCA /* DaodanTemplate.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
 		2295903018217B0B006E985D /* Launchpad */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2295903918217B0B006E985D /* Build configuration list for PBXNativeTarget "Launchpad" */;
@@ -433,12 +528,32 @@
 			targets = (
 				22C17BB517EF49A700800C71 /* Daodan */,
 				2295903018217B0B006E985D /* Launchpad */,
+				224D442418303C9300FEEDCA /* InjectableTemplate */,
 				2295904818218568006E985D /* All */,
 			);
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		224D442318303C9300FEEDCA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				224D442C18303C9400FEEDCA /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
+		224D442118303C9300FEEDCA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				224D443418303D1F00FEEDCA /* SDMDaodanInjection_Template.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2295902D18217B0B006E985D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -466,6 +581,7 @@
 				22FD60BF1822FD080052A1FF /* input.c in Sources */,
 				22FD60C31822FD080052A1FF /* syn-att.c in Sources */,
 				22C17BBE17EF49B800800C71 /* Daodan.c in Sources */,
+				224D44201830380500FEEDCA /* SDMDaodanPayload.c in Sources */,
 				223C2B0E182FD817001BE2F1 /* SDMObjcRuntime.c in Sources */,
 				22FD60BA1822FD080052A1FF /* disasm.c in Sources */,
 				22FD60D11826A1DB0052A1FF /* SDMObjcLexer.c in Sources */,
@@ -481,6 +597,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		224D443218303CBB00FEEDCA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 224D442418303C9300FEEDCA /* InjectableTemplate */;
+			targetProxy = 224D443118303CBB00FEEDCA /* PBXContainerItemProxy */;
+		};
 		2295904D1821856E006E985D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 22C17BB517EF49A700800C71 /* Daodan */;
@@ -493,7 +614,57 @@
 		};
 /* End PBXTargetDependency section */
 
+/* Begin PBXVariantGroup section */
+		224D442A18303C9400FEEDCA /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				224D442B18303C9400FEEDCA /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
 /* Begin XCBuildConfiguration section */
+		224D442F18303C9400FEEDCA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "DaodanTemplate/DaodanTemplate-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "DaodanTemplate/DaodanTemplate-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				WRAPPER_EXTENSION = bundle;
+			};
+			name = Debug;
+		};
+		224D443018303C9400FEEDCA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "DaodanTemplate/DaodanTemplate-Prefix.pch";
+				INFOPLIST_FILE = "DaodanTemplate/DaodanTemplate-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				WRAPPER_EXTENSION = bundle;
+			};
+			name = Release;
+		};
 		2295903718217B0B006E985D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -682,6 +853,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		224D442E18303C9400FEEDCA /* Build configuration list for PBXNativeTarget "InjectableTemplate" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				224D442F18303C9400FEEDCA /* Debug */,
+				224D443018303C9400FEEDCA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		2295903918217B0B006E985D /* Build configuration list for PBXNativeTarget "Launchpad" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

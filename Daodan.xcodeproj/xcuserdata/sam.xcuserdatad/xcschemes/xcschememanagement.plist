@@ -19,6 +19,11 @@
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
+		<key>DaodanTemplate.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>4</integer>
+		</dict>
 		<key>Launchpad.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
@@ -27,6 +32,11 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>224D442418303C9300FEEDCA</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>2295903018217B0B006E985D</key>
 		<dict>
 			<key>primary</key>

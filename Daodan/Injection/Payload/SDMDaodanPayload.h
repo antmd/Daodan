@@ -11,6 +11,7 @@
 
 #include "SDMHeader.h"
 #include "SDMDaodanInjection_Template.h"
+#include <CoreFoundation/CoreFoundation.h>
 
 struct SDMDaodanPayload {
 	struct SDMDaodanInject *injectable;

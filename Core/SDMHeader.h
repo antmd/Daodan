@@ -95,6 +95,8 @@ struct SDMSTRange {
 
 #define SDMGetNumberOfDigits(a) (a > 0 ? (int)log10(a)+1 : 1)
 
+typedef uintptr_t* (*Pointer)();
+
 bool makeNewFolderAt(char *path, mode_t mode);
 
 #endif

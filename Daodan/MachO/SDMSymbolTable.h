@@ -68,7 +68,9 @@ struct SDMSTSeg64Data {
 	uint64_t fileoff;
 } ATR_PACK SDMSTSeg64Data;
 
-typedef uintptr_t* (*SDMSTFunctionCall)();
+//typedef uintptr_t* (*SDMSTFunctionCall)();
+
+typedef Pointer SDMSTFunctionCall;
 
 struct SDMSTFunction {
 	char *name;
