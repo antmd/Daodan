@@ -23,8 +23,6 @@
 #pragma mark Includes
 #include "Daodan.h"
 #include <security/mac.h>
-#include <notify.h>
-#include <signal.h>
 #include <mach/mach_traps.h>
 #include <mach/mach_init.h>
 #include <mach/vm_map.h>
@@ -351,9 +349,6 @@ void setupChrysalisMachPort(pid_t chrysalisPID) {
 	} else {
 		SDMPrint(DEFAULT_LOGGER,PrintCode_ERR,"Unable to attach task_for_pid(%i), error: %s.",chrysalisPID,mach_error_string(taskResult));
 		SDMPrint(DEFAULT_LOGGER,PrintCode_ERR,"Please relaunch using Launchpad");
-		const char *argv[] = { binaryTable->libraryPath, kLaunchPadPath, binaryTable->libraryPath, NULL};
-		spawnLaunchpad(0x3, argv);
-		exit(0);
 	}
 }
 

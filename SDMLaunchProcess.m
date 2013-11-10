@@ -18,6 +18,13 @@
 #import <Security/Security.h>
 #import <Foundation/Foundation.h>
 
+char* GenerateLaunchpadKillswitchName() {
+	pid_t currentPid = getpid();
+	char *buffer = calloc(0x1, sizeof(char)*(strlen(kLaunchPadKill)+0x2+SDMGetNumberOfDigits(currentPid)));
+	sprintf(buffer,"%s.%i",kLaunchPadKill,currentPid);
+	return buffer;
+}
+
 int acquireTaskForPortRight() {
 	AuthorizationRef authorization;
 	OSStatus status = AuthorizationCreate(NULL, kAuthorizationEmptyEnvironment, kAuthorizationFlagDefaults, &authorization);
@@ -34,17 +41,14 @@ int acquireTaskForPortRight() {
 	status = AuthorizationCopyRights(authorization, &rights, NULL, flags, NULL);
 	if (status != 0x0) {
 		printf("Error authorizing current process with right to call task_for_pid()\n");
-		NSError *err = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
-		if (err.code == 0xffffffffffff159a || err.code == 0xffffffffffff159b) {
-			exit(0x0);
-		}
+		notify_post(GenerateLaunchpadKillswitchName());
 		return 0xffffffff;
 	}
 	return 0x0;
 }
 
 void spawnLaunchpad(int argc, const char *argv[]) {
-	if (argc >= 0x3) {
+	if (argc == 0x3) {
 		struct SDMSTLibraryArchitecture arch = SDMSTGetArchitecture();
 		NSString *architecture = @"invalid";
 		if (arch.type == CPU_TYPE_X86_64) {
@@ -59,7 +63,7 @@ void spawnLaunchpad(int argc, const char *argv[]) {
 		[enviDict setObject:architecture forKey:@kDAODAN_RUN_ARCH];
 		[task setEnvironment:enviDict];
 		[task setLaunchPath:@kLaunchPadPath];
-		[task setArguments:[NSArray arrayWithObject:[NSString stringWithFormat:@"%s",argv[0x2]]]];
+		[task setArguments:[NSArray arrayWithObjects:@"--inject",[NSString stringWithFormat:@"%s",argv[0x2]],nil]];
 		[task launch];
 		[task release];
 		[enviDict release];
@@ -75,7 +79,7 @@ void launchNewProcess(int argc, const char *argv[]) {
 		if (ptraceResult != 0x0) {
 			printf("PT_TRACE_ME failed.\n");
 		} else {
-			execl(argv[0x1], argv[0x1], NULL);
+			execl(argv[0x2], argv[0x2], NULL);
 		}
 	} else {
 		
@@ -118,6 +122,8 @@ void launchNewProcess(int argc, const char *argv[]) {
 						if (ptraceResult != 0x0) {
 							printf("PT_CONTINUE failed.\n");
 							exit(0xffffffff);
+						} else {
+							printf("Successfully launched new process! %s\n",argv[0x2]);
 						}
 					} else {
 						printf("thread_get_state failed. %s\n",mach_error_string(result));

@@ -10,21 +10,34 @@
 #include "SDMExceptionHandler.h"
 #include <Foundation/Foundation.h>
 
+static int launchpad_notify_token;
+
+void SDMLaunchpadSetupKillswitch() {
+	char *killswitch = GenerateLaunchpadKillswitchName();
+	notify_register_dispatch(killswitch, &launchpad_notify_token, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^(int token){
+		kill(getpid(), 0x9);
+	});
+}
+
 uint64_t iAmLaunchPad(int argc, const char *argv[]) {
+	SDMLaunchpadSetupKillswitch();
 	SDMDaodanSetupExceptionHandler();
 	uint64_t me = kiAmLaunchPad;
 	if (argc != 0x0) {
 		if (me == kiAmLaunchPad) {
 			NSString *hasInject = [[[NSProcessInfo processInfo] environment] objectForKey:@kDYLD_INSERT_LIBRARIES];
-			if (argc == 2 && strcmp(argv[0x1], "-h") != 0 && strcmp(argv[0x1], "--inject") != 0 && hasInject) {
-				launchNewProcess(argc, argv);
-				CFRunLoopRun();
-			} else {
-				if (argc == 3 && strcmp(argv[0x1], "--inject") == 0) {
-					const char *newArgv[] = { argv[0x0], argv[0x0], argv[0x2] };
-					spawnLaunchpad(0x3, newArgv);
-				} else {
-					printf("Usage: Launchpad --inject [application]\n");
+			if ((strcmp(argv[0x1], "-h") == 0) || (strcmp(argv[0x1], "--help") == 0)) {
+				printf("Usage: Launchpad --inject [application]\n");
+			}
+			if (argc == 0x3) {
+				if (strcmp(argv[0x1], "--inject") == 0) {
+					if (hasInject) {
+						launchNewProcess(argc, argv);
+						CFRunLoopRun();
+					} else {
+						spawnLaunchpad(argc, argv);
+						notify_post(GenerateLaunchpadKillswitchName());
+					}
 				}
 			}
 		} else {

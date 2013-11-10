@@ -29,6 +29,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <math.h>
+#include <notify.h>
+#include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 

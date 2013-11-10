@@ -17,9 +17,12 @@
 #define kDAODAN_RUN_ARCH "DAODAN_RUN_ARCH"
 #define kDYLD_INSERT_LIBRARIES "DYLD_INSERT_LIBRARIES"
 
+#define kLaunchPadKill "com.samdmarshall.Launchpad.Killswitch"
+
 int acquireTaskForPortRight();
 void spawnLaunchpad(int argc, const char *argv[]);
 void launchNewProcess(int argc, const char *argv[]);
 extern uint64_t iAmLaunchPad(int argc, const char *argv[]);
+char* GenerateLaunchpadKillswitchName();
 
 #endif
