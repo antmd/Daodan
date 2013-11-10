@@ -73,7 +73,7 @@ enum SDMPrintCodes {
 #define LoggingLibraryName "Daodan"
 #endif
 
-#define SDMPrint(silent,code,...) \
+#define SDMFormatPrint(silent,code,...) \
 	if (silent) { \
 		printf(""); \
 	} else { \
@@ -85,6 +85,15 @@ enum SDMPrintCodes {
 		printf(__VA_ARGS__); \
 		printf("\n"); \
 	}
+
+#define DPrint(code,...) SDMFormatPrint(false,code,__VA_ARGS__)
+#define RPrint(code,...) SDMFormatPrint(true,code,__VA_ARGS__)
+
+#ifdef DEBUG
+#define SDMPrint(code,...) DPrint(code,__VA_ARGS__)
+#else
+#define SDMPrint(code,...) RPrint(code,__VA_ARGS__)
+#endif
 
 #pragma mark -
 #pragma mark Attributes

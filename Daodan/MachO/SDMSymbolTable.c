@@ -122,7 +122,7 @@ void SDMSTBuildLibraryInfo(struct SDMSTLibrary *libTable, bool silent) {
 					case LC_LOAD_DYLIB: {
 						struct dylib_command *linkedLibrary = (struct dylib_command *)loadCmd;
 						if (loadCmd+linkedLibrary->dylib.name.offset) {
-							SDMPrint(silent,PrintCode_OK,"Found Dependency: %s",(char*)loadCmd+linkedLibrary->dylib.name.offset);
+							SDMFormatPrint(silent,PrintCode_OK,"Found Dependency: %s",(char*)loadCmd+linkedLibrary->dylib.name.offset);
 							libTable->dependency = (struct SDMSTDependency *)realloc(libTable->dependency, sizeof(struct SDMSTDependency)*(libTable->dependencyCount+0x1));
 							libTable->dependency[libTable->dependencyCount].loadCmd = (uintptr_t)loadCmd;
 							libTable->dependency[libTable->dependencyCount].dyl = *linkedLibrary;
@@ -181,7 +181,7 @@ int SDMSTCompareTableEntries(const void *entry1, const void *entry2) {
 }
 
 void SDMSTFindSubroutines(struct SDMSTLibrary *libTable, bool silent) {
-	SDMPrint(silent,PrintCode_TRY,"Looking for subroutines...");
+	SDMFormatPrint(silent,PrintCode_TRY,"Looking for subroutines...");
 	bool hasLCFunctionStarts = false;
 	libTable->subroutine = (struct SDMSTSubroutine *)calloc(0x1, sizeof(struct SDMSTSubroutine));
 	libTable->subroutineCount = 0x0;
@@ -267,14 +267,14 @@ void SDMSTFindSubroutines(struct SDMSTLibrary *libTable, bool silent) {
 						}
 					}
 				} else {
-					SDMPrint(silent,PrintCode_ERR,"Image for address (%08llx) is not loaded",address);
+					SDMFormatPrint(silent,PrintCode_ERR,"Image for address (%08llx) is not loaded",address);
 				}
 			}
 			textSectionOffset += (libTable->libInfo->is64bit ? sizeof(struct section_64) : sizeof(struct section));
 		}
-		SDMPrint(silent,PrintCode_OK,"Found %i subroutines",libTable->subroutineCount);
+		SDMFormatPrint(silent,PrintCode_OK,"Found %i subroutines",libTable->subroutineCount);
 	} else {
-		SDMPrint(silent,PrintCode_ERR,"Daodan only supports subroutines on Intel binaries");
+		SDMFormatPrint(silent,PrintCode_ERR,"Daodan only supports subroutines on Intel binaries");
 	}	
 }
 
@@ -304,7 +304,7 @@ struct SDMSTRange SDMSTRangeOfSubroutine(struct SDMSTSubroutine *subroutine, str
 }
 
 void SDMSTGenerateSortedSymbolTable(struct SDMSTLibrary *libTable, bool silent) {
-	SDMPrint(silent,PrintCode_TRY,"Looking for symbols...");
+	SDMFormatPrint(silent,PrintCode_TRY,"Looking for symbols...");
 	if (libTable->table == NULL) {
 		uintptr_t symbolAddress = 0x0;
 		libTable->table = (struct SDMSTMachOSymbol *)calloc(0x1, sizeof(struct SDMSTMachOSymbol));
@@ -358,7 +358,7 @@ void SDMSTGenerateSortedSymbolTable(struct SDMSTLibrary *libTable, bool silent) 
 		}
 		qsort(libTable->table, libTable->symbolCount, sizeof(struct SDMSTMachOSymbol), SDMSTCompareTableEntries);
 	}
-	SDMPrint(silent,PrintCode_OK,"Found %i symbols",libTable->symbolCount);
+	SDMFormatPrint(silent,PrintCode_OK,"Found %i symbols",libTable->symbolCount);
 }
 
 bool SDMSTMapObjcClasses32(struct SDMSTLibrary *libTable, bool silent) {
@@ -444,7 +444,7 @@ void SDMSTMapMethodsToSubroutines(struct SDMSTLibrary *libTable, bool silent) {
 
 void SDMSTMapSymbolsToSubroutines(struct SDMSTLibrary *libTable, bool silent) {
 	uint32_t counter = 0x0;
-	SDMPrint(silent,PrintCode_TRY,"Mapping Symbols to Subroutines...");
+	SDMFormatPrint(silent,PrintCode_TRY,"Mapping Symbols to Subroutines...");
 	for (uint32_t i = 0x0; i < libTable->symbolCount; i++) {
 		for (uint32_t j = 0x0; j < libTable->subroutineCount; j++) {
 			if (libTable->table[i].offset == libTable->subroutine[j].offset) {
@@ -454,11 +454,11 @@ void SDMSTMapSymbolsToSubroutines(struct SDMSTLibrary *libTable, bool silent) {
 			}
 		}
 	}
-	SDMPrint(silent,PrintCode_OK,"Mapped %i Symbols to Subroutines",counter);
+	SDMFormatPrint(silent,PrintCode_OK,"Mapped %i Symbols to Subroutines",counter);
 }
 
 void SDMSTMapBinary(struct SDMSTLibrary *libTable, bool silent) {
-	SDMPrint(silent,PrintCode_TRY,"Mapping Binary...");
+	SDMFormatPrint(silent,PrintCode_TRY,"Mapping Binary...");
 	bool result;
 	if (libTable->libInfo->is64bit) {
 		result = SDMSTMapObjcClasses64(libTable, silent);
@@ -468,7 +468,7 @@ void SDMSTMapBinary(struct SDMSTLibrary *libTable, bool silent) {
 	if (result) {
 		SDMSTMapMethodsToSubroutines(libTable, silent);
 	} else {
-		SDMPrint(silent,PrintCode_ERR,"Cannot find class map.");
+		SDMFormatPrint(silent,PrintCode_ERR,"Cannot find class map.");
 	}
 	SDMSTMapSymbolsToSubroutines(libTable, silent);
 }
@@ -506,7 +506,7 @@ struct SDMSTLibraryArchitecture SDMSTGetArchitecture() {
 		cpuTypeSize = sizeof(cpuArch.type);
 		err = sysctl(mib, (u_int)mibLen, &(cpuArch.type), &cpuTypeSize, 0x0, 0x0);
 		if (err) {
-			SDMPrint(false,PrintCode_ERR,"Could not find CPU Architecture");
+			SDMPrint(PrintCode_ERR,"Could not find CPU Architecture");
 		}
 	}
 	return cpuArch;
@@ -539,7 +539,7 @@ struct SDMSTLibrary* SDMSTLoadLibrary(char *path, uint32_t index, bool silent) {
 			if (strcmp(path, imagePath) == 0x0) {
 				inMemory = true;
 				handle = (void*)_dyld_get_image_vmaddr_slide(index);
-				SDMPrint(silent, PrintCode_OK,"Found Mach-O: %s",path);
+				SDMFormatPrint(silent, PrintCode_OK,"Found Mach-O: %s",path);
 				free(imagePath);
 				break;
 			}
@@ -549,8 +549,8 @@ struct SDMSTLibrary* SDMSTLoadLibrary(char *path, uint32_t index, bool silent) {
 	if (!inMemory) {
 		handle = dlopen(path, RTLD_LOCAL);
 		if (!handle) {
-			SDMPrint(silent,PrintCode_ERR,"Code: %s Unable to load library at path: %s", dlerror(), path);
-			SDMPrint(silent,PrintCode_TRY,"Attempting to manually load and map...");
+			SDMFormatPrint(silent,PrintCode_ERR,"Code: %s Unable to load library at path: %s", dlerror(), path);
+			SDMFormatPrint(silent,PrintCode_TRY,"Attempting to manually load and map...");
 			table->couldLoad = false;
 			struct stat fs;
 			int statResult = stat(path, &fs);
@@ -589,7 +589,7 @@ struct SDMSTLibrary* SDMSTLoadLibrary(char *path, uint32_t index, bool silent) {
 		SDMSTMapBinary(table, silent);
 	} else {
 		table->couldLoad = false;
-		SDMPrint(silent,PrintCode_ERR,"Could not load MachO");
+		SDMFormatPrint(silent,PrintCode_ERR,"Could not load MachO");
 	}
 	return table;
 }

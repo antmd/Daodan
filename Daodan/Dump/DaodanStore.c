@@ -257,7 +257,7 @@ void SDMDaodanDumpObjectiveCClass(char *dumpPath, struct SDMSTObjcClass *cls) {
 		}
 		free(filePath);
 	} else {
-		SDMPrint(false,PrintCode_ERR,"Could not write Objective-C to dump file: %s",dumpPath);
+		SDMFormatPrint(false,PrintCode_ERR,"Could not write Objective-C to dump file: %s",dumpPath);
 	}
 }
 
@@ -276,13 +276,13 @@ void SDMDaodanDumpObjectiveCInfo(char *dumpPath, struct SDMSTLibrary *libTable) 
 }
 
 void SDMDaodanWriteDumpForLibrary(char *dumpPath, struct SDMSTLibrary *libTable) {
-	SDMPrint(false,PrintCode_TRY,"Writing dump files...");
+	SDMFormatPrint(false,PrintCode_TRY,"Writing dump files...");
 	SDMDaodanDumpBinaryInfo(dumpPath, libTable);
 	SDMDaodanDumpSymbolInfo(dumpPath, libTable);
 	SDMDaodanDumpLibraryInfo(dumpPath, libTable);
 	SDMDaodanDumpSubroutineInfo(dumpPath, libTable);
 	SDMDaodanDumpObjectiveCInfo(dumpPath, libTable);
-	SDMPrint(false,PrintCode_OK,"Successfully written dump to path: %s",dumpPath);
+	SDMFormatPrint(false,PrintCode_OK,"Successfully written dump to path: %s",dumpPath);
 }
 
 void SDMDaodanWriteDumpForImage(char *dumpPath, char *imagePath, bool skipDependencies) {
