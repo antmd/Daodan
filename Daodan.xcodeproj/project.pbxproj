@@ -26,10 +26,9 @@
 		223C2B0C182AFA15001BE2F1 /* SDMHeader.c in Sources */ = {isa = PBXBuildFile; fileRef = 223C2B0A182AFA15001BE2F1 /* SDMHeader.c */; };
 		223C2B0E182FD817001BE2F1 /* SDMObjcRuntime.c in Sources */ = {isa = PBXBuildFile; fileRef = 223C2B0D182FD817001BE2F1 /* SDMObjcRuntime.c */; };
 		224D43FB18300A4900FEEDCA /* SDMExceptionHandler.c in Sources */ = {isa = PBXBuildFile; fileRef = 224D43FA18300A4900FEEDCA /* SDMExceptionHandler.c */; };
-		224D43FE18300BAD00FEEDCA /* mach_exc.defs in Sources */ = {isa = PBXBuildFile; fileRef = 224D43FD18300BAD00FEEDCA /* mach_exc.defs */; settings = {ATTRIBUTES = (Client, Server, ); }; };
-		224D440018300EDF00FEEDCA /* exc.defs in Sources */ = {isa = PBXBuildFile; fileRef = 224D43FF18300EDF00FEEDCA /* exc.defs */; settings = {ATTRIBUTES = (Client, Server, ); }; };
+		224D440A183031FC00FEEDCA /* mach_exc.defs in Sources */ = {isa = PBXBuildFile; fileRef = 224D43FD18300BAD00FEEDCA /* mach_exc.defs */; settings = {ATTRIBUTES = (Client, Server, ); }; };
+		224D440B1830320200FEEDCA /* exc.defs in Sources */ = {isa = PBXBuildFile; fileRef = 224D43FF18300EDF00FEEDCA /* exc.defs */; settings = {ATTRIBUTES = (Client, Server, ); }; };
 		2295903418217B0B006E985D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2295903318217B0B006E985D /* main.m */; };
-		2295903E18217F01006E985D /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2295903D18217F01006E985D /* CoreFoundation.framework */; };
 		22959044182182CF006E985D /* SDMLaunchProcess.m in Sources */ = {isa = PBXBuildFile; fileRef = 2295904118218202006E985D /* SDMLaunchProcess.m */; };
 		2295905018219DC3006E985D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22959046182182FB006E985D /* Security.framework */; };
 		2295909A1822EAD3006E985D /* DaodanStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 229590991822EAD3006E985D /* DaodanStore.h */; };
@@ -39,7 +38,6 @@
 		22C17BC417EF696500800C71 /* SDMSymbolTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C17BC317EF696500800C71 /* SDMSymbolTable.h */; };
 		22C17BC617EF697800800C71 /* SDMSymbolTable.c in Sources */ = {isa = PBXBuildFile; fileRef = 22C17BC517EF697800800C71 /* SDMSymbolTable.c */; };
 		22C7B1A3182FECB700000C67 /* SDMLaunchProcess.m in Sources */ = {isa = PBXBuildFile; fileRef = 2295904118218202006E985D /* SDMLaunchProcess.m */; };
-		22C7B1A4182FECBF00000C67 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22CEB4E2182FE8C3001C5A38 /* Foundation.framework */; };
 		22CEB4DE182FDF16001C5A38 /* SDMSymbolTable.c in Sources */ = {isa = PBXBuildFile; fileRef = 22C17BC517EF697800800C71 /* SDMSymbolTable.c */; };
 		22CEB4DF182FDF57001C5A38 /* SDMObjcLexer.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60D01826A1DB0052A1FF /* SDMObjcLexer.c */; };
 		22CEB4E0182FDF57001C5A38 /* SDMObjcRuntime.c in Sources */ = {isa = PBXBuildFile; fileRef = 223C2B0D182FD817001BE2F1 /* SDMObjcRuntime.c */; };
@@ -100,7 +98,7 @@
 		229590981822DCA1006E985D /* Info-Launchpad.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info-Launchpad.plist"; sourceTree = "<group>"; };
 		229590991822EAD3006E985D /* DaodanStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DaodanStore.h; sourceTree = "<group>"; };
 		2295909B1822EAE8006E985D /* DaodanStore.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DaodanStore.c; sourceTree = "<group>"; };
-		22B56F78181EE2AB002AF48E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		22B56F78181EE2AB002AF48E /* Info-Daodan.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info-Daodan.plist"; sourceTree = "<group>"; };
 		22C17BB617EF49A700800C71 /* libDaodan.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libDaodan.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		22C17BBD17EF49B800800C71 /* Daodan.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Daodan.c; sourceTree = "<group>"; };
 		22C17BBF17EF49C400800C71 /* Daodan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Daodan.h; sourceTree = "<group>"; };
@@ -140,7 +138,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				22CEB4E3182FE8C3001C5A38 /* Foundation.framework in Frameworks */,
-				2295903E18217F01006E985D /* CoreFoundation.framework in Frameworks */,
 				2295905018219DC3006E985D /* Security.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -149,7 +146,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				22C7B1A4182FECBF00000C67 /* Foundation.framework in Frameworks */,
 				22CEB4E1182FE888001C5A38 /* CoreFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -157,6 +153,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		224D440C183032DC00FEEDCA /* ObjectiveC */ = {
+			isa = PBXGroup;
+			children = (
+				22FD60CF18268F450052A1FF /* SDMObjcLexer.h */,
+				22FD60D01826A1DB0052A1FF /* SDMObjcLexer.c */,
+				22FD60CD1825A3180052A1FF /* SDMObjcRuntime.h */,
+				223C2B0D182FD817001BE2F1 /* SDMObjcRuntime.c */,
+				22FD60CB18259F340052A1FF /* SDMObjcRuntime1.h */,
+				22FD60CC18259F440052A1FF /* SDMObjcRuntime2.h */,
+			);
+			path = ObjectiveC;
+			sourceTree = "<group>";
+		};
 		2295903218217B0B006E985D /* Launchpad */ = {
 			isa = PBXGroup;
 			children = (
@@ -166,6 +175,8 @@
 				2295903318217B0B006E985D /* main.m */,
 				224D43FC18300A6100FEEDCA /* SDMExceptionHandler.h */,
 				224D43FA18300A4900FEEDCA /* SDMExceptionHandler.c */,
+				2295904318218215006E985D /* SDMLaunchProcess.h */,
+				2295904118218202006E985D /* SDMLaunchProcess.m */,
 			);
 			path = Launchpad;
 			sourceTree = "<group>";
@@ -173,15 +184,8 @@
 		2295903A18217B17006E985D /* Daodan */ = {
 			isa = PBXGroup;
 			children = (
-				22B56F78181EE2AB002AF48E /* Info.plist */,
-				22C17BC717EF83E500800C71 /* SDMHeader.h */,
-				223C2B0A182AFA15001BE2F1 /* SDMHeader.c */,
-				22FD60CF18268F450052A1FF /* SDMObjcLexer.h */,
-				22FD60D01826A1DB0052A1FF /* SDMObjcLexer.c */,
-				22FD60CD1825A3180052A1FF /* SDMObjcRuntime.h */,
-				223C2B0D182FD817001BE2F1 /* SDMObjcRuntime.c */,
-				22FD60CB18259F340052A1FF /* SDMObjcRuntime1.h */,
-				22FD60CC18259F440052A1FF /* SDMObjcRuntime2.h */,
+				224D440C183032DC00FEEDCA /* ObjectiveC */,
+				22B56F78181EE2AB002AF48E /* Info-Daodan.plist */,
 				22C17BC317EF696500800C71 /* SDMSymbolTable.h */,
 				22C17BC517EF697800800C71 /* SDMSymbolTable.c */,
 				22C17BBF17EF49C400800C71 /* Daodan.h */,
@@ -189,7 +193,7 @@
 				229590991822EAD3006E985D /* DaodanStore.h */,
 				2295909B1822EAE8006E985D /* DaodanStore.c */,
 			);
-			name = Daodan;
+			path = Daodan;
 			sourceTree = "<group>";
 		};
 		2295903F182181CF006E985D /* Frameworks */ = {
@@ -202,20 +206,12 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		22959040182181D8006E985D /* Auth */ = {
-			isa = PBXGroup;
-			children = (
-				2295904318218215006E985D /* SDMLaunchProcess.h */,
-				2295904118218202006E985D /* SDMLaunchProcess.m */,
-			);
-			name = Auth;
-			sourceTree = "<group>";
-		};
 		22C17BAD17EF49A700800C71 = {
 			isa = PBXGroup;
 			children = (
+				22C17BC717EF83E500800C71 /* SDMHeader.h */,
+				223C2B0A182AFA15001BE2F1 /* SDMHeader.c */,
 				22FD60A31822FCEA0052A1FF /* Disasm */,
-				22959040182181D8006E985D /* Auth */,
 				2295903A18217B17006E985D /* Daodan */,
 				2295903218217B0B006E985D /* Launchpad */,
 				2295903F182181CF006E985D /* Frameworks */,
@@ -364,10 +360,10 @@
 				224D43FB18300A4900FEEDCA /* SDMExceptionHandler.c in Sources */,
 				22CEB4DE182FDF16001C5A38 /* SDMSymbolTable.c in Sources */,
 				22959044182182CF006E985D /* SDMLaunchProcess.m in Sources */,
-				224D43FE18300BAD00FEEDCA /* mach_exc.defs in Sources */,
+				224D440A183031FC00FEEDCA /* mach_exc.defs in Sources */,
 				223C2B0C182AFA15001BE2F1 /* SDMHeader.c in Sources */,
 				2295903418217B0B006E985D /* main.m in Sources */,
-				224D440018300EDF00FEEDCA /* exc.defs in Sources */,
+				224D440B1830320200FEEDCA /* exc.defs in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -475,6 +471,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -506,6 +503,7 @@
 				);
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = macosx10.8;
+				SEPARATE_STRIP = NO;
 			};
 			name = Debug;
 		};
@@ -528,6 +526,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COPY_PHASE_STRIP = YES;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -554,13 +553,23 @@
 				);
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = macosx10.8;
+				SEPARATE_STRIP = NO;
 			};
 			name = Release;
 		};
 		22C17BBB17EF49A700800C71 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEAD_CODE_STRIPPING = YES;
 				EXECUTABLE_PREFIX = lib;
+				OTHER_LDFLAGS = (
+					"-init",
+					_initDaodan,
+					"-undefined",
+					dynamic_lookup,
+					"-dynamiclib",
+					"-Wl,-sectcreate,__TEXT,__info_plist,Daodan/Info-Daodan.plist",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -568,7 +577,16 @@
 		22C17BBC17EF49A700800C71 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEAD_CODE_STRIPPING = YES;
 				EXECUTABLE_PREFIX = lib;
+				OTHER_LDFLAGS = (
+					"-init",
+					_initDaodan,
+					"-undefined",
+					dynamic_lookup,
+					"-dynamiclib",
+					"-Wl,-sectcreate,__TEXT,__info_plist,Daodan/Info-Daodan.plist",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
