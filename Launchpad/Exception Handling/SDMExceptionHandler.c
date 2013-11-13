@@ -50,6 +50,7 @@ void* exception_server(void *exceptionPort) {
 	signal(SIGFPE, SignalHandler);
 	signal(SIGBUS, SignalHandler);
 	signal(SIGPIPE, SignalHandler);
+	
 	mach_port_t taskPort = (mach_port_t)*(mach_port_t *)exceptionPort;
 	mach_msg_return_t rt;
 	mach_msg_size_t bodySize = sizeof(mach_msg_header_t)+0x100;
