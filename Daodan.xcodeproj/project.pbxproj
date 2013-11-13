@@ -23,6 +23,9 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		2214DE891833193500ACC0C7 /* SDMExceptionHandler.c in Sources */ = {isa = PBXBuildFile; fileRef = 224D43FA18300A4900FEEDCA /* SDMExceptionHandler.c */; };
+		2214DE8A1833194600ACC0C7 /* exc.defs in Sources */ = {isa = PBXBuildFile; fileRef = 224D43FF18300EDF00FEEDCA /* exc.defs */; settings = {ATTRIBUTES = (Client, Server, ); }; };
+		2214DE8B1833194600ACC0C7 /* mach_exc.defs in Sources */ = {isa = PBXBuildFile; fileRef = 224D43FD18300BAD00FEEDCA /* mach_exc.defs */; settings = {ATTRIBUTES = (Client, Server, ); }; };
 		223C2B0B182AFA15001BE2F1 /* SDMHeader.c in Sources */ = {isa = PBXBuildFile; fileRef = 223C2B0A182AFA15001BE2F1 /* SDMHeader.c */; };
 		223C2B0C182AFA15001BE2F1 /* SDMHeader.c in Sources */ = {isa = PBXBuildFile; fileRef = 223C2B0A182AFA15001BE2F1 /* SDMHeader.c */; };
 		223C2B0E182FD817001BE2F1 /* SDMObjcRuntime.c in Sources */ = {isa = PBXBuildFile; fileRef = 223C2B0D182FD817001BE2F1 /* SDMObjcRuntime.c */; };
@@ -574,6 +577,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2214DE8A1833194600ACC0C7 /* exc.defs in Sources */,
+				2214DE8B1833194600ACC0C7 /* mach_exc.defs in Sources */,
+				2214DE891833193500ACC0C7 /* SDMExceptionHandler.c in Sources */,
 				22C7B1A3182FECB700000C67 /* SDMLaunchProcess.m in Sources */,
 				22FD60C51822FD080052A1FF /* syn.c in Sources */,
 				223C2B0B182AFA15001BE2F1 /* SDMHeader.c in Sources */,

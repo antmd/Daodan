@@ -33,6 +33,7 @@
 #include "DaodanStore.h"
 
 #include "SDMDaodanPayload.h"
+#include "SDMExceptionHandler.h"
 
 /*
  
@@ -391,6 +392,7 @@ void initDaodan() {
 		SDMPrint(PrintCode_ERR,"Could not load the MachO file, unloading Daodan now...");
 		unloadDaodan();
 	} else {
+		SDMDaodanSetupExceptionHandler();
 		bool foundLaunchpad = locateLaunchpad();
 		if (foundLaunchpad) {
 			unloadDaodan();

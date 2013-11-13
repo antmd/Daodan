@@ -38,15 +38,26 @@ void SDMDaodanSetupExceptionHandler() {
 	}
 }
 
+void SignalHandler(int signal) {
+	printf("signal %i was raised!\n",signal);
+}
+
 void* exception_server(void *exceptionPort) {
+	signal(SIGABRT, SignalHandler);
+	signal(SIGILL, SignalHandler);
+	signal(SIGSEGV, SignalHandler);
+	signal(SIGFPE, SignalHandler);
+	signal(SIGBUS, SignalHandler);
+	signal(SIGPIPE, SignalHandler);
+	mach_port_t taskPort = (mach_port_t)*(mach_port_t *)exceptionPort;
 	mach_msg_return_t rt;
-	size_t bodySize = sizeof(mach_msg_header_t)+0x100;//sizeof(union __RequestUnion__mach_exc_subsystem);
+	mach_msg_size_t bodySize = sizeof(mach_msg_header_t)+0x100;
 	mach_msg_header_t* msg = (mach_msg_header_t*)calloc(0x1, bodySize);
 	mach_msg_header_t* reply = (mach_msg_header_t*)calloc(0x1, bodySize);
 	while (true) {
-		((mach_msg_header_t*)msg)->msgh_local_port = (mach_port_t)*(mach_port_t *)exceptionPort;
-		((mach_msg_header_t*)msg)->msgh_size = (mach_msg_size_t)bodySize;
-		rt = mach_msg((mach_msg_header_t*)msg, MACH_RCV_MSG, 0x0, (mach_msg_size_t)bodySize, (mach_port_t)*(mach_port_t *)exceptionPort, 0x0, MACH_PORT_NULL);
+		((mach_msg_header_t*)msg)->msgh_local_port = taskPort;
+		((mach_msg_header_t*)msg)->msgh_size = bodySize;
+		rt = mach_msg((mach_msg_header_t*)msg, MACH_RCV_MSG, 0x0, bodySize, taskPort, 0x0, MACH_PORT_NULL);
 		if (rt != KERN_SUCCESS) {
 			printf("recv: %08x %s\n",rt,mach_error_string(rt));
 		}
