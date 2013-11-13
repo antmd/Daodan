@@ -10,6 +10,7 @@
 #define Daodan_SDMExceptionHandler_c
 
 #include "SDMExceptionHandler.h"
+#include "SDMLaunchProcess.h"
 #include "SDMSymbolTable.h"
 #include "mach_exc.h"
 #include "mach_excServer.h"
@@ -40,16 +41,143 @@ void SDMDaodanSetupExceptionHandler() {
 
 void SignalHandler(int signal) {
 	printf("signal %i was raised!\n",signal);
-	exit(signal);
+	switch (signal) {
+		case SIGHUP: {
+			break;
+		};
+		case SIGINT: {
+			break;
+		};
+		case SIGQUIT: {
+			break;
+		};
+		case SIGILL: {
+			break;
+		};
+		case SIGTRAP: {
+			break;
+		};
+		case SIGABRT: {
+			break;
+		};
+		case SIGEMT: {
+			break;
+		};
+		case SIGFPE: {
+			break;
+		};
+		case SIGKILL: {
+			break;
+		};
+		case SIGBUS: {
+			break;
+		};
+		case SIGSEGV: {
+			break;
+		};
+		case SIGSYS: {
+			break;
+		};
+		case SIGPIPE: {
+			break;
+		};
+		case SIGALRM: {
+			break;
+		};
+		case SIGTERM: {
+			break;
+		};
+		case SIGURG: {
+			break;
+		};
+		case SIGSTOP: {
+			break;
+		};
+		case SIGTSTP: {
+			break;
+		};
+		case SIGCONT: {
+			break;
+		};
+		case SIGCHLD: {
+			break;
+		};
+		case SIGTTIN: {
+			break;
+		};
+		case SIGTTOU: {
+			break;
+		};
+		case SIGIO: {
+			break;
+		};
+		case SIGXCPU: {
+			break;
+		};
+		case SIGXFSZ: {
+			break;
+		};
+		case SIGVTALRM: {
+			break;
+		};
+		case SIGPROF: {
+			break;
+		};
+		case SIGWINCH: {
+			break;
+		};
+		case SIGINFO: {
+			break;
+		};
+		case SIGUSR1: {
+			break;
+		};
+		case SIGUSR2: {
+			break;
+		};
+		default: {
+			break;
+		};
+	}
+}
+
+void SignalHandlerSetup() {
+	signal(SIGHUP, SignalHandler);
+	signal(SIGINT, SignalHandler);
+	signal(SIGQUIT, SignalHandler);
+	signal(SIGILL, SignalHandler);
+	signal(SIGTRAP, SignalHandler);
+	signal(SIGABRT, SignalHandler);
+	signal(SIGIOT, SignalHandler);
+	signal(SIGEMT, SignalHandler);
+	signal(SIGFPE, SignalHandler);
+	signal(SIGKILL, SignalHandler);
+	signal(SIGBUS, SignalHandler);
+	signal(SIGSEGV, SignalHandler);
+	signal(SIGSYS, SignalHandler);
+	signal(SIGPIPE, SignalHandler);
+	signal(SIGALRM, SignalHandler);
+	signal(SIGTERM, SignalHandler);
+	signal(SIGURG, SignalHandler);
+	signal(SIGSTOP, SignalHandler);
+	signal(SIGTSTP, SignalHandler);
+	signal(SIGCONT, SignalHandler);
+	signal(SIGCHLD, SignalHandler);
+	signal(SIGTTIN, SignalHandler);
+	signal(SIGTTOU, SignalHandler);
+	signal(SIGIO, SignalHandler);
+	signal(SIGXCPU, SignalHandler);
+	signal(SIGXFSZ, SignalHandler);
+	signal(SIGVTALRM, SignalHandler);
+	signal(SIGPROF, SignalHandler);
+	signal(SIGWINCH, SignalHandler);
+	signal(SIGINFO, SignalHandler);
+	signal(SIGUSR1, SignalHandler);
+	signal(SIGUSR2, SignalHandler);
 }
 
 void* exception_server(void *exceptionPort) {
-	signal(SIGABRT, SignalHandler);
-	signal(SIGILL, SignalHandler);
-	signal(SIGSEGV, SignalHandler);
-	signal(SIGFPE, SignalHandler);
-	signal(SIGBUS, SignalHandler);
-	signal(SIGPIPE, SignalHandler);
+	SignalHandlerSetup();
 	
 	mach_port_t taskPort = (mach_port_t)*(mach_port_t *)exceptionPort;
 	mach_msg_return_t rt;
