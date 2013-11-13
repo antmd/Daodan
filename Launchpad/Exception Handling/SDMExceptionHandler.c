@@ -84,6 +84,8 @@ void* exception_server(void *exceptionPort) {
 #pragma mark -
 #pragma mark Exception Handlers
 
+kern_return_t SDM_Daodan_exception_handler();
+
 #pragma mark 64bit
 kern_return_t catch_mach_exception_raise(mach_port_t exception_port, mach_port_t thread, mach_port_t task, exception_type_t exception, mach_exception_data_t code, mach_msg_type_number_t codeCnt) {
 	printf("My exception handler was called by exception_raise() %i\n",codeCnt);
