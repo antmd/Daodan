@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "224D442418303C9300FEEDCA"
-               BuildableName = "DaodanTemplate.bundle"
+               BuildableName = "InjectableTemplate.bundle"
                BlueprintName = "InjectableTemplate"
                ReferencedContainer = "container:Daodan.xcodeproj">
             </BuildableReference>

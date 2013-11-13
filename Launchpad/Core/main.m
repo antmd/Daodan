@@ -20,10 +20,10 @@ void SDMLaunchpadSetupKillswitch() {
 }
 
 uint64_t iAmLaunchPad(int argc, const char *argv[]) {
-	SDMLaunchpadSetupKillswitch();
-	SDMDaodanSetupExceptionHandler();
 	uint64_t me = kiAmLaunchPad;
-	if (argc != 0x0) {
+	if ((argc != 0x0) && (argc > 0x1)) {
+		SDMLaunchpadSetupKillswitch();
+		SDMDaodanSetupExceptionHandler();
 		if (me == kiAmLaunchPad) {
 			NSString *hasInject = [[[NSProcessInfo processInfo] environment] objectForKey:@kDYLD_INSERT_LIBRARIES];
 			if ((strcmp(argv[0x1], "-h") == 0) || (strcmp(argv[0x1], "--help") == 0)) {

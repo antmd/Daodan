@@ -105,7 +105,7 @@
 		224D4419183035D100FEEDCA /* SDMDaodanInjection_Template.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDMDaodanInjection_Template.h; sourceTree = "<group>"; };
 		224D441D183037E600FEEDCA /* SDMDaodanPayload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDMDaodanPayload.h; sourceTree = "<group>"; };
 		224D441F1830380500FEEDCA /* SDMDaodanPayload.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDMDaodanPayload.c; sourceTree = "<group>"; };
-		224D442518303C9300FEEDCA /* DaodanTemplate.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DaodanTemplate.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		224D442518303C9300FEEDCA /* InjectableTemplate.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = InjectableTemplate.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		224D442918303C9400FEEDCA /* DaodanTemplate-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "DaodanTemplate-Info.plist"; sourceTree = "<group>"; };
 		224D442B18303C9400FEEDCA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		224D442D18303C9400FEEDCA /* DaodanTemplate-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DaodanTemplate-Prefix.pch"; sourceTree = "<group>"; };
@@ -391,7 +391,7 @@
 			children = (
 				22C17BB617EF49A700800C71 /* libDaodan.dylib */,
 				2295903118217B0B006E985D /* Launchpad */,
-				224D442518303C9300FEEDCA /* DaodanTemplate.bundle */,
+				224D442518303C9300FEEDCA /* InjectableTemplate.bundle */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -469,7 +469,7 @@
 			);
 			name = InjectableTemplate;
 			productName = DaodanTemplate;
-			productReference = 224D442518303C9300FEEDCA /* DaodanTemplate.bundle */;
+			productReference = 224D442518303C9300FEEDCA /* InjectableTemplate.bundle */;
 			productType = "com.apple.product-type.bundle";
 		};
 		2295903018217B0B006E985D /* Launchpad */ = {
@@ -860,6 +860,7 @@
 				224D443018303C9400FEEDCA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		2295903918217B0B006E985D /* Build configuration list for PBXNativeTarget "Launchpad" */ = {
 			isa = XCConfigurationList;

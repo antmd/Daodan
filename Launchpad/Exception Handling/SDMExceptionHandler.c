@@ -16,52 +16,61 @@
 #include "excServer.h"
 #include <mach/mach_error.h>
 #include <dispatch/dispatch.h>
+#include <pthread.h>
 
-static mach_port_t server_port;
-
-static void exception_server(mach_port_t exceptionPort);
+void* exception_server(void *exceptionPort);
 extern boolean_t mach_exc_server (mach_msg_header_t *msg, mach_msg_header_t *reply);
 
 void SDMDaodanSetupExceptionHandler() {
-	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0x0), ^{
-		kern_return_t kr = mach_port_allocate(mach_task_self(), MACH_PORT_RIGHT_RECEIVE, &server_port);
+	mach_port_t server_port = MACH_PORT_NULL;
+	pthread_t exceptionThread;
+	kern_return_t kr = mach_port_allocate(mach_task_self(), MACH_PORT_RIGHT_RECEIVE, &server_port);
+	if (kr == KERN_SUCCESS) {
+		kr = mach_port_insert_right(mach_task_self(), server_port, server_port, MACH_MSG_TYPE_MAKE_SEND);
 		if (kr == KERN_SUCCESS) {
-			kr = mach_port_insert_right(mach_task_self(), server_port, server_port, MACH_MSG_TYPE_MAKE_SEND);
+			kr = task_set_exception_ports(mach_task_self(), EXC_MASK_ALL, server_port, EXCEPTION_DEFAULT, THREAD_STATE_NONE);
 			if (kr == KERN_SUCCESS) {
-				kr = task_set_exception_ports(mach_task_self(), EXC_MASK_BAD_ACCESS, server_port, EXCEPTION_DEFAULT|MACH_EXCEPTION_CODES, THREAD_STATE_NONE);
-				if (kr == KERN_SUCCESS) {
-					exception_server(mach_task_self());
-				}
+				pthread_create(&exceptionThread, NULL, exception_server, (void*)&server_port);
 			}
 		}
-	});
+	}
 }
 
-static void exception_server(mach_port_t exceptionPort) {
+void* exception_server(void *exceptionPort) {
 	mach_msg_return_t rt;
-	void* msg;
-	void* reply;
-	
-	msg = calloc(0x1, sizeof(union __RequestUnion__mach_exc_subsystem));
-	reply = calloc(0x1, sizeof(union __ReplyUnion__mach_exc_subsystem));
+	size_t bodySize = sizeof(union __RequestUnion__mach_exc_subsystem);
+	mach_msg_header_t* msg = (mach_msg_header_t*)calloc(0x1, bodySize);
+	mach_msg_header_t* reply = (mach_msg_header_t*)calloc(0x1, bodySize);
 	bool catchMsg = true;
 	while (catchMsg) {
-		rt = mach_msg((mach_msg_header_t*)msg, MACH_RCV_MSG, 0, sizeof(union __RequestUnion__mach_exc_subsystem), exceptionPort, 0, MACH_PORT_NULL);
-		if (rt == MACH_MSG_SUCCESS) {
-
-			mach_exc_server((mach_msg_header_t*)msg, (mach_msg_header_t*)reply);
+		rt = mach_msg((mach_msg_header_t*)msg, MACH_RCV_MSG, 0x0, (mach_msg_size_t)bodySize, (mach_port_t)*(mach_port_t *)exceptionPort, 0x0, MACH_PORT_NULL);
+		printf("recv: %08x %s\n",rt,mach_error_string(rt));
+		/*printf("%08x %s\n",rt,mach_error_string(rt));
+		printf("Message received on exception port\n");
+        printf("  msgh_bits:        0x%08x\n", ((mach_msg_header_t*)msg)->msgh_bits);
+        printf("  msgh_size:        %d\n", ((mach_msg_header_t*)msg)->msgh_size);
+        printf("  msgh_remote_port: 0x%x\n", ((mach_msg_header_t*)msg)->msgh_remote_port);
+        printf("  msgh_local_port:  0x%x\n", ((mach_msg_header_t*)msg)->msgh_local_port);
+        printf("  msgh_reserved:    0x%x\n", ((mach_msg_header_t*)msg)->msgh_reserved);
+        printf("  msgh_id:          %d\n", ((mach_msg_header_t*)msg)->msgh_id);*/
+		//if (rt == MACH_MSG_SUCCESS) {
 			
-			rt = mach_msg((mach_msg_header_t*)reply, MACH_SEND_MSG, ((mach_msg_header_t*)reply)->msgh_size, 0, MACH_PORT_NULL, 0, MACH_PORT_NULL);
-			catchMsg = ((rt == KERN_SUCCESS) ? true : false);
-		} else {
-			catchMsg = false;
-		}
+		mach_exc_server((mach_msg_header_t*)msg, (mach_msg_header_t*)reply);
+			
+		rt = mach_msg((mach_msg_header_t*)reply, MACH_SEND_MSG, ((mach_msg_header_t*)reply)->msgh_size, 0x0, ((mach_msg_header_t*)msg)->msgh_local_port, 0x0, MACH_PORT_NULL);
+		printf("send: %08x %s\n",rt,mach_error_string(rt));
+			//catchMsg = ((rt == KERN_SUCCESS) ? true : false);
+		//} else {
+		//	catchMsg = false;
+		//}
 		if (!catchMsg) {
+			printf("breaking!\n");
 			break;
 		}
 	}
 	free(msg);
 	free(reply);
+	pthread_exit(0x0);
 }
 
 #pragma mark -
