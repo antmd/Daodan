@@ -40,6 +40,7 @@ void SDMDaodanSetupExceptionHandler() {
 
 void SignalHandler(int signal) {
 	printf("signal %i was raised!\n",signal);
+	exit(signal);
 }
 
 void* exception_server(void *exceptionPort) {
