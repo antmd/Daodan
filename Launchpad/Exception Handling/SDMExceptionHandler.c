@@ -10,6 +10,7 @@
 #define Daodan_SDMExceptionHandler_c
 
 #include "SDMExceptionHandler.h"
+#include "SDMSymbolTable.h"
 #include "mach_exc.h"
 #include "mach_excServer.h"
 #include "exc.h"
@@ -39,19 +40,28 @@ void SDMDaodanSetupExceptionHandler() {
 
 void* exception_server(void *exceptionPort) {
 	mach_msg_return_t rt;
-	size_t bodySize = sizeof(union __RequestUnion__mach_exc_subsystem);
+	size_t bodySize = sizeof(mach_msg_header_t)+0x100;//sizeof(union __RequestUnion__mach_exc_subsystem);
 	mach_msg_header_t* msg = (mach_msg_header_t*)calloc(0x1, bodySize);
 	mach_msg_header_t* reply = (mach_msg_header_t*)calloc(0x1, bodySize);
 	while (true) {
 		((mach_msg_header_t*)msg)->msgh_local_port = (mach_port_t)*(mach_port_t *)exceptionPort;
 		((mach_msg_header_t*)msg)->msgh_size = (mach_msg_size_t)bodySize;
 		rt = mach_msg((mach_msg_header_t*)msg, MACH_RCV_MSG, 0x0, (mach_msg_size_t)bodySize, (mach_port_t)*(mach_port_t *)exceptionPort, 0x0, MACH_PORT_NULL);
-		printf("recv: %08x %s\n",rt,mach_error_string(rt));
-			
-		mach_exc_server((mach_msg_header_t*)msg, (mach_msg_header_t*)reply);
+		if (rt != KERN_SUCCESS) {
+			printf("recv: %08x %s\n",rt,mach_error_string(rt));
+		}
+		
+		struct SDMSTLibraryArchitecture arch = SDMSTGetArchitecture();
+		if (arch.type == CPU_TYPE_X86_64) {
+			exc_server((mach_msg_header_t*)msg, (mach_msg_header_t*)reply);
+		} else if (arch.type == CPU_TYPE_I386) {
+			mach_exc_server((mach_msg_header_t*)msg, (mach_msg_header_t*)reply);
+		}
 		
 		rt = mach_msg((mach_msg_header_t*)reply, MACH_SEND_MSG, ((mach_msg_header_t*)reply)->msgh_size, 0x0, ((mach_msg_header_t*)msg)->msgh_local_port, 0x0, MACH_PORT_NULL);
-		printf("send: %08x %s\n",rt,mach_error_string(rt));
+		if (rt != KERN_SUCCESS) {
+			printf("send: %08x %s\n",rt,mach_error_string(rt));
+		}
 	}
 	printf("leaving handler");
 	free(msg);
