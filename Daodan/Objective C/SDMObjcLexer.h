@@ -96,6 +96,7 @@ struct SDMSTObjcType {
 	uint32_t tokenCount;
 } ATR_PACK SDMSTObjcType;
 
+struct SDMSTObjcType* SDMSTObjcDecodeTypeWithLength(char *type, uint64_t decodeLength);
 struct SDMSTObjcType* SDMSTObjcDecodeType(char *type);
 struct SDMSTRange SDMSTObjcGetTokenRangeFromOffset(char *type, uint64_t offset, char *token);
 char* SDMSTObjcPointersForToken(struct SDMSTObjcLexerToken *token);
