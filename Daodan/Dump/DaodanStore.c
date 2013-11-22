@@ -212,7 +212,7 @@ void SDMDaodanDumpObjectiveCClass(char *dumpPath, struct SDMSTObjcClass *cls) {
 						char *ivarName;
 						char *pointer = SDMSTObjcPointersForToken(&(type->token[0x0]));
 						if (type->token[0x0].typeName) {
-							uint64_t ivarNameLength = 0x1000; // strlen(cls->ivar[i].name)+0x5+strlen(pointer)+strlen(type->token[0x0].type)+strlen(type->token[0x0].typeName)
+							uint64_t ivarNameLength = 0x1000;
 							ivarName = calloc(0x1, sizeof(char)*(uint32_t)(ivarNameLength));
 							if ((strncmp((type->token[0x0].type), "id", sizeof(char)*0x2) == 0x0) && strlen(type->token[0x0].typeName)) {
 								sprintf(ivarName, "\t%s %s%s",type->token[0x0].typeName,pointer,cls->ivar[i].name);
