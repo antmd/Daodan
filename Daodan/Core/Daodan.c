@@ -291,14 +291,17 @@ char* GenerateUniqueQueueName(enum DAODAN_QUEUE type) {
 	char *name = calloc(0x400, sizeof(char));
 	char *typeDesc = "UNKNOWN";
 	switch (type) {
-		case DAODAN_MACH_SEND:
+		case DAODAN_MACH_SEND: {
 			typeDesc = "MACH_SEND";
 			break;
-		case DAODAN_MACH_RECV:
+		};
+		case DAODAN_MACH_RECV: {
 			typeDesc = "MACH_RECV";
 			break;
-		default:
+		};
+		default: {
 			break;
+		};
 	}
 	sprintf(name, "com.samdmarshall.libDaodan.%i.%s",getpid(),typeDesc);
 	return name;

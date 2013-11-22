@@ -98,7 +98,7 @@ void SDMSTBuildLibraryInfo(struct SDMSTLibrary *libTable, bool silent) {
 						libTable->libInfo->symtabCommands[libTable->libInfo->symtabCount] = *(struct symtab_command *)loadCmd;
 						libTable->libInfo->symtabCount++;
 						break;
-					}
+					};
 					case LC_SEGMENT:
 					case LC_SEGMENT_64: {
 						struct SDMSTSegmentEntry *seg = (struct SDMSTSegmentEntry *)loadCmd;
@@ -118,7 +118,7 @@ void SDMSTBuildLibraryInfo(struct SDMSTLibrary *libTable, bool silent) {
 							}
 						}
 						break;
-					}
+					};
 					case LC_LOAD_DYLIB: {
 						struct dylib_command *linkedLibrary = (struct dylib_command *)loadCmd;
 						if (loadCmd+linkedLibrary->dylib.name.offset) {
@@ -129,14 +129,14 @@ void SDMSTBuildLibraryInfo(struct SDMSTLibrary *libTable, bool silent) {
 							libTable->dependencyCount++;
 						}
 						break;
-					}
+					};
 					case LC_FUNCTION_STARTS: {
 						libTable->libInfo->functCmd = (struct SDMSTFunctionCommand *)loadCmd;
 						break;
-					}
+					};
 					default: {
 						break;
-					}
+					};
 				}
 				loadCmd = (struct load_command *)((char*)loadCmd + loadCmd->cmdsize);
 			}
