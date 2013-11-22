@@ -165,36 +165,29 @@ char* SDMSTObjcCreateMethodDescription(struct SDMSTObjcType *type, char *name) {
 	return description;
 }
 
-struct SDMSTRange SDMSTObjcGetStructContentsRange(char *type, uint64_t offset) {
+struct SDMSTRange SDMSTObjcGetRangeFromTokens(char *startToken, char *endToken, char *buffer, uint64_t offset) {
 	uint64_t stack = 0x1;
 	uint64_t counter = 0x0;
 	while (stack != 0x0) {
-		if (strncmp(&(type[offset+counter]), kObjcStructTokenStart, sizeof(char)) == 0x0) {
+		if (strncmp(&(type[offset+counter]), startToken, sizeof(char)) == 0x0) {
 			stack++;
 		}
-		if (strncmp(&(type[offset+counter]), kObjcStructTokenEnd, sizeof(char)) == 0x0) {
+		if (strncmp(&(type[offset+counter]), endToken, sizeof(char)) == 0x0) {
 			stack--;
 		}
 		counter++;
 	}
 	counter--;
 	return SDMSTRangeMake((uintptr_t)offset, counter);
+
+}
+
+struct SDMSTRange SDMSTObjcGetStructContentsRange(char *type, uint64_t offset) {
+	return SDMSTObjcGetRangeFromTokens(kObjcStructTokenStart, kObjcStructTokenEnd, type, offset);
 }
 
 struct SDMSTRange SDMSTObjcGetArrayContentsRange(char *type, uint64_t offset) {
-	uint64_t stack = 0x1;
-	uint64_t counter = 0x0;
-	while (stack != 0x0) {
-		if (strncmp(&(type[offset+counter]), kObjcArrayTokenStart, sizeof(char)) == 0x0) {
-			stack++;
-		}
-		if (strncmp(&(type[offset+counter]), kObjcArrayTokenEnd, sizeof(char)) == 0x0) {
-			stack--;
-		}
-		counter++;
-	}
-	counter--;
-	return SDMSTRangeMake((uintptr_t)offset, counter);
+	return SDMSTObjcGetRangeFromTokens(kObjcArrayTokenStart, kObjcArrayTokenEnd, type, offset);
 }
 
 struct SDMSTRange SDMSTObjcGetStructNameRange(char *contents, uint64_t offset) {
@@ -335,7 +328,6 @@ uint32_t SDMSTParseToken(struct SDMSTObjcType *decode, char *type, uint64_t offs
 				char *name = calloc(0x1, sizeof(char)*(uint32_t)nameRange.length);
 				memcpy(name, &(type[nameRange.offset]), sizeof(char)*nameRange.length);
 				decode->token[decode->tokenCount].typeName = name;
-				printf("GOT NAME: %s\n",name);
 				parsedLength += (uint32_t)nameRange.length+0x1;
 			}
 			if (strncmp(&(type[offset]), kObjcPointerEncoding, sizeof(char)) == 0x0) {
@@ -357,9 +349,7 @@ uint32_t SDMSTParseToken(struct SDMSTObjcType *decode, char *type, uint64_t offs
 				memcpy(name, &(contents[nameRange.offset]), nameRange.length);
 				decode->token[decode->tokenCount].typeName = name;
 				
-				// SDM: parse out children
 				char *structContentString = &(contents[nameRange.offset+nameRange.length])+sizeof(char);
-				printf("STRUCT CONTENTS: %s\n",structContentString);
 				struct SDMSTRange contentRange = SDMSTRangeMake(0x0, strlen(structContentString));
 				struct SDMSTObjcType *structContents = SDMSTMemberCountOfStructContents(structContentString, contentRange);
 				decode->token[decode->tokenCount].childrenCount = structContents->tokenCount;
