@@ -212,16 +212,28 @@ void SDMDaodanDumpObjectiveCClass(char *dumpPath, struct SDMSTObjcClass *cls) {
 						char *ivarName;
 						char *pointer = SDMSTObjcPointersForToken(&(type->token[0x0]));
 						if (type->token[0x0].typeName) {
-							ivarName = calloc(0x1, sizeof(char)*(strlen(cls->ivar[i].name)+0x5+strlen(pointer)+strlen(type->token[0x0].type)+strlen(type->token[0x0].typeName)));
+							uint64_t ivarNameLength = 0x1000; // strlen(cls->ivar[i].name)+0x5+strlen(pointer)+strlen(type->token[0x0].type)+strlen(type->token[0x0].typeName)
+							ivarName = calloc(0x1, sizeof(char)*(uint32_t)(ivarNameLength));
 							if ((strncmp((type->token[0x0].type), "id", sizeof(char)*0x2) == 0x0) && strlen(type->token[0x0].typeName)) {
-								sprintf(ivarName, "\t%s %s%s;\n",type->token[0x0].typeName,pointer,cls->ivar[i].name);
+								sprintf(ivarName, "\t%s %s%s",type->token[0x0].typeName,pointer,cls->ivar[i].name);
 							} else {
-								sprintf(ivarName, "\t%s %s %s%s;\n",type->token[0x0].type,type->token[0x0].typeName,pointer,cls->ivar[i].name);
+								if (type->token[0x0].typeName && strlen(type->token[0x0].typeName)) {
+									sprintf(ivarName, "\t%s %s %s%s",type->token[0x0].type,type->token[0x0].typeName,pointer,cls->ivar[i].name);
+								} else {
+									sprintf(ivarName, "\t%s %s%s",type->token[0x0].type,pointer,cls->ivar[i].name);
+								}
+							}
+							if (type->token[0x0].arrayCount) {
+								sprintf(ivarName, "%s[%i]",ivarName,type->token[0x0].arrayCount);
 							}
 						} else {
 							ivarName = calloc(0x1, sizeof(char)*(strlen(cls->ivar[i].name)+0x5+strlen(pointer)+strlen(type->token[0x0].type)));
-							sprintf(ivarName, "\t%s %s%s;\n",type->token[0x0].type,pointer,cls->ivar[i].name);
+							sprintf(ivarName, "\t%s %s%s%s",ivarName,type->token[0x0].type,pointer,cls->ivar[i].name);
+							if (type->token[0x0].arrayCount) {
+								sprintf(ivarName, "%s[%i]",ivarName,type->token[0x0].arrayCount);
+							}
 						}
+						sprintf(ivarName, "%s;\n",ivarName);
 						FWRITE_STRING_TO_FILE(ivarName, file);
 						free(ivarName);
 						free(pointer);

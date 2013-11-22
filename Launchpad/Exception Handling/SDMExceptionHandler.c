@@ -139,6 +139,7 @@ void SignalHandler(int signal) {
 			break;
 		};
 	}
+	exit(0);
 }
 
 void SignalHandlerSetup() {

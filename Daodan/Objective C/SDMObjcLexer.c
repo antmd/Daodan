@@ -105,9 +105,12 @@ struct SDMSTRange SDMSTObjcStackSize(char *type, uint64_t offset, uint64_t *stac
 }
 
 char* SDMSTObjcPointersForToken(struct SDMSTObjcLexerToken *token) {
-	char *pointers = calloc(token->pointerCount+0x1, sizeof(char));
-	for (uint32_t i = 0x0; i < token->pointerCount; i++) {
-		sprintf(pointers,"%s*",pointers);
+	char *pointers = calloc(0x1, sizeof(char)*(token->pointerCount+1));
+	if (token->pointerCount) {
+		uint32_t i = 0x0;
+		for (i = 0x0; i < token->pointerCount; i++) {
+			pointers = strcat(pointers, "*");
+		}
 	}
 	return pointers;
 }
@@ -170,6 +173,22 @@ struct SDMSTRange SDMSTObjcGetStructContentsRange(char *type, uint64_t offset) {
 			stack++;
 		}
 		if (strncmp(&(type[offset+counter]), kObjcStructTokenEnd, sizeof(char)) == 0x0) {
+			stack--;
+		}
+		counter++;
+	}
+	counter--;
+	return SDMSTRangeMake((uintptr_t)offset, counter);
+}
+
+struct SDMSTRange SDMSTObjcGetArrayContentsRange(char *type, uint64_t offset) {
+	uint64_t stack = 0x1;
+	uint64_t counter = 0x0;
+	while (stack != 0x0) {
+		if (strncmp(&(type[offset+counter]), kObjcArrayTokenStart, sizeof(char)) == 0x0) {
+			stack++;
+		}
+		if (strncmp(&(type[offset+counter]), kObjcArrayTokenEnd, sizeof(char)) == 0x0) {
 			stack--;
 		}
 		counter++;
@@ -332,7 +351,37 @@ struct SDMSTObjcType* SDMSTObjcDecodeType(char *type) {
 						decode->tokenCount++;
 					}
 					if (strncmp(&(type[offset]), kObjcArrayTokenStart, sizeof(char)) == 0x0) {
-						
+						uint64_t next = offset+0x1;
+						uint64_t stackSize;
+						struct SDMSTRange stackRange = SDMSTObjcStackSize(type, next, &stackSize);
+						decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
+						decode->token[decode->tokenCount].typeClass = ObjcArrayEncoding;
+						decode->token[decode->tokenCount].arrayCount = (uint32_t)stackSize;
+						next += stackRange.length;
+						struct SDMSTRange arrayTypeRange = SDMSTObjcGetArrayContentsRange(type, next);
+						char *arrayTypeString = calloc(0x1, sizeof(char)*(uint32_t)(arrayTypeRange.length+0x1));
+						memcpy(arrayTypeString, &(type[arrayTypeRange.offset]), arrayTypeRange.length);
+						struct SDMSTObjcType *arrayType = SDMSTObjcDecodeType(arrayTypeString);
+						char *typeAssignment = ObjcTypeEncodingNames[SDMObjcLexerConvertTokenToIndex(ObjcUnknownEncoding)];
+						if (arrayType->token[arrayType->tokenCount].type) {
+							typeAssignment = arrayType->token[arrayType->tokenCount].type;
+						}
+						uint32_t typeLength = (uint32_t)strlen(typeAssignment);
+
+						decode->token[decode->tokenCount].type = calloc(0x1, sizeof(char)*(typeLength+0x1));
+						memcpy(decode->token[decode->tokenCount].type, typeAssignment, typeLength);
+
+						decode->token[decode->tokenCount].childrenCount = 0x1;
+						decode->token[decode->tokenCount].children = calloc(0x1, sizeof(struct SDMSTObjcLexerToken));
+						memcpy(decode->token[decode->tokenCount].children, &(arrayType->token[0x0]), sizeof(struct SDMSTObjcLexerToken));
+						uint64_t arrayTypeNameLength = strlen(arrayType->token[0x0].typeName);
+						char *name = calloc(0x1, sizeof(char)*((uint32_t)arrayTypeNameLength+0x1));
+						memcpy(name, arrayType->token[0x0].typeName, arrayTypeNameLength);
+						decode->token[decode->tokenCount].typeName = name;
+						parsedLength += arrayTypeRange.length + stackRange.length;
+						free(arrayType);
+						free(arrayTypeString);
+						decode->tokenCount++;
 					}
 				}
 			}

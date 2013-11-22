@@ -88,6 +88,7 @@ struct SDMSTObjcLexerToken {
 	struct SDMSTObjcLexerToken *children;
 	uint32_t childrenCount;
 	uint32_t pointerCount;
+	uint32_t arrayCount;
 } ATR_PACK SDMSTObjcLexerToken;
 
 struct SDMSTObjcType {

@@ -341,16 +341,16 @@ void setupDaodanMachPort() {
 	}
 }
 
-void setupDaodanControllerMachPort(pid_t chrysalisPID) {
+void setupDaodanControllerMachPort(pid_t controllerPID) {
 	vm_map_t task = mach_task_self();
 	mach_port_t target;
 	// get pid and store here
-	kern_return_t taskResult = task_for_pid(task, chrysalisPID, &target);
+	kern_return_t taskResult = task_for_pid(task, controllerPID, &target);
 	if (taskResult == KERN_SUCCESS) {
 		// do stuff
-		SDMPrint(PrintCode_OK,"Successfully called task_for_pid(%i) back to DaodanController",chrysalisPID);
+		SDMPrint(PrintCode_OK,"Successfully called task_for_pid(%i) back to DaodanController",controllerPID);
 	} else {
-		SDMPrint(PrintCode_ERR,"Unable to attach task_for_pid(%i), error: %s.",chrysalisPID,mach_error_string(taskResult));
+		SDMPrint(PrintCode_ERR,"Unable to attach task_for_pid(%i), error: %s.",controllerPID,mach_error_string(taskResult));
 		SDMPrint(PrintCode_ERR,"Please relaunch using Launchpad");
 	}
 }
@@ -401,7 +401,7 @@ void initDaodan() {
 			SDMPrint(PrintCode_TRY,"Registering notify listeners for DaodanController...");
 			setupDaodanControllerNotificationListeners();
 			setupDaodanMachPort();
-			setupDaodanControllerMachPort(384);
+			//setupDaodanControllerMachPort(384);
 		}
 	}
 }
