@@ -165,7 +165,7 @@ char* SDMSTObjcCreateMethodDescription(struct SDMSTObjcType *type, char *name) {
 	return description;
 }
 
-struct SDMSTRange SDMSTObjcGetRangeFromTokens(char *startToken, char *endToken, char *buffer, uint64_t offset) {
+struct SDMSTRange SDMSTObjcGetRangeFromTokens(char *startToken, char *endToken, char *type, uint64_t offset) {
 	uint64_t stack = 0x1;
 	uint64_t counter = 0x0;
 	while (stack != 0x0) {
