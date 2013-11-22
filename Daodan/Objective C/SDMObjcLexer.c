@@ -366,9 +366,10 @@ uint32_t SDMSTParseToken(struct SDMSTObjcType *decode, char *type, uint64_t offs
 				decode->token[decode->tokenCount].children = calloc(structContents->tokenCount, sizeof(struct SDMSTObjcLexerToken));
 				for (uint32_t i = 0x0; i < structContents->tokenCount; i++) {
 					struct SDMSTObjcLexerToken *child = &(decode->token[decode->tokenCount].children[i]);
-					printf("%s %s\n",structContents->token[i].type,structContents->token[i].typeName);
+					struct SDMSTObjcLexerToken *structMember = &(structContents->token[i]);
+					memcpy(child, structMember, sizeof(struct SDMSTObjcLexerToken));
 				}
-				free(contents);
+				free(structContents);
 				parsedLength = (uint32_t)contentsRange.length + 0x1;
 				decode->tokenCount++;
 			}
