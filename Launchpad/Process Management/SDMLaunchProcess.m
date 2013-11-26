@@ -82,7 +82,6 @@ void launchNewProcess(int argc, const char *argv[]) {
 			execl(argv[0x2], argv[0x2], NULL);
 		}
 	} else {
-		
 		mach_port_t task;
 		int status = acquireTaskForPortRight();
 		if (status == 0x0) {
@@ -124,6 +123,7 @@ void launchNewProcess(int argc, const char *argv[]) {
 							exit(0xffffffff);
 						} else {
 							printf("Successfully launched new process! %s\n",argv[0x2]);
+							CFRunLoopRun();
 						}
 					} else {
 						printf("thread_get_state failed. %s\n",mach_error_string(result));

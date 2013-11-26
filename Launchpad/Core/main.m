@@ -33,7 +33,6 @@ uint64_t iAmLaunchPad(int argc, const char *argv[]) {
 				if (strcmp(argv[0x1], "--inject") == 0) {
 					if (hasInject) {
 						launchNewProcess(argc, argv);
-						CFRunLoopRun();
 					} else {
 						spawnLaunchpad(argc, argv);
 						notify_post(GenerateLaunchpadKillswitchName());

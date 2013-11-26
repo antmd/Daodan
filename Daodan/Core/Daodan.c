@@ -245,9 +245,9 @@ void setupDaodanControllerNotificationListeners() {
 		}
 	}
 	if (statusOK) {
-		SDMPrint(PrintCode_OK,"Successfully registered notify listeners");
+		SDMFormatPrint(false,PrintCode_OK,"Successfully registered notify listeners");
 	} else {
-		SDMPrint(PrintCode_ERR,"Unable to registery notify listeners, Daodan will be unable to communicate with DaodanController");
+		SDMFormatPrint(false,PrintCode_ERR,"Unable to registery notify listeners, Daodan will be unable to communicate with DaodanController");
 	}
 }
 
@@ -324,9 +324,9 @@ void setupDaodanMachPort() {
 			mach_port_deallocate(mach_task_self(), portSend);
 		});
 		dispatch_resume(dispatchSend);
-		SDMPrint(PrintCode_OK,"Successfully acquired local mach port for sending");
+		SDMFormatPrint(false,PrintCode_OK,"Successfully acquired local mach port for sending");
 	} else {
-		SDMPrint(PrintCode_ERR,"Send mach port setup failed");
+		SDMFormatPrint(false,PrintCode_ERR,"Send mach port setup failed");
 	}
 	
 	kern_return_t resultPortRecieve = mach_port_allocate(task, MACH_PORT_RIGHT_RECEIVE, &portReceive);
@@ -341,12 +341,12 @@ void setupDaodanMachPort() {
 			dispatch_release(dispatchReceiveQueue);
 			dispatch_release(dispatchReceive);
 			mach_port_deallocate(mach_task_self(), portReceive);
-			SDMPrint(PrintCode_OK,"Releasing receive port handler");
+			SDMFormatPrint(false,PrintCode_OK,"Releasing receive port handler");
 		});
 		dispatch_resume(dispatchReceive);
-		SDMPrint(PrintCode_OK,"Successfully acquired local mach port for receiving");
+		SDMFormatPrint(false,PrintCode_OK,"Successfully acquired local mach port for receiving");
 	} else {
-		SDMPrint(PrintCode_ERR,"Receive mach port setup failed");
+		SDMFormatPrint(false,PrintCode_ERR,"Receive mach port setup failed");
 	}
 }
 
@@ -357,10 +357,10 @@ void setupDaodanControllerMachPort(pid_t controllerPID) {
 	kern_return_t taskResult = task_for_pid(task, controllerPID, &target);
 	if (taskResult == KERN_SUCCESS) {
 		// do stuff
-		SDMPrint(PrintCode_OK,"Successfully called task_for_pid(%i) back to DaodanController",controllerPID);
+		SDMFormatPrint(false,PrintCode_OK,"Successfully called task_for_pid(%i) back to DaodanController",controllerPID);
 	} else {
-		SDMPrint(PrintCode_ERR,"Unable to attach task_for_pid(%i), error: %s.",controllerPID,mach_error_string(taskResult));
-		SDMPrint(PrintCode_ERR,"Please relaunch using Launchpad");
+		SDMFormatPrint(false,PrintCode_ERR,"Unable to attach task_for_pid(%i), error: %s.",controllerPID,mach_error_string(taskResult));
+		SDMFormatPrint(false,PrintCode_ERR,"Please relaunch using Launchpad");
 	}
 }
 
@@ -395,22 +395,22 @@ void initDaodan() {
 	if (result != k32BitMask) {
 		binaryTable = SDMSTLoadLibrary((char*)_dyld_get_image_name(result), result, false);
 	} else {
-		SDMPrint(PrintCode_ERR,"Could not find an executable binary image.");
+		SDMFormatPrint(false,PrintCode_ERR,"Could not find an executable binary image.");
 	}
-	if (!binaryTable->couldLoad) {
-		SDMPrint(PrintCode_ERR,"Could not load the MachO file, unloading Daodan now...");
+	if (!(binaryTable->couldLoad)) {
+		SDMFormatPrint(false,PrintCode_ERR,"Could not load the MachO file, unloading Daodan now...");
 		unloadDaodan();
 	} else {
 		SDMDaodanSetupExceptionHandler();
 		bool foundLaunchpad = locateLaunchpad();
 		if (foundLaunchpad) {
+			SDMFormatPrint(false,PrintCode_NTR,"Unloading");
 			unloadDaodan();
 		} else {
-			dumpDaodan();
-			SDMPrint(PrintCode_TRY,"Registering notify listeners for DaodanController...");
+			SDMFormatPrint(false,PrintCode_TRY,"Registering notify listeners for DaodanController...");
 			setupDaodanControllerNotificationListeners();
 			setupDaodanMachPort();
-			//setupDaodanControllerMachPort(384);
+			setupDaodanControllerMachPort(181);
 		}
 	}
 }
@@ -425,9 +425,9 @@ uintptr_t daodanLookupFunction(char *name) {
 	SDMPrint(PrintCode_TRY,"Looking up function with name: %s",name);
 	struct SDMSTFunction *symbol = SDMSTCreateFunction(binaryTable, name);
 	if (symbol->offset) {
-		SDMPrint(PrintCode_OK,"Successfully found symbol!");
+		SDMFormatPrint(false,PrintCode_OK,"Successfully found symbol!");
 	} else {
-		SDMPrint(PrintCode_ERR,"Could not find symbol with name \"%s\".",name);
+		SDMFormatPrint(false,PrintCode_ERR,"Could not find symbol with name \"%s\".",name);
 	}
 	return (uintptr_t)(symbol->offset);
 }
