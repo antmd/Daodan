@@ -37,7 +37,7 @@
 #pragma mark -
 #pragma mark Color Codes
 
-#define UseColorCodes true // SDM: Xcode console doesn't like these, but they work fine in a terminal
+#define UseColorCodes false // SDM: Xcode console doesn't like these, but they work fine in a terminal
 #define COLOR_NRM  "\x1B[0m"
 #define COLOR_RED  "\x1B[31m"
 #define COLOR_GRN  "\x1B[32m"
@@ -62,11 +62,14 @@ enum SDMPrintCodes {
 	PrintCode_OK = 0x1,
 	PrintCode_TRY = 0x2,
 	PrintCode_ERR = 0x3,
-	PrintCode_NTR = 0x4
+	PrintCode_NTR = 0x4,
+	PrintCode_ProgName = 0x5,
+	PrintCode_LogLib = 0x6,
+	PrintCode_Norm = 0x7
 };
 
-#define SDMPrintCodeColor(code) (UseColorCodes ? (code == PrintCode_OK ? COLOR_GRN : (code == PrintCode_TRY ? COLOR_YEL : (code == PrintCode_ERR ? COLOR_RED : (code == PrintCode_NTR ? COLOR_MAG : COLOR_BLU)))) : "")
-#define SDMPrintCode(code) (code == PrintCode_OK ? "OK!" : (code == PrintCode_TRY ? "TRY" : (code == PrintCode_ERR ? "ERR" : (code == PrintCode_NTR ? "NTR" : "???"))))
+#define SDMPrintCodeColor(code) (UseColorCodes ? (code == PrintCode_OK ? COLOR_GRN : (code == PrintCode_TRY ? COLOR_YEL : (code == PrintCode_ERR ? COLOR_RED : (code == PrintCode_NTR ? COLOR_MAG : (code == PrintCode_ProgName ? COLOR_CYN : (code == PrintCode_LogLib ? COLOR_BLU : COLOR_NRM)))))) : "")
+#define SDMPrintCode(code) (code == PrintCode_OK ? "OK!" : (code == PrintCode_TRY ? "TRY" : (code == PrintCode_ERR ? "ERR" : (code == PrintCode_NTR ? "NTR" : (code == PrintCode_ProgName ? getprogname() : (code == PrintCode_LogLib ? LoggingLibraryName : (code == PrintCode_Norm ? "" : "???")))))))
 
 #define LoggingLibrary true
 #ifdef LoggingLibrary
@@ -77,11 +80,11 @@ enum SDMPrintCodes {
 	if (silent) { \
 		printf(""); \
 	} else { \
-		printf("[%s%s%s]",COLOR_CYN,getprogname(),COLOR_NRM); \
+		printf("[%s%s%s]",SDMPrintCodeColor(PrintCode_ProgName),SDMPrintCode(PrintCode_ProgName),SDMPrintCodeColor(PrintCode_Norm)); \
 		if (LoggingLibrary) { \
-		printf("[%s%s%s]",COLOR_BLU,LoggingLibraryName,COLOR_NRM); \
+		printf("[%s%s%s]",SDMPrintCodeColor(PrintCode_LogLib),SDMPrintCode(PrintCode_LogLib),SDMPrintCodeColor(PrintCode_Norm)); \
 		} \
-		printf("[%s%s%s] ",SDMPrintCodeColor(code),SDMPrintCode(code),(UseColorCodes ? COLOR_NRM : "")); \
+		printf("[%s%s%s] ",SDMPrintCodeColor(code),SDMPrintCode(code),SDMPrintCodeColor(PrintCode_Norm)); \
 		printf(__VA_ARGS__); \
 		printf("\n"); \
 	}
@@ -109,7 +112,8 @@ struct SDMSTRange {
 	uint64_t length;
 } ATR_PACK SDMSTRange;
 
-typedef uintptr_t* (*Pointer)();
+typedef uintptr_t* Pointer;
+typedef uintptr_t* (*FunctionPointer)();
 
 
 #pragma mark -
@@ -118,6 +122,8 @@ typedef uintptr_t* (*Pointer)();
 #define k32BitMask 0xffffffff
 #define SDMSTCastSmallPointer(a) (*(uintptr_t*)&(a))
 
+#define SDMSwapEndian16(num) ((num<<8) | (num>>8))
+#define SDMSwapEndian32(num) (((num>>24)&0xff) | ((num<<8)&0xff0000) | ((num>>8)&0xff00) |((num<<24)&0xff000000))
 
 #pragma mark -
 #pragma mark Functions

@@ -68,7 +68,7 @@ struct SDMSTSeg64Data {
 	uint64_t fileoff;
 } ATR_PACK SDMSTSeg64Data;
 
-typedef Pointer SDMSTFunctionCall;
+typedef FunctionPointer SDMSTFunctionCall;
 
 struct SDMSTFunction {
 	char *name;
@@ -135,12 +135,18 @@ struct SDMSTLibrary {
 } ATR_PACK SDMSTLibrary;
 
 struct SDMSTBinary {
-	uintptr_t *arch;
+	Pointer arch;
 	uint32_t archCount;
+	Pointer handle;
 } ATR_PACK SDMSTBinary;
 
 #pragma mark -
 #pragma mark Declarations
+
+struct SDMSTBinary* SDMSTLoadBinaryFromFilePath(char *path);
+void SDMSTBinaryRelease(struct SDMSTBinary *binary);
+
+void SDMSTDumpBinaryArch(char *path, Pointer handle, bool silent);
 
 struct SDMSTLibrary* SDMSTLoadLibrary(char *path, uint32_t index, bool silent);
 struct SDMSTFunction* SDMSTCreateFunction(struct SDMSTLibrary *libTable, char *name);

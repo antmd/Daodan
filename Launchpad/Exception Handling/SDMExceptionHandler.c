@@ -190,7 +190,7 @@ void* exception_server(void *exceptionPort) {
 		((mach_msg_header_t*)msg)->msgh_size = bodySize;
 		rt = mach_msg((mach_msg_header_t*)msg, MACH_RCV_MSG, 0x0, bodySize, taskPort, 0x0, MACH_PORT_NULL);
 		if (rt != KERN_SUCCESS) {
-			printf("recv: %08x %s\n",rt,mach_error_string(rt));
+			//printf("recv: %08x %s\n",rt,mach_error_string(rt));
 		}
 		
 		struct SDMSTLibraryArchitecture arch = SDMSTGetArchitecture();
@@ -202,7 +202,7 @@ void* exception_server(void *exceptionPort) {
 		
 		rt = mach_msg((mach_msg_header_t*)reply, MACH_SEND_MSG, ((mach_msg_header_t*)reply)->msgh_size, 0x0, ((mach_msg_header_t*)msg)->msgh_local_port, 0x0, MACH_PORT_NULL);
 		if (rt != KERN_SUCCESS) {
-			printf("send: %08x %s\n",rt,mach_error_string(rt));
+			//printf("send: %08x %s\n",rt,mach_error_string(rt));
 		}
 	}
 	printf("leaving handler");

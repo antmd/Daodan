@@ -52,6 +52,17 @@
 		22CEB4E0182FDF57001C5A38 /* SDMObjcRuntime.c in Sources */ = {isa = PBXBuildFile; fileRef = 223C2B0D182FD817001BE2F1 /* SDMObjcRuntime.c */; };
 		22CEB4E1182FE888001C5A38 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2295903D18217F01006E985D /* CoreFoundation.framework */; };
 		22CEB4E3182FE8C3001C5A38 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22CEB4E2182FE8C3001C5A38 /* Foundation.framework */; };
+		22FB57A5184ABC6300E3E938 /* DaodanStore.c in Sources */ = {isa = PBXBuildFile; fileRef = 2295909B1822EAE8006E985D /* DaodanStore.c */; };
+		22FB57A6184ABC8800E3E938 /* decode.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60A91822FD080052A1FF /* decode.c */; };
+		22FB57A7184ABC8800E3E938 /* input.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60AC1822FD080052A1FF /* input.c */; };
+		22FB57A8184ABC8800E3E938 /* itab.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60AE1822FD080052A1FF /* itab.c */; };
+		22FB57A9184ABC8800E3E938 /* syn-att.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60B01822FD080052A1FF /* syn-att.c */; };
+		22FB57AA184ABC8800E3E938 /* syn-intel.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60B11822FD080052A1FF /* syn-intel.c */; };
+		22FB57AB184ABC8800E3E938 /* syn.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60B21822FD080052A1FF /* syn.c */; };
+		22FB57AC184ABC8800E3E938 /* udis86.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60B61822FD080052A1FF /* udis86.c */; };
+		22FB57AD184ABC8800E3E938 /* disasm.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60A61822FD080052A1FF /* disasm.c */; };
+		22FB57AE184ABC8800E3E938 /* arm_decode.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60A41822FD080052A1FF /* arm_decode.c */; };
+		22FB57AF184ABC8800E3E938 /* Daodan.c in Sources */ = {isa = PBXBuildFile; fileRef = 22C17BBD17EF49B800800C71 /* Daodan.c */; };
 		22FD60B81822FD080052A1FF /* arm_decode.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60A41822FD080052A1FF /* arm_decode.c */; };
 		22FD60B91822FD080052A1FF /* arm_decode.h in Headers */ = {isa = PBXBuildFile; fileRef = 22FD60A51822FD080052A1FF /* arm_decode.h */; };
 		22FD60BA1822FD080052A1FF /* disasm.c in Sources */ = {isa = PBXBuildFile; fileRef = 22FD60A61822FD080052A1FF /* disasm.c */; };
@@ -516,6 +527,17 @@
 			attributes = {
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = "Sam Marshall";
+				TargetAttributes = {
+					224D442418303C9300FEEDCA = {
+						DevelopmentTeam = 329DAD2G44;
+					};
+					2295903018217B0B006E985D = {
+						DevelopmentTeam = 329DAD2G44;
+					};
+					22C17BB517EF49A700800C71 = {
+						DevelopmentTeam = 329DAD2G44;
+					};
+				};
 			};
 			buildConfigurationList = 22C17BB117EF49A700800C71 /* Build configuration list for PBXProject "Daodan" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -561,6 +583,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				22FB57A6184ABC8800E3E938 /* decode.c in Sources */,
+				22FB57A7184ABC8800E3E938 /* input.c in Sources */,
+				22FB57A8184ABC8800E3E938 /* itab.c in Sources */,
+				22FB57A9184ABC8800E3E938 /* syn-att.c in Sources */,
+				22FB57AA184ABC8800E3E938 /* syn-intel.c in Sources */,
+				22FB57AB184ABC8800E3E938 /* syn.c in Sources */,
+				22FB57AC184ABC8800E3E938 /* udis86.c in Sources */,
+				22FB57AD184ABC8800E3E938 /* disasm.c in Sources */,
+				22FB57AE184ABC8800E3E938 /* arm_decode.c in Sources */,
+				22FB57AF184ABC8800E3E938 /* Daodan.c in Sources */,
+				22FB57A5184ABC6300E3E938 /* DaodanStore.c in Sources */,
 				22CEB4DF182FDF57001C5A38 /* SDMObjcLexer.c in Sources */,
 				22CEB4E0182FDF57001C5A38 /* SDMObjcRuntime.c in Sources */,
 				224D43FB18300A4900FEEDCA /* SDMExceptionHandler.c in Sources */,
@@ -636,6 +669,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_IDENTITY = "Developer ID Application: S M (329DAD2G44)";
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "DaodanTemplate/DaodanTemplate-Prefix.pch";
@@ -649,6 +683,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SDKROOT = macosx;
 				WRAPPER_EXTENSION = bundle;
 			};
@@ -658,6 +693,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_IDENTITY = "Developer ID Application: S M (329DAD2G44)";
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "DaodanTemplate/DaodanTemplate-Prefix.pch";
@@ -666,6 +702,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SDKROOT = macosx;
 				WRAPPER_EXTENSION = bundle;
 			};
@@ -675,6 +712,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_IDENTITY = "Developer ID Application: S M (329DAD2G44)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -685,6 +723,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-Wl,-sectcreate,__TEXT,__info_plist,Launchpad/Info-Launchpad.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SDKROOT = macosx10.8;
 			};
 			name = Debug;
@@ -693,12 +732,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_IDENTITY = "Developer ID Application: S M (329DAD2G44)";
+				GCC_OPTIMIZATION_LEVEL = 0;
 				LIBRARY_SEARCH_PATHS = "";
 				MACH_O_TYPE = mh_execute;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-Wl,-sectcreate,__TEXT,__info_plist,Launchpad/Info-Launchpad.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SDKROOT = macosx10.8;
 			};
 			name = Release;
@@ -734,7 +776,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = NO;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "Developer ID Application";
+				CODE_SIGN_IDENTITY = "Developer ID Application: S M (329DAD2G44)";
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -789,7 +831,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = NO;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "Developer ID Application";
+				CODE_SIGN_IDENTITY = "Developer ID Application: S M (329DAD2G44)";
 				COPY_PHASE_STRIP = YES;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -825,6 +867,7 @@
 		22C17BBB17EF49A700800C71 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "Developer ID Application: S M (329DAD2G44)";
 				DEAD_CODE_STRIPPING = YES;
 				EXECUTABLE_PREFIX = lib;
 				OTHER_LDFLAGS = (
@@ -836,12 +879,14 @@
 					"-Wl,-sectcreate,__TEXT,__info_plist,Daodan/Info-Daodan.plist",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
 		};
 		22C17BBC17EF49A700800C71 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "Developer ID Application: S M (329DAD2G44)";
 				DEAD_CODE_STRIPPING = YES;
 				EXECUTABLE_PREFIX = lib;
 				OTHER_LDFLAGS = (
@@ -853,6 +898,7 @@
 					"-Wl,-sectcreate,__TEXT,__info_plist,Daodan/Info-Daodan.plist",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
 		};

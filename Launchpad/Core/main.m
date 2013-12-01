@@ -8,9 +8,20 @@
 
 #include "SDMLaunchProcess.h"
 #include "SDMExceptionHandler.h"
+#include "SDMSymbolTable.h"
+#include "DaodanStore.h"
 #include <Foundation/Foundation.h>
 
 static int launchpad_notify_token;
+
+uint64_t SDMLaunchpadDisplayHelp() {
+    printf("Usage: Launchpad\n");
+    printf("\t--inject [application]\n");
+    printf("\t\tInject libDaodan into the target application.\n\n");
+    printf("\t--dump [application]\n");
+    printf("\t\tDump the target application using libDaodan.\n\n");
+    return 0x0;
+}
 
 void SDMLaunchpadSetupKillswitch() {
 	char *killswitch = GenerateLaunchpadKillswitchName();
@@ -23,26 +34,35 @@ uint64_t iAmLaunchPad(int argc, const char *argv[]) {
 	uint64_t me = kiAmLaunchPad;
 	if ((argc != 0x0) && (argc > 0x1)) {
 		SDMLaunchpadSetupKillswitch();
-		SDMDaodanSetupExceptionHandler();
 		if (me == kiAmLaunchPad) {
 			NSString *hasInject = [[[NSProcessInfo processInfo] environment] objectForKey:@kDYLD_INSERT_LIBRARIES];
 			if ((strcmp(argv[0x1], "-h") == 0) || (strcmp(argv[0x1], "--help") == 0)) {
-				printf("Usage: Launchpad --inject [application]\n");
+				me = SDMLaunchpadDisplayHelp();
 			}
 			if (argc == 0x3) {
-				if (strcmp(argv[0x1], "--inject") == 0) {
+				if (strcmp(argv[0x1], "--inject") == 0x0) {
+                    SDMDaodanSetupExceptionHandler();
 					if (hasInject) {
 						launchNewProcess(argc, argv);
 					} else {
 						spawnLaunchpad(argc, argv);
 						notify_post(GenerateLaunchpadKillswitchName());
 					}
-				}
+				} else if (strcmp(argv[0x1], "--dump") == 0x0) {
+					char *path = (char*)argv[0x2];
+                    struct SDMSTBinary *binaryTable = SDMSTLoadBinaryFromFilePath(path);
+					for (uint32_t i = 0x0; i < binaryTable->archCount; i++) {
+						SDMSTDumpBinaryArch(path, (Pointer)((char*)(binaryTable->handle))+(uint64_t)(binaryTable->arch[i]), false);
+					}
+					SDMSTBinaryRelease(binaryTable);
+                }
 			}
 		} else {
 			printf("Invalid Launchpad.\n");
 		}
-	}
+	} else {
+        me = SDMLaunchpadDisplayHelp();
+    }
 	return me;
 }
 

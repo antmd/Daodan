@@ -50,9 +50,9 @@ void SDMSTBuildLibraryInfo(struct SDMSTLibrary *libTable, bool silent);
 int SDMSTCompareTableEntries(const void *entry1, const void *entry2);
 void SDMSTFindSubroutines(struct SDMSTLibrary *libTable, bool silent);
 void SDMSTGenerateSortedSymbolTable(struct SDMSTLibrary *libTable, bool silent);
-struct SDMSTBinary* SDMSTLoadBinaryFromFile(void* handle);
+struct SDMSTBinary* SDMSTLoadBinaryFromFile(Pointer handle);
 void SDMSTBinaryRelease(struct SDMSTBinary *binary);
-uintptr_t* SDMSTGetCurrentArchFromBinary(struct SDMSTBinary *binary);
+Pointer SDMSTGetCurrentArchFromBinary(struct SDMSTBinary *binary);
 bool SMDSTSymbolDemangleAndCompare(char *symFromTable, char *symbolName);
 SDMSTFunctionCall SDMSTSymbolLookup(struct SDMSTLibrary *libTable, char *symbolName);
 void SDMSTFindFunctionAddress(uint8_t **fPointer, struct SDMSTLibrary *libTable);
@@ -82,65 +82,71 @@ void SDMSTBuildLibraryInfo(struct SDMSTLibrary *libTable, bool silent) {
 		libTable->libInfo->mhOffset = (uintptr_t*)imageHeader;
 	}
 	struct mach_header *libHeader = (struct mach_header *)((char*)libTable->libInfo->mhOffset);
-	if (libTable->libInfo->headerMagic == libHeader->magic) {
-		if (libTable->libInfo->symtabCommands == NULL) {
-			struct load_command *loadCmd = (struct load_command *)((char*)libTable->libInfo->mhOffset + (libTable->libInfo->is64bit ? sizeof(struct mach_header_64) : sizeof(struct mach_header)));
-			libTable->libInfo->symtabCommands = (struct symtab_command *)calloc(0x1, sizeof(struct symtab_command));
-			libTable->libInfo->symtabCount = 0x0;
-			libTable->dependency = (struct SDMSTDependency *)calloc(0x1, sizeof(struct SDMSTDependency));
-			libTable->dependencyCount = 0x0;
-			libTable->libInfo->functCmd = NULL;
-			libTable->libInfo->objcSeg = NULL;
-			for (uint32_t i = 0x0; i < libHeader->ncmds; i++) {
-				switch (loadCmd->cmd) {
-					case LC_SYMTAB: {
-						libTable->libInfo->symtabCommands = realloc(libTable->libInfo->symtabCommands, (libTable->libInfo->symtabCount+0x1)*sizeof(struct symtab_command));
-						libTable->libInfo->symtabCommands[libTable->libInfo->symtabCount] = *(struct symtab_command *)loadCmd;
-						libTable->libInfo->symtabCount++;
-						break;
-					};
-					case LC_SEGMENT:
-					case LC_SEGMENT_64: {
-						struct SDMSTSegmentEntry *seg = (struct SDMSTSegmentEntry *)loadCmd;
-						if ((libTable->libInfo->textSeg == NULL) && !strncmp(SEG_TEXT,seg->segname,sizeof(seg->segname))) {
-							libTable->libInfo->textSeg = (struct SDMSTSegmentEntry *)seg;
+	if ((libHeader->cputype != CPU_TYPE_POWERPC && libHeader->cputype != CPU_TYPE_POWERPC64) && (SDMSwapEndian32(libHeader->cputype) != CPU_TYPE_POWERPC && SDMSwapEndian32(libHeader->cputype) != CPU_TYPE_POWERPC64)) {
+		if (libTable->libInfo->headerMagic == libHeader->magic) {
+			if (libTable->libInfo->symtabCommands == NULL) {
+				struct load_command *loadCmd = (struct load_command *)(((char*)libHeader) + (uint64_t)(libTable->libInfo->is64bit ? sizeof(struct mach_header_64) : sizeof(struct mach_header)));
+				if (loadCmd != NULL) {
+					libTable->libInfo->symtabCommands = (struct symtab_command *)calloc(0x1, sizeof(struct symtab_command));
+					libTable->libInfo->symtabCount = 0x0;
+					libTable->dependency = (struct SDMSTDependency *)calloc(0x1, sizeof(struct SDMSTDependency));
+					libTable->dependencyCount = 0x0;
+					libTable->libInfo->functCmd = NULL;
+					libTable->libInfo->objcSeg = NULL;
+					for (uint32_t i = 0x0; i < libHeader->ncmds; i++) {
+						switch (loadCmd->cmd) {
+							case LC_SYMTAB: {
+								libTable->libInfo->symtabCommands = realloc(libTable->libInfo->symtabCommands, (libTable->libInfo->symtabCount+0x1)*sizeof(struct symtab_command));
+								libTable->libInfo->symtabCommands[libTable->libInfo->symtabCount] = *(struct symtab_command *)loadCmd;
+								libTable->libInfo->symtabCount++;
+								break;
+							};
+							case LC_SEGMENT:
+							case LC_SEGMENT_64: {
+								struct SDMSTSegmentEntry *seg = (struct SDMSTSegmentEntry *)loadCmd;
+								if ((libTable->libInfo->textSeg == NULL) && !strncmp(SEG_TEXT,seg->segname,sizeof(seg->segname))) {
+									libTable->libInfo->textSeg = (struct SDMSTSegmentEntry *)seg;
+								}
+								if ((libTable->libInfo->linkSeg == NULL) && !strncmp(SEG_LINKEDIT,seg->segname,sizeof(seg->segname))) {
+									libTable->libInfo->linkSeg = (struct SDMSTSegmentEntry *)seg;
+								}
+								if (libTable->libInfo->is64bit) {
+									if ((libTable->libInfo->objcSeg == NULL) && !strncmp(SEG_DATA, seg->segname, sizeof(seg->segname))) {
+										libTable->libInfo->objcSeg = (struct SDMSTSegmentEntry *)seg;
+									}
+								} else {
+									if ((libTable->libInfo->objcSeg == NULL) && !strncmp(SEG_OBJC, seg->segname, sizeof(seg->segname))) {
+										libTable->libInfo->objcSeg = (struct SDMSTSegmentEntry *)seg;
+									}
+								}
+								break;
+							};
+							case LC_LOAD_DYLIB: {
+								struct dylib_command *linkedLibrary = (struct dylib_command *)loadCmd;
+								if (loadCmd+linkedLibrary->dylib.name.offset) {
+									SDMFormatPrint(silent,PrintCode_OK,"Found Dependency: %s",(char*)loadCmd+linkedLibrary->dylib.name.offset);
+									libTable->dependency = (struct SDMSTDependency *)realloc(libTable->dependency, sizeof(struct SDMSTDependency)*(libTable->dependencyCount+0x1));
+									libTable->dependency[libTable->dependencyCount].loadCmd = (uintptr_t)loadCmd;
+									libTable->dependency[libTable->dependencyCount].dyl = *linkedLibrary;
+									libTable->dependencyCount++;
+								}
+								break;
+							};
+							case LC_FUNCTION_STARTS: {
+								libTable->libInfo->functCmd = (struct SDMSTFunctionCommand *)loadCmd;
+								break;
+							};
+							default: {
+								break;
+							};
 						}
-						if ((libTable->libInfo->linkSeg == NULL) && !strncmp(SEG_LINKEDIT,seg->segname,sizeof(seg->segname))) {
-							libTable->libInfo->linkSeg = (struct SDMSTSegmentEntry *)seg;
-						}
-						if (libTable->libInfo->is64bit) {
-							if ((libTable->libInfo->objcSeg == NULL) && !strncmp(SEG_DATA, seg->segname, sizeof(seg->segname))) {
-								libTable->libInfo->objcSeg = (struct SDMSTSegmentEntry *)seg;
-							}
-						} else {
-							if ((libTable->libInfo->objcSeg == NULL) && !strncmp(SEG_OBJC, seg->segname, sizeof(seg->segname))) {
-								libTable->libInfo->objcSeg = (struct SDMSTSegmentEntry *)seg;
-							}
-						}
-						break;
-					};
-					case LC_LOAD_DYLIB: {
-						struct dylib_command *linkedLibrary = (struct dylib_command *)loadCmd;
-						if (loadCmd+linkedLibrary->dylib.name.offset) {
-							SDMFormatPrint(silent,PrintCode_OK,"Found Dependency: %s",(char*)loadCmd+linkedLibrary->dylib.name.offset);
-							libTable->dependency = (struct SDMSTDependency *)realloc(libTable->dependency, sizeof(struct SDMSTDependency)*(libTable->dependencyCount+0x1));
-							libTable->dependency[libTable->dependencyCount].loadCmd = (uintptr_t)loadCmd;
-							libTable->dependency[libTable->dependencyCount].dyl = *linkedLibrary;
-							libTable->dependencyCount++;
-						}
-						break;
-					};
-					case LC_FUNCTION_STARTS: {
-						libTable->libInfo->functCmd = (struct SDMSTFunctionCommand *)loadCmd;
-						break;
-					};
-					default: {
-						break;
-					};
+						loadCmd = (struct load_command *)(((char*)loadCmd) + ((uint32_t)(loadCmd->cmdsize)));
+					}
 				}
-				loadCmd = (struct load_command *)((char*)loadCmd + loadCmd->cmdsize);
 			}
 		}
+	} else {
+		libTable->libInfo = NULL;
 	}
 }
 
@@ -474,21 +480,36 @@ void SDMSTMapBinary(struct SDMSTLibrary *libTable, bool silent) {
 	SDMSTMapSymbolsToSubroutines(libTable, silent);
 }
 
-struct SDMSTBinary* SDMSTLoadBinaryFromFile(void* handle) {
+struct SDMSTBinary* SDMSTLoadBinaryFromFilePath(char *path) {
 	struct SDMSTBinary *binary = (struct SDMSTBinary *)calloc(0x1, sizeof(struct SDMSTBinary));
 	binary->arch = (uintptr_t *)calloc(0x1, sizeof(uintptr_t));
 	binary->archCount = 0x0;
-	struct fat_header *header = handle;
-	for (uint32_t i = 0x0; i < header->nfat_arch; i++) {
-		struct fat_arch *arch = (handle+(i*sizeof(struct fat_arch)));
-		binary->arch = realloc(binary->arch, (binary->archCount+0x1)*sizeof(uintptr_t));
-		binary->arch[i] = arch->offset;
-		binary->archCount++;
+	struct stat fs;
+	int statResult = stat(path, &fs);
+	if (statResult == 0x0) {
+		int fd = open(path, O_RDONLY);
+		if (fd != k32BitMask) {
+			uint32_t size = (uint32_t)fs.st_size;
+			binary->handle = (Pointer)calloc(0x1, size);
+			read(fd, binary->handle, size);
+			close(fd);
+		}
+		struct fat_header *header = (struct fat_header *)((char*)binary->handle);
+		if (header) {
+			uint32_t archCount = SDMSwapEndian32(header->nfat_arch);
+			for (uint32_t i = 0x0; i < archCount; i++) {
+				struct fat_arch *arch = (struct fat_arch *)(((char*)header+sizeof(struct fat_header)+(i*sizeof(struct fat_arch))));
+				binary->arch = realloc(binary->arch, (binary->archCount+0x1)*sizeof(uintptr_t));
+				binary->arch[i] = SDMSwapEndian32(arch->offset);
+				binary->archCount++;
+			}
+		}
 	}
 	return binary;
 }
 
 void SDMSTBinaryRelease(struct SDMSTBinary *binary) {
+	free(binary->handle);
 	free(binary->arch);
 	free(binary);
 }
@@ -513,25 +534,41 @@ struct SDMSTLibraryArchitecture SDMSTGetArchitecture() {
 	return cpuArch;
 }
 
-uintptr_t* SDMSTGetCurrentArchFromBinary(struct SDMSTBinary *binary) {
-	uintptr_t *offset = NULL;
+Pointer SDMSTGetCurrentArchFromBinary(struct SDMSTBinary *binary) {
+	Pointer offset = NULL;
 	if (binary) {
 		struct SDMSTLibraryArchitecture arch = SDMSTGetArchitecture();
 		for (uint32_t i = 0x0; i < binary->archCount; i++) {
 			struct mach_header *header = (struct mach_header *)(binary->arch[i]);
 			if (header->cputype == arch.type) {
-				offset = (uintptr_t *)header;
+				offset = (Pointer)header;
 			}
 		}
 	}
 	return offset;
 }
 
+void SDMSTDumpBinaryArch(char *path, Pointer handle, bool silent) {
+	struct SDMSTLibrary *table = (struct SDMSTLibrary *)calloc(0x1, sizeof(struct SDMSTLibrary));
+	table->libraryPath = path;
+	table->libraryHandle = (uintptr_t*)handle;
+	table->libInfo = NULL;
+	table->table = NULL;
+	table->symbolCount = 0x0;
+	SDMSTBuildLibraryInfo(table, silent);
+	if (table->libInfo) {
+		SDMSTGenerateSortedSymbolTable(table, silent);
+		SDMSTFindSubroutines(table, silent);
+		SDMSTMapBinary(table, silent);
+	}
+	SDMSTLibraryRelease(table);
+}
+
 struct SDMSTLibrary* SDMSTLoadLibrary(char *path, uint32_t index, bool silent) {
 	struct SDMSTLibrary *table = (struct SDMSTLibrary *)calloc(0x1, sizeof(struct SDMSTLibrary));
 	bool inMemory = false;
 	char *imagePath;
-	void* handle = NULL;
+	Pointer handle = NULL;
 	uint32_t count = _dyld_image_count();
 	for (uint32_t index = 0x0; index < count; index++) {
 		if (_dyld_get_image_name(index)) {
@@ -548,8 +585,8 @@ struct SDMSTLibrary* SDMSTLoadLibrary(char *path, uint32_t index, bool silent) {
 		}
 	}
 	if (!inMemory) {
-		handle = dlopen(path, RTLD_LOCAL);
-		if (!handle) {
+		Pointer dlhandle = dlopen(path, RTLD_LOCAL);
+		if (!dlhandle) {
 			SDMFormatPrint(silent,PrintCode_ERR,"Code: %s Unable to load library at path: %s", dlerror(), path);
 			SDMFormatPrint(silent,PrintCode_TRY,"Attempting to manually load and map...");
 			table->couldLoad = false;
@@ -558,11 +595,9 @@ struct SDMSTLibrary* SDMSTLoadLibrary(char *path, uint32_t index, bool silent) {
 			if (statResult == 0x0) {
 				int fd = open(path, O_RDONLY);
 				if (fd != k32BitMask) {
-					uint32_t header = 0xdeadbeef;
-					read(fd, &header, sizeof(uint32_t));
 					uint32_t size = (uint32_t)fs.st_size;
-					uint32_t offset = 0x0;
-					handle = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, offset);
+					handle = (Pointer)calloc(0x1, size);
+					read(fd, handle, size);
 					close(fd);
 				}
 			}
@@ -572,15 +607,15 @@ struct SDMSTLibrary* SDMSTLoadLibrary(char *path, uint32_t index, bool silent) {
 		table->couldLoad = true;
 		table->librarySize = 0x0;
 	}
-	if (handle || inMemory) {
-		uint32_t header = (uint32_t)(handle);
+	if ((handle || inMemory) && handle != NULL) {
+		uint32_t header = (uint32_t)(*handle);
 		if (header == FAT_MAGIC || header == FAT_CIGAM) {
 			struct SDMSTBinary *binary = SDMSTLoadBinaryFromFile(handle);
 			handle = SDMSTGetCurrentArchFromBinary(binary);
 			SDMSTBinaryRelease(binary);
 		}
 		table->libraryPath = path;
-		table->libraryHandle = handle;
+		table->libraryHandle = (uintptr_t*)handle;
 		table->libInfo = NULL;
 		table->table = NULL;
 		table->symbolCount = 0x0;
@@ -648,8 +683,6 @@ void SDMSTLibraryRelease(struct SDMSTLibrary *libTable) {
 	free(libTable->subroutine);
 	if (libTable->couldLoad) {
 		dlclose(libTable->libraryHandle);
-	} else {
-		munmap(libTable->libraryHandle, (size_t)libTable->librarySize);
 	}
 	free(libTable);
 }
