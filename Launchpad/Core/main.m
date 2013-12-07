@@ -51,8 +51,15 @@ uint64_t iAmLaunchPad(int argc, const char *argv[]) {
 				} else if (strcmp(argv[0x1], "--dump") == 0x0) {
 					char *path = (char*)argv[0x2];
                     struct SDMSTBinary *binaryTable = SDMSTLoadBinaryFromFilePath(path);
+					uint64_t binaryOffset = 0x0;
 					for (uint32_t i = 0x0; i < binaryTable->archCount; i++) {
-						SDMSTDumpBinaryArch(path, (Pointer)((char*)(binaryTable->handle))+(uint64_t)(binaryTable->arch[i]), false);
+						Pointer archOffset = (Pointer)(((char*)(binaryTable->handle))+(uint64_t)(binaryTable->arch[i]));
+						struct SDMSTLibrary *libTable = SDMSTDumpBinaryArch(path, archOffset, binaryOffset, false);
+						if (libTable) {
+							SDMDaodanWriteDump(libTable);
+							SDMSTLibraryRelease(libTable);
+						}
+						binaryOffset = (uint64_t)(binaryTable->arch[i]);
 					}
 					SDMSTBinaryRelease(binaryTable);
                 }
@@ -67,6 +74,7 @@ uint64_t iAmLaunchPad(int argc, const char *argv[]) {
 }
 
 int main(int argc, const char *argv[]) {
-	return (int)iAmLaunchPad(argc, argv);
+	int returnValue = (int)iAmLaunchPad(argc, argv);
+	return returnValue;
 }
 
