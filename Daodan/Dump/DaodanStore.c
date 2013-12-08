@@ -152,7 +152,7 @@ void SDMDaodanWriteSubroutine(struct SDMSTSubroutine *subroutine, struct SDMSTRa
 	if (range.length) {
 		SDM_disasm_setbuffer(disasm, range.offset, range.length);
 		while (SDM_disasm_parse(disasm)) {
-			char *line = (char*)ud_insn_asm(&(disasm->obj));
+			char *line = Ptr(ud_insn_asm(&(disasm->obj)));
 			char *printLine = calloc(0x1, sizeof(char)*(strlen(line)+0x3));
 			sprintf(printLine,"\t%s\n",line);
 			FWRITE_STRING_TO_FILE(printLine, file);
@@ -368,7 +368,7 @@ void SDMDaodanWriteDump(struct SDMSTLibrary *libTable) {
 	}
 	/*
 	for (uint32_t i = 0x0; i < libTable->dependencyCount; i++) {
-		char *imagePath = (char*)(libTable->dependency[i].loadCmd+(libTable->dependency[i].dyl.dylib.name.offset));
+		char *imagePath = Ptr((libTable->dependency[i].loadCmd+(libTable->dependency[i].dyl.dylib.name.offset)));
 		SDMDaodanWriteDumpForImage(linkStore, imagePath, true);
 	}
 	*/

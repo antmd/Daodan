@@ -124,6 +124,7 @@
 		224D442B18303C9400FEEDCA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		224D442D18303C9400FEEDCA /* DaodanTemplate-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DaodanTemplate-Prefix.pch"; sourceTree = "<group>"; };
 		224D443318303D1F00FEEDCA /* SDMDaodanInjection_Template.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDMDaodanInjection_Template.c; sourceTree = "<group>"; };
+		228391CE1854514E00101F50 /* Pointer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Pointer.h; sourceTree = "<group>"; };
 		2295903118217B0B006E985D /* Launchpad */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Launchpad; sourceTree = BUILT_PRODUCTS_DIR; };
 		2295903318217B0B006E985D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		2295903D18217F01006E985D /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
@@ -304,6 +305,7 @@
 			children = (
 				22C17BC717EF83E500800C71 /* SDMHeader.h */,
 				223C2B0A182AFA15001BE2F1 /* SDMHeader.c */,
+				228391CE1854514E00101F50 /* Pointer.h */,
 			);
 			path = Core;
 			sourceTree = "<group>";

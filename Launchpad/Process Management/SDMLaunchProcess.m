@@ -117,7 +117,7 @@ void launchNewProcess(int argc, const char *argv[]) {
 						result = thread_get_state(threadList[0x0], x86_THREAD_STATE32, (thread_state_t)&state, &stateCount);
 					}
 					if (result == KERN_SUCCESS) {
-						long ptraceResult = ptrace(PT_CONTINUE, child, (char*)0x1, 0x0);
+						long ptraceResult = ptrace(PT_CONTINUE, child, Ptr(0x1), 0x0);
 						if (ptraceResult != 0x0) {
 							printf("PT_CONTINUE failed.\n");
 							exit(0xffffffff);

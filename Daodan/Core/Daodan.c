@@ -393,7 +393,7 @@ void initDaodan() {
 	_dyld_register_func_for_remove_image(SDMRemoveImageHook);
 	uint32_t result = daodanExecutableImageIndex = SDMGetExecuteImage();
 	if (result != k32BitMask) {
-		binaryTable = SDMSTLoadLibrary((char*)_dyld_get_image_name(result), result, false);
+		binaryTable = SDMSTLoadLibrary(Ptr(_dyld_get_image_name(result)), result, false);
 	} else {
 		SDMFormatPrint(false,PrintCode_ERR,"Could not find an executable binary image.");
 	}
@@ -435,7 +435,7 @@ uintptr_t daodanLookupFunction(char *name) {
 void daodanLoadSymbolTableForImage(uint32_t index) {
 	if (binaryTable)
 		SDMSTLibraryRelease(binaryTable);
-	binaryTable = SDMSTLoadLibrary((char*)_dyld_get_image_name(index),index, false);
+	binaryTable = SDMSTLoadLibrary(Ptr(_dyld_get_image_name(index)),index, false);
 }
 
 uint32_t SDMGetIndexForLibraryPath(char *path) {

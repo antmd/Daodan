@@ -49,11 +49,11 @@ uint64_t iAmLaunchPad(int argc, const char *argv[]) {
 						notify_post(GenerateLaunchpadKillswitchName());
 					}
 				} else if (strcmp(argv[0x1], "--dump") == 0x0) {
-					char *path = (char*)argv[0x2];
+					char *path = Ptr(argv[0x2]);
                     struct SDMSTBinary *binaryTable = SDMSTLoadBinaryFromFilePath(path);
 					uint64_t binaryOffset = 0x0;
 					for (uint32_t i = 0x0; i < binaryTable->archCount; i++) {
-						Pointer archOffset = (Pointer)(((char*)(binaryTable->handle))+(uint64_t)(binaryTable->arch[i]));
+						Pointer archOffset = (Pointer)PtrAdd(binaryTable->handle, binaryTable->arch[i]);
 						struct SDMSTLibrary *libTable = SDMSTDumpBinaryArch(path, archOffset, binaryOffset, false);
 						if (libTable) {
 							SDMDaodanWriteDump(libTable);
