@@ -16,13 +16,13 @@ typedef uintptr_t* (*FunctionPointer)();
 #define k64BitMask 0xffffffffffffffff
 #define k64BitMaskHigh 0xffffffff00000000
 #define k64BitMaskLow 0x00000000ffffffff
-#define PtrCastSmallPointer(a) (*(uintptr_t*)&(a))
+#define PtrCastSmallPointer(a) (*(Pointer)&(a))
 #define PtrHighPointer(a) (a & k64BitMaskHigh)
 #define PtrLowPointer(a) (a & k64BitMaskLow)
 
 #define Ptr(ptr) PtrCast(ptr,char*)
 #define PtrCast(ptr, cast) ((cast)ptr)
-#define PtrAdd(ptr, add) ((char*)ptr + (uint64_t)add)
-#define PtrSub(ptr, sub) ((char*)ptr - (uint64_t)sub)
+#define PtrAdd(ptr, add) (Ptr(ptr) + (uint64_t)add)
+#define PtrSub(ptr, sub) (Ptr(ptr) - (uint64_t)sub)
 
 #endif
