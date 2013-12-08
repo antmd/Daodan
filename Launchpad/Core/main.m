@@ -62,6 +62,7 @@ uint64_t iAmLaunchPad(int argc, const char *argv[]) {
 						binaryOffset = (uint64_t)(binaryTable->arch[i]);
 					}
 					SDMSTBinaryRelease(binaryTable);
+					me = 0x0;
                 }
 			}
 		} else {
