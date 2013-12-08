@@ -109,39 +109,40 @@ void SDMSTObjc1CreateClassFromSymbol(Pointer libTable, struct SDMSTObjc *objcDat
 	}
 }
 
-struct SDMSTObjcClass* SDMSTObjc2ClassCreateFromClass(struct SDMSTObjc2Class *cls, struct SDMSTObjc2Class *parentClass, struct SDMSTRange dataRange) {
+struct SDMSTObjcClass* SDMSTObjc2ClassCreateFromClass(struct SDMSTObjc2Class *cls, struct SDMSTObjc2Class *parentClass, struct SDMSTRange dataRange, uint64_t offset) {
 	struct SDMSTObjcClass *newClass = calloc(0x1, sizeof(struct SDMSTObjcClass));
 	if (cls != parentClass) {
-		if (((uint64_t)(cls->isa) >= dataRange.offset) && ((uint64_t)(cls->isa) < (dataRange.offset + dataRange.length))) {
-			newClass->superCls = SDMSTObjc2ClassCreateFromClass((cls->isa),cls, dataRange);
-			newClass->className = (char*)((struct SDMSTObjc2ClassData *)(cls->data)->name);
+		if ((((char*)offset + (uint64_t)(cls->isa)) >= (char*)(dataRange.offset)) && (((char*)offset + (uint64_t)(cls->isa)) < ((char*)(offset) + (dataRange.offset + dataRange.length)))) {
+			newClass->superCls = SDMSTObjc2ClassCreateFromClass((cls->isa),cls, dataRange, offset);
+			struct SDMSTObjc2ClassData *data = (struct SDMSTObjc2ClassData *)((char*)cls->data + (uint64_t)offset);
+			newClass->className = (char*)((char*)data->name + offset);
 			
-			struct SDMSTObjc2ClassIVarInfo *ivarInfo = ((struct SDMSTObjc2ClassIVarInfo*)(cls->data->ivar));
-			if (ivarInfo) {
+			struct SDMSTObjc2ClassIVarInfo *ivarInfo = ((struct SDMSTObjc2ClassIVarInfo*)(data->ivar + offset));
+			if (ivarInfo && (uint64_t)ivarInfo != offset) {
 				newClass->ivarCount = ivarInfo->count;
 				newClass->ivar = calloc(newClass->ivarCount, sizeof(struct SDMSTObjcIVar));
 				struct SDMSTObjc2ClassIVar *ivarOffset = (struct SDMSTObjc2ClassIVar *)((uint64_t)ivarInfo + (uint64_t)sizeof(struct SDMSTObjc2ClassIVarInfo));
 				for (uint32_t i = 0x0; i < newClass->ivarCount; i++) {
-					newClass->ivar[i].name = (char*)(ivarOffset[i].name);
-					newClass->ivar[i].type = (char*)(ivarOffset[i].type);
+					newClass->ivar[i].name = (char*)(offset + ivarOffset[i].name);
+					newClass->ivar[i].type = (char*)(offset + ivarOffset[i].type);
 					newClass->ivar[i].offset = (uintptr_t)(ivarOffset[i].offset);
 				}
 			}
 			
-			struct SDMSTObjc2ClassMethodInfo *methodInfo = ((struct SDMSTObjc2ClassMethodInfo*)(cls->data->method));
-			if (methodInfo) {
+			struct SDMSTObjc2ClassMethodInfo *methodInfo = ((struct SDMSTObjc2ClassMethodInfo*)(data->method + offset));
+			if (methodInfo && (uint64_t)methodInfo != offset) {
 				newClass->methodCount = methodInfo->count;
 				newClass->method = calloc(newClass->methodCount, sizeof(struct SDMSTObjcMethod));
 				struct SDMSTObjc2ClassMethod *methodOffset = (struct SDMSTObjc2ClassMethod *)((uint64_t)methodInfo + (uint64_t)sizeof(struct SDMSTObjc2ClassMethodInfo));
 				for (uint32_t i = 0x0; i < newClass->methodCount; i++) {
-					newClass->method[i].name = (char*)(methodOffset[i].name);
-					newClass->method[i].type = (char*)(methodOffset[i].type);
+					newClass->method[i].name = (char*)(offset + methodOffset[i].name);
+					newClass->method[i].type = (char*)(offset + methodOffset[i].type);
 					newClass->method[i].offset = (uintptr_t)(methodOffset[i].imp);
 				}
 			}
 			
-			struct SDMSTObjc2ClassProtcolInfo *protocolInfo = ((struct SDMSTObjc2ClassProtcolInfo*)(cls->data->protocol));
-			if (protocolInfo) {
+			struct SDMSTObjc2ClassProtcolInfo *protocolInfo = ((struct SDMSTObjc2ClassProtcolInfo*)(data->protocol + offset));
+			if (protocolInfo && (uint64_t)protocolInfo != offset) {
 				newClass->protocolCount = (uint32_t)(protocolInfo->count);
 				newClass->protocol = calloc(newClass->protocolCount, sizeof(struct SDMSTObjcProtocol));
 				struct SDMSTObjc2ClassProtocol *protocolOffset = (struct SDMSTObjc2ClassProtocol *)((uint64_t)protocolInfo + (uint64_t)sizeof(struct SDMSTObjc2ClassProtcolInfo));

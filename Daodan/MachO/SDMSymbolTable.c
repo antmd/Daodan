@@ -455,7 +455,8 @@ bool SDMSTMapObjcClasses64(struct SDMSTLibrary *libTable, bool silent) {
 		} else {
 			memOffset = (uint64_t)(libTable->libInfo->mhOffset);// - libTable->libInfo->binaryOffset;
 		}
-		struct SDMSTRange dataRange = SDMSTRangeMake((uintptr_t)((uint64_t)(dataSeg->vmaddr&k32BitMask)+((uint64_t)memOffset)),dataSeg->vmsize);
+		memOffset = memOffset & k32BitMask;
+		struct SDMSTRange dataRange = SDMSTRangeMake((uintptr_t)((uint64_t)(dataSeg->vmaddr)+((uint64_t)memOffset)),dataSeg->vmsize);
 		struct section_64 *section = (struct section_64 *)((uint64_t)(dataSeg)+(uint64_t)sizeof(struct segment_command_64));
 		uint32_t sectionCount = (dataSeg)->nsects;
 		for (uint32_t i = 0x0; i < sectionCount; i++) {
@@ -469,9 +470,9 @@ bool SDMSTMapObjcClasses64(struct SDMSTLibrary *libTable, bool silent) {
 		if (objcData->clsCount) {
 			objcData->cls = calloc(objcData->clsCount, sizeof(struct SDMSTObjcClass));
 			for (uint32_t i = 0x0; i < objcData->clsCount; i++) {
-				uint64_t *classes = (uint64_t*)(((uint64_t)(section->addr)&k32BitMask)+((uint64_t)(memOffset)));
-				struct SDMSTObjc2Class *cls = (struct SDMSTObjc2Class *)(classes[i]);
-				struct SDMSTObjcClass *objclass = SDMSTObjc2ClassCreateFromClass(cls, 0x0, dataRange);
+				uint64_t *classes = (uint64_t*)(((uint64_t)(section->addr))+((uint64_t)(memOffset)));
+				struct SDMSTObjc2Class *cls = (struct SDMSTObjc2Class *)((char*)(memOffset) + (uint64_t)classes[i]);
+				struct SDMSTObjcClass *objclass = SDMSTObjc2ClassCreateFromClass(cls, 0x0, dataRange, memOffset);
 				memcpy(&(objcData->cls[i]), objclass, sizeof(struct SDMSTObjcClass));
 				free(objclass);
 			}
