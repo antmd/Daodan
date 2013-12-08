@@ -117,7 +117,7 @@ char* SDMSTObjcPointersForToken(struct SDMSTObjcLexerToken *token) {
 
 struct SDMSTRange SDMSTObjcGetTokenRangeFromOffset(char *type, uint64_t offset, char *token) {
 	uint64_t counter = 0x0;
-	while (strncmp(&(type[offset+counter]), token, strlen(token)) != 0x0) {
+	while (strncmp(&(type[offset+counter]), token, strlen(token)) != 0x0 && offset+counter < strlen(type)) {
 		counter++;
 	}
 	return SDMSTRangeMake((uintptr_t)offset, counter);
@@ -195,7 +195,7 @@ struct SDMSTRange SDMSTObjcGetStructNameRange(char *contents, uint64_t offset) {
 }
 
 struct SDMSTObjcType* SDMSTMemberCountOfStructContents(char *structContents, struct SDMSTRange nameRange) {
-	return  SDMSTObjcDecodeTypeWithLength(structContents, nameRange.length);
+	return SDMSTObjcDecodeTypeWithLength(structContents, nameRange.length);
 }
 
 uint32_t SDMSTParseToken(struct SDMSTObjcType *decode, char *type, uint64_t offset) {
@@ -207,70 +207,86 @@ uint32_t SDMSTParseToken(struct SDMSTObjcType *decode, char *type, uint64_t offs
 			break;
 		}
 	}
-	if (index != k32BitMask) {
-		decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
+	if (index != k32BitMask && index < kObjcTypeEncodingCount) {
 		decode->token[decode->tokenCount].typeClass = SDMObjcLexerConvertIndexToToken(index);
 		decode->token[decode->tokenCount].type = ObjcTypeEncodingNames[index];
-		decode->token[decode->tokenCount].typeName = "";
+		if (decode->token[decode->tokenCount].typeName == 0x0) {
+			decode->token[decode->tokenCount].typeName = "";
+		}
 		switch (decode->token[decode->tokenCount].typeClass) {
 			case ObjcCharEncoding: {
 				decode->tokenCount++;
+				decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
 				break;
 			};
 			case ObjcIntEncoding: {
 				decode->tokenCount++;
+				decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
 				break;
 			};
 			case ObjcShortEncoding: {
 				decode->tokenCount++;
+				decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
 				break;
 			};
 			case ObjcLongEncoding: {
 				decode->tokenCount++;
+				decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
 				break;
 			};
 			case ObjcLLongEncoding: {
 				decode->tokenCount++;
+				decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
 				break;
 			};
 			case ObjcUCharEncoding: {
 				decode->tokenCount++;
+				decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
 				break;
 			};
 			case ObjcUIntEncoding: {
 				decode->tokenCount++;
+				decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
 				break;
 			};
 			case ObjcUShortEncoding: {
 				decode->tokenCount++;
+				decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
 				break;
 			};
 			case ObjcULongEncoding: {
 				decode->tokenCount++;
+				decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
 				break;
 			};
 			case ObjcULLongEncoding: {
 				decode->tokenCount++;
+				decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
 				break;
 			};
 			case ObjcFloatEncoding: {
 				decode->tokenCount++;
+				decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
 				break;
 			};
 			case ObjcDoubleEncoding: {
 				decode->tokenCount++;
+				decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
 				break;
 			};
 			case ObjcBoolEncoding: {
 				decode->tokenCount++;
+				decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
 				break;
 			};
 			case ObjcVoidEncoding: {
 				decode->tokenCount++;
+				decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
 				break;
 			};
 			case ObjcStringEncoding: {
 				decode->tokenCount++;
+				decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
 				break;
 			};
 			case ObjcIdEncoding: {
@@ -290,18 +306,22 @@ uint32_t SDMSTParseToken(struct SDMSTObjcType *decode, char *type, uint64_t offs
 					parsedLength += nameRange.length + 0x2;
 				}
 				decode->tokenCount++;
+				decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
 				break;
 			};
 			case ObjcClassEncoding: {
 				decode->tokenCount++;
+				decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
 				break;
 			};
 			case ObjcSelEncoding: {
 				decode->tokenCount++;
+				decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
 				break;
 			};
 			case ObjcBitEncoding: {
 				decode->tokenCount++;
+				decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
 				break;
 			};
 			case ObjcPointerEncoding: {
@@ -311,6 +331,7 @@ uint32_t SDMSTParseToken(struct SDMSTObjcType *decode, char *type, uint64_t offs
 			case ObjcUnknownEncoding: {
 				decode->token[decode->tokenCount].typeName = "";
 				decode->tokenCount++;
+				decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
 				break;
 			};
 			default: {
@@ -325,10 +346,10 @@ uint32_t SDMSTParseToken(struct SDMSTObjcType *decode, char *type, uint64_t offs
 		} else {
 			if (strncmp(&(type[offset]), kObjcNameTokenStart, sizeof(char)) == 0x0) {
 				struct SDMSTRange nameRange = SDMSTObjcGetTokenRangeFromOffset(type, offset+0x1, kObjcNameTokenEnd);
-				char *name = calloc(0x1, sizeof(char)*(uint32_t)nameRange.length);
+				char *name = calloc(0x1, sizeof(char)*((uint32_t)nameRange.length+0x100));
 				memcpy(name, &(type[nameRange.offset]), sizeof(char)*nameRange.length);
 				decode->token[decode->tokenCount].typeName = name;
-				parsedLength += (uint32_t)nameRange.length+0x1;
+				parsedLength += (uint32_t)nameRange.length + 0x1;
 			}
 			if (strncmp(&(type[offset]), kObjcPointerEncoding, sizeof(char)) == 0x0) {
 				decode->token[decode->tokenCount].pointerCount++;
@@ -342,11 +363,11 @@ uint32_t SDMSTParseToken(struct SDMSTObjcType *decode, char *type, uint64_t offs
 				decode->token[decode->tokenCount].typeClass = ObjcStructEncoding;
 				decode->token[decode->tokenCount].type = ObjcContainerTypeEncodingNames[0x0];
 				struct SDMSTRange contentsRange = SDMSTObjcGetStructContentsRange(type, next);
-				char *contents = calloc(0x1, sizeof(char)*((uint32_t)contentsRange.length+0x1));
+				char *contents = calloc(0x1, sizeof(char)*((uint32_t)contentsRange.length+0x100));
 				memcpy(contents, &(type[next]), contentsRange.length);
 				struct SDMSTRange nameRange = SDMSTObjcGetStructNameRange(contents, 0x0);
-				char *name = calloc(0x1, sizeof(char)*((uint32_t)nameRange.length+0x1));
-				memcpy(name, &(contents[nameRange.offset]), nameRange.length);
+				char *name = calloc(0x1, sizeof(char)*((uint32_t)nameRange.length+0x100));
+				memcpy(name, &(contents[nameRange.offset]), sizeof(char)*nameRange.length);
 				decode->token[decode->tokenCount].typeName = name;
 				
 				char *structContentString = &(contents[nameRange.offset+nameRange.length])+sizeof(char);
@@ -359,9 +380,10 @@ uint32_t SDMSTParseToken(struct SDMSTObjcType *decode, char *type, uint64_t offs
 					struct SDMSTObjcLexerToken *structMember = &(structContents->token[i]);
 					memcpy(child, structMember, sizeof(struct SDMSTObjcLexerToken));
 				}
-				free(structContents);
 				parsedLength = (uint32_t)contentsRange.length + 0x1;
+				free(structContents);
 				decode->tokenCount++;
+				decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
 			}
 			if (strncmp(&(type[offset]), kObjcArrayTokenStart, sizeof(char)) == 0x0) {
 				uint64_t next = offset+0x1;
@@ -395,6 +417,7 @@ uint32_t SDMSTParseToken(struct SDMSTObjcType *decode, char *type, uint64_t offs
 				free(arrayType);
 				free(arrayTypeString);
 				decode->tokenCount++;
+				decode->token = realloc(decode->token, sizeof(struct SDMSTObjcLexerToken)*(decode->tokenCount+0x1));
 			}
 		}
 	}
@@ -403,7 +426,7 @@ uint32_t SDMSTParseToken(struct SDMSTObjcType *decode, char *type, uint64_t offs
 
 struct SDMSTObjcType* SDMSTObjcDecodeTypeWithLength(char *type, uint64_t decodeLength) {
 	struct SDMSTObjcType *decode = calloc(0x1, sizeof(struct SDMSTObjcType));
-	decode->token = calloc(0x1, sizeof(struct SDMSTObjcLexerToken));
+	decode->token = (struct SDMSTObjcLexerToken*)calloc(0x1, sizeof(struct SDMSTObjcLexerToken));
 	uint64_t length = decodeLength;
 	if (length) {
 		uint64_t offset = 0x0;

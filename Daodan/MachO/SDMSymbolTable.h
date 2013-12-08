@@ -98,6 +98,7 @@ struct SDMSTLibraryTableInfo {
 	uint32_t headerMagic;
 	bool is64bit;
 	struct SDMSTLibraryArchitecture arch;
+	uint64_t binaryOffset;
 } ATR_PACK SDMSTLibraryTableInfo;
 
 struct SDMSTMachOSymbol {
@@ -146,7 +147,7 @@ struct SDMSTBinary {
 struct SDMSTBinary* SDMSTLoadBinaryFromFilePath(char *path);
 void SDMSTBinaryRelease(struct SDMSTBinary *binary);
 
-void SDMSTDumpBinaryArch(char *path, Pointer handle, bool silent);
+struct SDMSTLibrary* SDMSTDumpBinaryArch(char *path, Pointer handle, uint64_t binaryOffset, bool silent);
 
 struct SDMSTLibrary* SDMSTLoadLibrary(char *path, uint32_t index, bool silent);
 struct SDMSTFunction* SDMSTCreateFunction(struct SDMSTLibrary *libTable, char *name);

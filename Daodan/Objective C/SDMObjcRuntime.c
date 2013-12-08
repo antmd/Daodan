@@ -10,60 +10,65 @@
 #define Daodan_SDMObjcRuntime_c
 
 #include "SDMObjcRuntime.h"
+#include "SDMSymbolTable.h"
 
-struct SDMSTObjcClass* SDMSTObjc1CreateClassFromProtocol(struct SDMSTObjc *objcData, struct SDMSTObjc1Protocol *prot) {
+struct SDMSTObjcClass* SDMSTObjc1CreateClassFromProtocol(struct SDMSTObjc *objcData, struct SDMSTObjc1Protocol *prot, uint64_t offset) {
 	struct SDMSTObjcClass *newClass = calloc(0x1, sizeof(struct SDMSTObjcClass));
 	if (prot) {
-		newClass->className = (char*)SDMSTCastSmallPointer(prot->name);
+		newClass->className = (char*)((char*)offset + prot->name);
 	}
 	return newClass;
 }
 
-struct SDMSTObjcClass* SDMSTObjc1CreateClassFromCategory(struct SDMSTObjc *objcData, struct SDMSTObjc1Category *cat) {
+struct SDMSTObjcClass* SDMSTObjc1CreateClassFromCategory(struct SDMSTObjc *objcData, struct SDMSTObjc1Category *cat, uint64_t offset) {
 	struct SDMSTObjcClass *newClass = calloc(0x1, sizeof(struct SDMSTObjcClass));
 	if (cat) {
-		newClass->className = (char*)SDMSTCastSmallPointer(cat->name);
+		newClass->className = (char*)((char*)offset + cat->name);
 	}
 	return newClass;
 }
 
-struct SDMSTObjcClass* SDMSTObjc1CreateClassFromClass(struct SDMSTObjc *objcData, struct SDMSTObjc1Class *cls) {
+struct SDMSTObjcClass* SDMSTObjc1CreateClassFromClass(struct SDMSTObjc *objcData, struct SDMSTObjc1Class *cls, uint64_t offset) {
 	struct SDMSTObjcClass *newClass = calloc(0x1, sizeof(struct SDMSTObjcClass));
 	if (cls) {
 		if (cls->superClass != 0x0) {
-			if (cls->superClass != cls->isa) {
-				newClass->superCls = SDMSTObjc1CreateClassFromClass(objcData, (struct SDMSTObjc1Class *)SDMSTCastSmallPointer(cls->superClass));
+			bool isValidClass = SDMSTObjc1ValidClassCheck(((uint32_t)(cls->info)));
+			if (cls->superClass != cls->isa && isValidClass) {
+				struct SDMSTObjc1Class *objc1class = (struct SDMSTObjc1Class *)((char*)offset + cls->superClass);
+				newClass->superCls = SDMSTObjc1CreateClassFromClass(objcData, objc1class, offset);
+			} else if (isValidClass) {
+				newClass->superCls = (struct SDMSTObjcClass *)((char*)offset + cls->superClass);
 			} else {
-				newClass->superCls = (struct SDMSTObjcClass *)SDMSTCastSmallPointer(cls->superClass);
+				newClass->superCls = 0x0;
 			}
-			newClass->className = (char*)SDMSTCastSmallPointer(cls->name);
+			newClass->className = (char*)((char*)offset + cls->name);
 			
-			struct SDMSTObjc1ClassIVarInfo *ivarInfo = ((struct SDMSTObjc1ClassIVarInfo *)SDMSTCastSmallPointer(cls->ivars));
+			struct SDMSTObjc1ClassIVarInfo *ivarInfo = ((struct SDMSTObjc1ClassIVarInfo *)((char*)offset + cls->ivars));
 			if (ivarInfo) {
 				newClass->ivarCount = ivarInfo->count;
 				newClass->ivar = calloc(newClass->ivarCount, sizeof(struct SDMSTObjcIVar));
 				struct SDMSTObjc1ClassIVar *ivarOffset = (struct SDMSTObjc1ClassIVar *)((uint64_t)ivarInfo + (uint64_t)sizeof(struct SDMSTObjc1ClassIVarInfo));
 				for (uint32_t i = 0x0; i < newClass->ivarCount; i++) {
-					newClass->ivar[i].name = (char*)SDMSTCastSmallPointer(ivarOffset[i].name);
-					newClass->ivar[i].type = (char*)SDMSTCastSmallPointer(ivarOffset[i].type);
+					newClass->ivar[i].name = (char*)((char*)offset + ivarOffset[i].name);
+					newClass->ivar[i].type = (char*)((char*)offset + ivarOffset[i].type);
 					newClass->ivar[i].offset = (uintptr_t)(ivarOffset[i].offset);
 				}
 				
 			}
-			
-			struct SDMSTObjc1ClassMethodInfo *methodInfo = ((struct SDMSTObjc1ClassMethodInfo *)SDMSTCastSmallPointer(cls->methods));
-			if (methodInfo && (((uint64_t)methodInfo >= objcData->classRange.offset && (uint64_t)methodInfo < ( (uint64_t)(objcData->clsMRange.offset) + (uint64_t)objcData->clsMRange.length)) || ((uint64_t)methodInfo >= objcData->instMRange.offset && (uint64_t)methodInfo < ((uint64_t)(objcData->instMRange.offset) + (uint64_t)objcData->instMRange.length)))) {
+						
+			struct SDMSTObjc1ClassMethodInfo *methodInfo = ((struct SDMSTObjc1ClassMethodInfo *)((char*)offset + cls->methods));
+			if (methodInfo && (((uint64_t)methodInfo >= (uint64_t)((char*)SDMSTHighPointer(offset) + objcData->classRange.offset) && (uint64_t)methodInfo < (uint64_t)((char*)SDMSTHighPointer(offset) + ( (uint64_t)(objcData->clsMRange.offset) + (uint64_t)objcData->clsMRange.length))) || ((uint64_t)methodInfo >= (uint64_t)((char*)SDMSTHighPointer(offset) + objcData->instMRange.offset) && (uint64_t)methodInfo < (uint64_t)((char*)SDMSTHighPointer(offset) + ((uint64_t)(objcData->instMRange.offset) + (uint64_t)objcData->instMRange.length))))) {
 				newClass->methodCount = methodInfo->count;
 				newClass->method = calloc(newClass->methodCount, sizeof(struct SDMSTObjcMethod));
 				struct SDMSTObjc1ClassMethod *methodOffset = (struct SDMSTObjc1ClassMethod *)((uint64_t)methodInfo + (uint64_t)sizeof(struct SDMSTObjc1ClassMethodInfo));
 				for (uint32_t i = 0x0; i < newClass->methodCount; i++) {
-					newClass->method[i].name = (char*)SDMSTCastSmallPointer(methodOffset[i].name);
-					newClass->method[i].type = (char*)SDMSTCastSmallPointer(methodOffset[i].type);
+					newClass->method[i].name = (char*)((char*)offset + methodOffset[i].name);
+					newClass->method[i].type = (char*)((char*)offset + methodOffset[i].type);
 					newClass->method[i].offset = (uintptr_t)(methodOffset[i].imp);
 				}
 			}
 			
-			struct SDMSTObjc1Protocol *protocolInfo = ((struct SDMSTObjc1Protocol *)SDMSTCastSmallPointer(cls->protocols));
+			struct SDMSTObjc1Protocol *protocolInfo = ((struct SDMSTObjc1Protocol *)((char*)offset + cls->protocols));
 			if (protocolInfo) {
 				
 			}
@@ -72,24 +77,32 @@ struct SDMSTObjcClass* SDMSTObjc1CreateClassFromClass(struct SDMSTObjc *objcData
 	return newClass;
 }
 
-void SDMSTObjc1CreateClassFromSymbol(struct SDMSTObjc *objcData, struct SDMSTObjc1Symtab *symtab) {
+void SDMSTObjc1CreateClassFromSymbol(Pointer libTable, struct SDMSTObjc *objcData, struct SDMSTObjc1Symtab *symtab) {
 	if (symtab) {
 		uint32_t counter = symtab->catCount + symtab->classCount;
 		struct SDMSTObjc1SymtabDefinition *symbol = (struct SDMSTObjc1SymtabDefinition *)((uint64_t)(symtab) + (uint64_t)sizeof(struct SDMSTObjc1Symtab));
 		for (uint32_t i = 0x0; i < counter; i++) {
-			if ((symbol[i].defintion >= objcData->classRange.offset) && (symbol[i].defintion <= ((uint64_t)(objcData->classRange.offset) + (uint64_t)objcData->classRange.length))) {
-				objcData->cls = realloc(objcData->cls, sizeof(struct SDMSTObjcClass)*(objcData->clsCount+0x1));
-				struct SDMSTObjcClass *newClass = SDMSTObjc1CreateClassFromClass(objcData, ((struct SDMSTObjc1Class *)SDMSTCastSmallPointer(symbol[i].defintion)));
-				memcpy(&(objcData->cls[objcData->clsCount]), newClass, sizeof(struct SDMSTObjcClass));
-				free(newClass);
-				objcData->clsCount++;
+			uint64_t memOffset;
+			if (((struct SDMSTLibrary*)libTable)->couldLoad) {
+				memOffset = 0x0;
+			} else {
+				memOffset = (uint64_t)((char*)((struct SDMSTLibrary*)libTable)->libInfo->mhOffset - ((struct SDMSTLibrary*)libTable)->libInfo->binaryOffset);
 			}
-			if ((symbol[i].defintion >= objcData->catRange.offset) && (symbol[i].defintion <= ((uint64_t)(objcData->catRange.offset) + (uint64_t)objcData->catRange.length))) {
-				objcData->cls = realloc(objcData->cls, sizeof(struct SDMSTObjcClass)*(objcData->clsCount+0x1));
-				struct SDMSTObjcClass *newClass = SDMSTObjc1CreateClassFromCategory(objcData, ((struct SDMSTObjc1Category *)SDMSTCastSmallPointer(symbol[i].defintion)));
+			if ((((char*)memOffset + symbol[i].defintion) >= ((char*)SDMSTHighPointer(memOffset) + objcData->classRange.offset)) && (((char*)memOffset + symbol[i].defintion) <= ((char*)SDMSTHighPointer(memOffset) + ((uint64_t)(objcData->classRange.offset) + (uint64_t)objcData->classRange.length)))) {
+				struct SDMSTObjc1Class *objc1class = (struct SDMSTObjc1Class *)((char*)memOffset + symbol[i].defintion);
+				struct SDMSTObjcClass *newClass = SDMSTObjc1CreateClassFromClass(objcData, objc1class, memOffset);
 				memcpy(&(objcData->cls[objcData->clsCount]), newClass, sizeof(struct SDMSTObjcClass));
 				free(newClass);
 				objcData->clsCount++;
+				objcData->cls = realloc(objcData->cls, sizeof(struct SDMSTObjcClass)*(objcData->clsCount+0x1));
+			}
+			if ((((char*)memOffset + symbol[i].defintion) >= ((char*)SDMSTHighPointer(memOffset) + objcData->catRange.offset)) && (((char*)memOffset + symbol[i].defintion) <= ((char*)SDMSTHighPointer(memOffset) + ((uint64_t)(objcData->catRange.offset) + (uint64_t)objcData->catRange.length)))) {
+				struct SDMSTObjc1Category *objc1cat = (struct SDMSTObjc1Category *)((char*)memOffset + symbol[i].defintion);
+				struct SDMSTObjcClass *newClass = SDMSTObjc1CreateClassFromCategory(objcData, objc1cat, memOffset);
+				memcpy(&(objcData->cls[objcData->clsCount]), newClass, sizeof(struct SDMSTObjcClass));
+				free(newClass);
+				objcData->clsCount++;
+				objcData->cls = realloc(objcData->cls, sizeof(struct SDMSTObjcClass)*(objcData->clsCount+0x1));
 			}
 			symbol = (struct SDMSTObjc1SymtabDefinition *)((uint64_t)symbol + (uint64_t)sizeof(struct SDMSTObjc1SymtabDefinition));
 		}

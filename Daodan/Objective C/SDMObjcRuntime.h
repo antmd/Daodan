@@ -66,10 +66,31 @@ struct SDMSTObjc {
 	struct SDMSTRange instMRange;
 } ATR_PACK SDMSTObjc;
 
-struct SDMSTObjcClass* SDMSTObjc1CreateClassFromProtocol(struct SDMSTObjc *objcData, struct SDMSTObjc1Protocol *prot);
-struct SDMSTObjcClass* SDMSTObjc1CreateClassFromCategory(struct SDMSTObjc *objcData, struct SDMSTObjc1Category *cat);
-struct SDMSTObjcClass* SDMSTObjc1CreateClassFromClass(struct SDMSTObjc *objcData, struct SDMSTObjc1Class *cls);
-void SDMSTObjc1CreateClassFromSymbol(struct SDMSTObjc *objcData, struct SDMSTObjc1Symtab *symtab);
+#define CLS_CLASS               0x1
+#define CLS_META                0x2
+#define CLS_INITIALIZED         0x4
+#define CLS_POSING              0x8
+#define CLS_MAPPED              0x10
+#define CLS_FLUSH_CACHE         0x20
+#define CLS_GROW_CACHE          0x40
+#define CLS_NEED_BIND           0x80
+#define CLS_METHOD_ARRAY        0x100
+#define CLS_JAVA_HYBRID         0x200
+#define CLS_JAVA_CLASS          0x400
+#define CLS_INITIALIZING        0x800
+#define CLS_FROM_BUNDLE         0x1000
+#define CLS_HAS_CXX_STRUCTORS   0x2000
+#define CLS_NO_METHOD_ARRAY     0x4000
+#define CLS_HAS_LOAD_METHOD     0x8000
+#define CLS_CONSTRUCTING        0x10000
+#define CLS_EXT                 0x20000
+
+#define SDMSTObjc1ValidClassCheck(a) ((a | CLS_CLASS) == 0x0 || (a | CLS_META) == 0x0 || (a | CLS_INITIALIZED) == 0x0 || (a | CLS_POSING) == 0x0 || (a | CLS_MAPPED) == 0x0 || (a | CLS_FLUSH_CACHE) == 0x0 || (a | CLS_GROW_CACHE) == 0x0 || (a | CLS_NEED_BIND) == 0x0 || (a | CLS_METHOD_ARRAY) == 0x0 || (a | CLS_JAVA_HYBRID) == 0x0 || (a | CLS_JAVA_CLASS) == 0x0 || (a | CLS_INITIALIZING) == 0x0 || (a | CLS_FROM_BUNDLE) == 0x0 || (a | CLS_HAS_CXX_STRUCTORS) == 0x0 || (a | CLS_NO_METHOD_ARRAY) == 0x0 || (a | CLS_HAS_LOAD_METHOD) == 0x0 || (a | CLS_CONSTRUCTING) == 0x0 || (a | CLS_EXT) == 0x0)
+
+struct SDMSTObjcClass* SDMSTObjc1CreateClassFromProtocol(struct SDMSTObjc *objcData, struct SDMSTObjc1Protocol *prot, uint64_t offset);
+struct SDMSTObjcClass* SDMSTObjc1CreateClassFromCategory(struct SDMSTObjc *objcData, struct SDMSTObjc1Category *cat, uint64_t offset);
+struct SDMSTObjcClass* SDMSTObjc1CreateClassFromClass(struct SDMSTObjc *objcData, struct SDMSTObjc1Class *cls, uint64_t offset);
+void SDMSTObjc1CreateClassFromSymbol(Pointer libTable, struct SDMSTObjc *objcData, struct SDMSTObjc1Symtab *symtab);
 struct SDMSTObjcClass* SDMSTObjc2ClassCreateFromClass(struct SDMSTObjc2Class *cls, struct SDMSTObjc2Class *parentClass, struct SDMSTRange dataRange);
 
 #endif

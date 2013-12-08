@@ -74,7 +74,7 @@ void SDMSTBuildLibraryInfo(struct SDMSTLibrary *libTable, bool silent) {
 			}
 			imageHeader = _dyld_get_image_header(libTable->libInfo->imageNumber);
 		} else {
-			imageHeader = (struct mach_header *)libTable->libraryHandle;
+			imageHeader = (struct mach_header *)libTable->libraryHandle - libTable->libInfo->binaryOffset;
 		}
 		libTable->libInfo->headerMagic = imageHeader->magic;
 		libTable->libInfo->arch = (struct SDMSTLibraryArchitecture){imageHeader->cputype, imageHeader->cpusubtype};
@@ -200,6 +200,7 @@ void SDMSTFindSubroutines(struct SDMSTLibrary *libTable, bool silent) {
 		textSections = ((struct segment_command *)(libTable->libInfo->textSeg))->nsects;
 		pageZero = ((struct segment_command *)(libTable->libInfo->textSeg))->vmaddr;
 	}
+	libTable->libInfo->binaryOffset = pageZero;
 	uintptr_t textSectionOffset = (uintptr_t)(libTable->libInfo->textSeg);
 	if (libTable->libInfo->is64bit) {
 		textSectionOffset += sizeof(struct segment_command_64);
@@ -208,7 +209,13 @@ void SDMSTFindSubroutines(struct SDMSTLibrary *libTable, bool silent) {
 	}
 	if (libTable->libInfo->functCmd) {
 		hasLCFunctionStarts = true;
-		uintptr_t functionOffset = (uintptr_t)(libTable->libInfo->functCmd->offset+_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber)+pageZero);
+		uint64_t memOffset;
+		if (libTable->couldLoad) {
+			memOffset = _dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber);
+		} else {
+			memOffset = (uint64_t)(libTable->libInfo->mhOffset) - libTable->libInfo->binaryOffset;
+		}
+		uintptr_t functionOffset = (uintptr_t)(libTable->libInfo->functCmd->offset+memOffset+pageZero);
 		uint8_t *functionPointer = (uint8_t*)functionOffset;
 		while ((uintptr_t)functionPointer < (functionOffset + libTable->libInfo->functCmd->size)) {
 			SDMSTFindFunctionAddress(&functionPointer, libTable);
@@ -216,29 +223,40 @@ void SDMSTFindSubroutines(struct SDMSTLibrary *libTable, bool silent) {
 	}
 	if (libTable->libInfo->arch.type == CPU_TYPE_X86_64 || libTable->libInfo->arch.type == CPU_TYPE_I386) {
 		for (uint32_t i = 0x0; i < textSections; i++) {
+			uint64_t memOffset;
+			if (libTable->couldLoad) {
+				memOffset = _dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber);
+			} else {
+				memOffset = (uint64_t)(libTable->libInfo->mhOffset) - libTable->libInfo->binaryOffset;
+			}
 			if (libTable->libInfo->is64bit) {
 				flags = ((struct section_64 *)(textSectionOffset))->flags;
 				size = ((struct section_64 *)(textSectionOffset))->size;
-				address = ((struct section_64 *)(textSectionOffset))->addr + _dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber);
+				address = (uint64_t)((char*)memOffset + (uint64_t)((struct section_64 *)(textSectionOffset))->addr);
 			} else {
 				flags = ((struct section *)(textSectionOffset))->flags;
 				size = ((struct section *)(textSectionOffset))->size;
-				address = ((struct section *)(textSectionOffset))->addr + _dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber);
+				address = (uint64_t)((char*)memOffset + (uint64_t)((struct section *)(textSectionOffset))->addr);
 			}
 			if (hasLCFunctionStarts && libTable->subroutineCount) {
 				for (uint32_t j = 0x0; j < libTable->subroutineCount; j++) {
 					if (libTable->subroutine[j].sectionOffset == 0xffffffff) {
-						uint64_t subOffset = pageZero+_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber)+libTable->subroutine[j].offset;
+						uint64_t subOffset = pageZero+memOffset+libTable->subroutine[j].offset;
 						if (subOffset < (address+size)) {
 							libTable->subroutine[j].sectionOffset = textSectionOffset;
-							libTable->subroutine[j].offset = (uintptr_t)(pageZero+_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber)+libTable->subroutine[j].offset);
+							libTable->subroutine[j].offset = (uintptr_t)(pageZero+memOffset+libTable->subroutine[j].offset);
 						}
 					}
 				}
 			} else {
 				// SDM: Fall back on manually parsing it if we cannot find the subroutine mappings...
 				Dl_info info;
-				uint32_t loaded = dladdr((void*)(address), &info);
+				uint64_t loaded;
+				if (libTable->couldLoad) {
+					loaded = dladdr((void*)(address), &info);
+				} else {
+					loaded = address;
+				}
 				if (loaded != 0x0) {
 					if (((flags & S_REGULAR)==0x0) && ((flags & S_ATTR_PURE_INSTRUCTIONS) || (flags & S_ATTR_SOME_INSTRUCTIONS))) {
 						uint64_t offset = 0x0;
@@ -294,12 +312,18 @@ struct SDMSTRange SDMSTRangeOfSubroutine(struct SDMSTSubroutine *subroutine, str
 				range.length = ((libTable->subroutine[next].offset) - range.offset);
 			} else {
 				uint64_t size, address;
+				uint64_t memOffset;
+				if (libTable->couldLoad) {
+					memOffset = _dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber);
+				} else {
+					memOffset = (uint64_t)(libTable->libInfo->mhOffset) - libTable->libInfo->binaryOffset;
+				}
 				if (libTable->libInfo->is64bit) {
 					size = ((struct section_64 *)(subroutine->sectionOffset))->size;
-					address = ((struct section_64 *)(subroutine->sectionOffset))->addr + _dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber);
+					address = ((struct section_64 *)(subroutine->sectionOffset))->addr + memOffset;
 				} else {
 					size = ((struct section *)(subroutine->sectionOffset))->size;
-					address = ((struct section *)(subroutine->sectionOffset))->addr + _dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber);
+					address = ((struct section *)(subroutine->sectionOffset))->addr + memOffset;
 				}
 				range.length = ((address+size) - range.offset);
 			}
@@ -346,7 +370,7 @@ void SDMSTGenerateSortedSymbolTable(struct SDMSTLibrary *libTable, bool silent) 
 					if (aSymbol) {
 						aSymbol->tableNumber = i;
 						aSymbol->symbolNumber = j;
-						aSymbol->offset = (uintptr_t)symbolAddress + (libTable->couldLoad ? _dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber) : 0x0);
+						aSymbol->offset = (uintptr_t)((uintptr_t)symbolAddress + (libTable->couldLoad ? _dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber) : (uintptr_t)((char*)libTable->libInfo->mhOffset - libTable->libInfo->binaryOffset)));
 						if (entry->n_un.n_strx && (entry->n_un.n_strx < cmd->strsize)) {
 							aSymbol->name = ((char *)strTable + entry->n_un.n_strx);
 							aSymbol->isStub = false;
@@ -378,33 +402,41 @@ bool SDMSTMapObjcClasses32(struct SDMSTLibrary *libTable, bool silent) {
 		uint32_t sectionCount = objcSeg->nsects;
 		struct SDMSTObjcModuleRaw *module;
 		for (uint32_t i = 0x0; i < sectionCount; i++) {
+			uint64_t memOffset;
+			if (libTable->couldLoad) {
+				memOffset = (_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber));
+			} else {
+				memOffset = (uint64_t)(libTable->libInfo->mhOffset) - libTable->libInfo->binaryOffset;
+			}
 			char *sectionName = (char*)(section->sectname);
 			if (strncmp(sectionName, kObjc1ModuleInfo, sizeof(char)*0x10) == 0x0) {
 				module = (struct SDMSTObjcModuleRaw *)((uint64_t)(libTable->libInfo->mhOffset) + (uint64_t)(section->offset));
 				moduleCount = (section->size)/sizeof(struct SDMSTObjcModuleRaw);
 			}
 			if (strncmp(sectionName, kObjc1Class, sizeof(char)*0x10) == 0x0) {
-				objcData->classRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)(_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber))), section->size);
+				objcData->classRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)memOffset), section->size);
 			}
 			if (strncmp(sectionName, kObjc1Category, sizeof(char)*0x10) == 0x0) {
-				objcData->catRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)(_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber))), section->size);
+				objcData->catRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)memOffset), section->size);
 			}
 			if (strncmp(sectionName, kObjc1Protocol, sizeof(char)*0x10) == 0x0) {
-				objcData->protRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)(_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber))), section->size);
+				objcData->protRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)memOffset), section->size);
 			}
 			if (strncmp(sectionName, kObjc1ClsMeth, sizeof(char)*0x10) == 0x0) {
-				objcData->clsMRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)(_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber))), section->size);
+				objcData->clsMRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)memOffset), section->size);
 			}
 			if (strncmp(sectionName, kObjc1InstMeth, sizeof(char)*0x10) == 0x0) {
-				objcData->instMRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)(_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber))), section->size);
+				objcData->instMRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)memOffset), section->size);
 			}
 			section = (struct section *)((uint64_t)section + (uint64_t)sizeof(struct section));
 		}
 		if (moduleCount) {
 			objcData->cls = calloc(0x1, sizeof(struct SDMSTObjcClass));
 			objcData->clsCount = 0x0;
+			uint64_t memOffset = (libTable->couldLoad ? 0x0 : (uint64_t)((char*)libTable->libInfo->mhOffset - libTable->libInfo->binaryOffset));
 			for (uint32_t i = 0x0; i < moduleCount; i++) {
-				SDMSTObjc1CreateClassFromSymbol(objcData, (struct SDMSTObjc1Symtab *)SDMSTCastSmallPointer(module[i].symtab));
+				struct SDMSTObjc1Symtab *symtab = (struct SDMSTObjc1Symtab *)((char*)memOffset + (uint64_t)module[i].symtab);
+				SDMSTObjc1CreateClassFromSymbol((Pointer)libTable, objcData, symtab);
 			}
 		}
 		libTable->objcInfo = objcData;
@@ -417,7 +449,13 @@ bool SDMSTMapObjcClasses64(struct SDMSTLibrary *libTable, bool silent) {
 	if (result) {
 		struct SDMSTObjc *objcData = calloc(0x1, sizeof(struct SDMSTObjc));
 		struct segment_command_64 *dataSeg = ((struct segment_command_64 *)(libTable->libInfo->objcSeg));
-		struct SDMSTRange dataRange = SDMSTRangeMake((uintptr_t)((uint64_t)(dataSeg->vmaddr&k32BitMask)+((uint64_t)(_dyld_get_image_header(libTable->libInfo->imageNumber)))),dataSeg->vmsize);
+		uint64_t memOffset;
+		if (libTable->couldLoad) {
+			memOffset = (_dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber));
+		} else {
+			memOffset = (uint64_t)(libTable->libInfo->mhOffset);// - libTable->libInfo->binaryOffset;
+		}
+		struct SDMSTRange dataRange = SDMSTRangeMake((uintptr_t)((uint64_t)(dataSeg->vmaddr&k32BitMask)+((uint64_t)memOffset)),dataSeg->vmsize);
 		struct section_64 *section = (struct section_64 *)((uint64_t)(dataSeg)+(uint64_t)sizeof(struct segment_command_64));
 		uint32_t sectionCount = (dataSeg)->nsects;
 		for (uint32_t i = 0x0; i < sectionCount; i++) {
@@ -431,7 +469,7 @@ bool SDMSTMapObjcClasses64(struct SDMSTLibrary *libTable, bool silent) {
 		if (objcData->clsCount) {
 			objcData->cls = calloc(objcData->clsCount, sizeof(struct SDMSTObjcClass));
 			for (uint32_t i = 0x0; i < objcData->clsCount; i++) {
-				uint64_t *classes = (uint64_t*)(((uint64_t)(section->addr)&k32BitMask)+((uint64_t)(_dyld_get_image_header(libTable->libInfo->imageNumber))));
+				uint64_t *classes = (uint64_t*)(((uint64_t)(section->addr)&k32BitMask)+((uint64_t)(memOffset)));
 				struct SDMSTObjc2Class *cls = (struct SDMSTObjc2Class *)(classes[i]);
 				struct SDMSTObjcClass *objclass = SDMSTObjc2ClassCreateFromClass(cls, 0x0, dataRange);
 				memcpy(&(objcData->cls[i]), objclass, sizeof(struct SDMSTObjcClass));
@@ -496,12 +534,29 @@ struct SDMSTBinary* SDMSTLoadBinaryFromFilePath(char *path) {
 		}
 		struct fat_header *header = (struct fat_header *)((char*)binary->handle);
 		if (header) {
-			uint32_t archCount = SDMSwapEndian32(header->nfat_arch);
-			for (uint32_t i = 0x0; i < archCount; i++) {
-				struct fat_arch *arch = (struct fat_arch *)(((char*)header+sizeof(struct fat_header)+(i*sizeof(struct fat_arch))));
-				binary->arch = realloc(binary->arch, (binary->archCount+0x1)*sizeof(uintptr_t));
-				binary->arch[i] = SDMSwapEndian32(arch->offset);
-				binary->archCount++;
+			uint32_t magic = header->magic;
+			switch (magic) {
+				case FAT_MAGIC:
+				case FAT_CIGAM: {
+					uint32_t archCount = SDMSwapEndian32(header->nfat_arch);
+					for (uint32_t i = 0x0; i < archCount; i++) {
+						struct fat_arch *arch = (struct fat_arch *)(((char*)header+sizeof(struct fat_header)+(i*sizeof(struct fat_arch))));
+						binary->arch = realloc(binary->arch, (binary->archCount+0x1)*sizeof(uintptr_t));
+						binary->arch[i] = SDMSwapEndian32(arch->offset);
+						binary->archCount++;
+					}
+					break;
+				};
+				case MH_MAGIC_64:
+				case MH_CIGAM_64:
+				case MH_MAGIC:
+				case MH_CIGAM: {
+					binary->arch[0x0] = 0x0;
+					binary->archCount++;
+					break;
+				};
+				default:
+					break;
 			}
 		}
 	}
@@ -548,7 +603,7 @@ Pointer SDMSTGetCurrentArchFromBinary(struct SDMSTBinary *binary) {
 	return offset;
 }
 
-void SDMSTDumpBinaryArch(char *path, Pointer handle, bool silent) {
+struct SDMSTLibrary* SDMSTDumpBinaryArch(char *path, Pointer handle, uint64_t binaryOffset, bool silent) {
 	struct SDMSTLibrary *table = (struct SDMSTLibrary *)calloc(0x1, sizeof(struct SDMSTLibrary));
 	table->libraryPath = path;
 	table->libraryHandle = (uintptr_t*)handle;
@@ -557,11 +612,15 @@ void SDMSTDumpBinaryArch(char *path, Pointer handle, bool silent) {
 	table->symbolCount = 0x0;
 	SDMSTBuildLibraryInfo(table, silent);
 	if (table->libInfo) {
+		table->libInfo->binaryOffset = binaryOffset;
 		SDMSTGenerateSortedSymbolTable(table, silent);
 		SDMSTFindSubroutines(table, silent);
 		SDMSTMapBinary(table, silent);
+		return table;
+	} else {
+		SDMSTLibraryRelease(table);
+		return 0x0;
 	}
-	SDMSTLibraryRelease(table);
 }
 
 struct SDMSTLibrary* SDMSTLoadLibrary(char *path, uint32_t index, bool silent) {

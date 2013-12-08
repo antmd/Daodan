@@ -40,22 +40,60 @@ char* SDMDaodanInternalStoreDirectory() {
 	return storage;
 }
 
-char *SDMDaodanInternalAppStoreDirectory() {
-	char *storage = SDMDaodanInternalStoreDirectory();
-	CFStringRef bundleId = CFBundleGetIdentifier(CFBundleGetMainBundle());
-	char *bundle = SDMCFStringGetString(bundleId);
-	if (!bundle) {
-		bundle = calloc(0x1, sizeof(char)*(strlen((char *)getprogname())+0x1));
-		memcpy(bundle, getprogname(), strlen(getprogname()));
+char* SDMDaodanFindTargetName(char *targetPath) {
+	CFStringRef targetExecutablePath = CFStringCreateWithCString(kCFAllocatorDefault, targetPath, kCFStringEncodingUTF8);
+	CFURLRef executableURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, targetExecutablePath, kCFURLPOSIXPathStyle, false);
+	CFRelease(targetExecutablePath);
+	CFStringRef targetIdentifier = CFURLCopyLastPathComponent(executableURL);
+	char *targetName = SDMCFStringGetString(targetIdentifier);
+	CFRelease(targetIdentifier);
+	CFRelease(executableURL);
+	return targetName;
+}
+
+char* SDMDaodanFindTargetBundleIdentifier(char *targetPath) {
+	CFStringRef targetExecutablePath = CFStringCreateWithCString(kCFAllocatorDefault, targetPath, kCFStringEncodingUTF8);
+	CFURLRef executableURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, targetExecutablePath, kCFURLPOSIXPathStyle, false);
+	CFRelease(targetExecutablePath);
+	CFURLRef macOSURL = CFURLCreateCopyDeletingLastPathComponent(kCFAllocatorDefault, executableURL);
+	CFURLRef contentsURL = CFURLCreateCopyDeletingLastPathComponent(kCFAllocatorDefault, macOSURL);
+	CFRelease(macOSURL);
+	CFURLRef appURL = CFURLCreateCopyDeletingLastPathComponent(kCFAllocatorDefault, contentsURL);
+	CFRelease(contentsURL);
+	CFArrayRef bundles = CFBundleCreateBundlesFromDirectory(kCFAllocatorDefault, appURL, NULL);
+	CFRelease(appURL);
+	CFStringRef targetIdentifier = NULL;
+	for (uint32_t i = 0x0; i < CFArrayGetCount(bundles); i++) {
+		CFBundleRef bundleItem = (CFBundleRef)CFArrayGetValueAtIndex(bundles, i);
+		targetIdentifier = CFBundleGetIdentifier(bundleItem);
+		if (targetIdentifier) {
+			break;
+		}
 	}
+	CFRelease(bundles);
+	char *bundle;
+	if (!targetIdentifier) {
+		CFStringRef executableIdentifier = CFURLCopyLastPathComponent(executableURL);
+		bundle = SDMCFStringGetString(executableIdentifier);
+		CFRelease(executableIdentifier);
+	} else {
+		bundle = SDMCFStringGetString(targetIdentifier);
+	}
+	CFRelease(executableURL);
+	return bundle;
+}
+
+char *SDMDaodanInternalAppStoreDirectory(char *targetPath) {
+	char *storage = SDMDaodanInternalStoreDirectory();
+	char *bundle = SDMDaodanFindTargetBundleIdentifier(targetPath);
 	storage = realloc(storage, sizeof(char)*(strlen(storage)+strlen(bundle)+0x2));
 	sprintf(storage,"%s/%s/",storage,bundle);
 	free(bundle);
 	return storage;
 }
 
-char* SDMDaodanStorePath() {
-	char *storage = SDMDaodanInternalAppStoreDirectory();
+char* SDMDaodanStorePath(char *targetPath) {
+	char *storage = SDMDaodanInternalAppStoreDirectory(targetPath);
 	char *launchTime = SDMGetCurrentDateString();
 	storage = realloc(storage, sizeof(char)*(strlen(storage)+0x1+strlen(launchTime)));
 	sprintf(storage,"%s%s/",storage,launchTime);
@@ -63,28 +101,30 @@ char* SDMDaodanStorePath() {
 	return storage;
 }
 
-char* SDMDaodanDumpStorePath() {
-	char *storage = SDMDaodanStorePath();
-	storage = realloc(storage, sizeof(char)*(strlen(storage)+0x2+strlen(getprogname())));
-	sprintf(storage,"%s%s/",storage,getprogname());
+char* SDMDaodanDumpStorePath(char *targetPath) {
+	char *storage = SDMDaodanStorePath(targetPath);
+	char *targetName = SDMDaodanFindTargetName(targetPath);
+	storage = realloc(storage, sizeof(char)*(strlen(storage)+0x2+strlen(targetName)));
+	sprintf(storage,"%s%s/",storage,targetName);
+	free(targetName);
 	return storage;
 }
 
 
-void SDMDaodanCheckStorePath() {
+void SDMDaodanCheckStorePath(char *targetPath) {
 	char *daodanStore = SDMDaodanInternalStoreDirectory();
 	makeNewFolderAt(daodanStore, 0700);
 	free(daodanStore);
 	
-	char *appStore = SDMDaodanInternalAppStoreDirectory();
+	char *appStore = SDMDaodanInternalAppStoreDirectory(targetPath);
 	makeNewFolderAt(appStore, 0700);
 	free(appStore);
 	
-	char *newDump = SDMDaodanStorePath();
+	char *newDump = SDMDaodanStorePath(targetPath);
 	makeNewFolderAt(newDump, 0700);
 	free(newDump);
 	
-	char *appDump = SDMDaodanDumpStorePath();
+	char *appDump = SDMDaodanDumpStorePath(targetPath);
 	makeNewFolderAt(appDump, 0700);
 	free(appDump);
 }
@@ -143,8 +183,13 @@ void SDMDaodanDumpSymbolInfo(char *dumpPath, struct SDMSTLibrary *libTable) {
 		SDMDaodanWriteHeaderInDumpFile("Symbol Table\n",file);
 		for (uint32_t i = 0x0; i < libTable->symbolCount; i++) {
 			char *symbolName = (char *)(libTable->table[i].name);
-			char *nameAndOffset = calloc(0x1, sizeof(char)*(strlen(symbolName)+0x15));
-			uintptr_t slide = _dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber);
+			char *nameAndOffset = calloc(0x1, sizeof(char)*(strlen(symbolName)+0x100));
+			uintptr_t slide;
+			if (libTable->couldLoad) {
+				slide = _dyld_get_image_vmaddr_slide(libTable->libInfo->imageNumber);
+			} else {
+				slide = (uintptr_t)(libTable->libInfo->mhOffset);
+			}
 			sprintf(nameAndOffset, "\t0x%016lx %s\n",((libTable->table[i].offset)-slide),symbolName);
 			FWRITE_STRING_TO_FILE(nameAndOffset, file);
 			free(nameAndOffset);
@@ -163,11 +208,14 @@ void SDMDaodanDumpLibraryInfo(char *dumpPath, struct SDMSTLibrary *libTable) {
 		SDMDaodanWriteHeaderInDumpFile("Linked Libraries\n",file);
 		for (uint32_t i = 0x0; i < libTable->dependencyCount; i++) {
 			char *path = (char *)(libTable->dependency[i].loadCmd + libTable->dependency[i].dyl.dylib.name.offset);
-			uintptr_t slide = _dyld_get_image_vmaddr_slide(SDMGetIndexForLibraryPath(path));
-			char *slideAndPath = calloc(0x1, sizeof(char)*(strlen(path)+0x15));
-			sprintf(slideAndPath, "\t0x%016lx %s\n",slide,path);
-			FWRITE_STRING_TO_FILE(slideAndPath, file);
-			free(slideAndPath);
+			uintptr_t slide;
+			if (libTable->couldLoad) {
+				slide = _dyld_get_image_vmaddr_slide(SDMGetIndexForLibraryPath(path));
+				char *slideAndPath = calloc(0x1, sizeof(char)*(strlen(path)+0x15));
+				sprintf(slideAndPath, "\t0x%016lx %s\n",slide,path);
+				FWRITE_STRING_TO_FILE(slideAndPath, file);
+				free(slideAndPath);
+			}
 		}
 		
 		fclose(file);
@@ -195,7 +243,7 @@ void SDMDaodanDumpSubroutineInfo(char *dumpPath, struct SDMSTLibrary *libTable) 
 
 void SDMDaodanDumpObjectiveCClass(char *dumpPath, struct SDMSTObjcClass *cls) {
 	if (cls->className) {
-		char *filePath = calloc(0x1, sizeof(char)*(strlen(dumpPath)+0x5+strlen(cls->className)));
+		char *filePath = calloc(0x1, sizeof(char)*(strlen(dumpPath)+0x5+strlen(cls->className)+0x100));
 		sprintf(filePath, "%s%s.txt",dumpPath,cls->className);
 		FILE *file = fopen(filePath, "w");
 		if (file) {
@@ -275,7 +323,7 @@ void SDMDaodanDumpObjectiveCClass(char *dumpPath, struct SDMSTObjcClass *cls) {
 
 void SDMDaodanDumpObjectiveCInfo(char *dumpPath, struct SDMSTLibrary *libTable) {
 	if (libTable->objcInfo) {
-		char *filePath = calloc(0x1, sizeof(char)*(strlen(dumpPath)+0x1+0xd));
+		char *filePath = calloc(0x1, sizeof(char)*(strlen(dumpPath)+0x1+0x100));
 		sprintf(filePath, "%sObjective-C/",dumpPath);
 		bool result = makeNewFolderAt(filePath, 0700);
 		if (result) {
@@ -314,8 +362,8 @@ bool SDMDaodanHasHome() {
 void SDMDaodanWriteDump(struct SDMSTLibrary *libTable) {
 	bool canWriteDump = SDMDaodanHasHome();
 	if (canWriteDump) {
-		SDMDaodanCheckStorePath();
-		char *linkStore = SDMDaodanDumpStorePath();
+		SDMDaodanCheckStorePath(libTable->libraryPath);
+		char *linkStore = SDMDaodanDumpStorePath(libTable->libraryPath);
 		SDMDaodanWriteDumpForLibrary(linkStore, libTable);
 	}
 	/*
