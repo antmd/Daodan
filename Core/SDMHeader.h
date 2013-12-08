@@ -121,6 +121,8 @@ typedef uintptr_t* (*FunctionPointer)();
 
 #define k32BitMask 0xffffffff
 #define SDMSTCastSmallPointer(a) (*(uintptr_t*)&(a))
+#define SDMSTHighPointer(a) (a & 0xffffffff00000000)
+#define SDMSTLowPointer(a) (a & 0x00000000ffffffff)
 
 #define SDMSwapEndian16(num) ((num<<8) | (num>>8))
 #define SDMSwapEndian32(num) (((num>>24)&0xff) | ((num<<8)&0xff0000) | ((num>>8)&0xff00) |((num<<24)&0xff000000))
