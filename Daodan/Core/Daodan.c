@@ -72,82 +72,82 @@ __attribute__ ((section ("__DATA,__interpose"))) = { (const void*)(unsigned long
 // This little section of code is to ensure we are running even if the sandbox is broken
 
 int DAODAN__mac_execve(char *fname, char **argv, char **envv, mac_t _label) {
-	SDMPrint(PrintCode_NTR,"__mac_execve(%s, %p, %p, %p)",fname,argv,envv,_label);
+	LogPrint(PrintCode_NTR,"__mac_execve(%s, %p, %p, %p)",fname,argv,envv,_label);
 	return 0x0;
 }
 
 int DAODAN__mac_get_fd(int _fd, mac_t _label) {
-	SDMPrint(PrintCode_NTR,"__mac_get_fd(%i, %p)",_fd,_label);
+	LogPrint(PrintCode_NTR,"__mac_get_fd(%i, %p)",_fd,_label);
 	return 0x0;
 }
 
 int DAODAN__mac_get_file(const char *_path, mac_t _label) {
-	SDMPrint(PrintCode_NTR,"__mac_get_file(%s, %p)",_path,_label);
+	LogPrint(PrintCode_NTR,"__mac_get_file(%s, %p)",_path,_label);
 	return 0x0;
 }
 
 int DAODAN__mac_get_lcid(pid_t _lcid, mac_t _label) {
-	SDMPrint(PrintCode_NTR,"__mac_get_lcid(%i, %p)",_lcid, _label);
+	LogPrint(PrintCode_NTR,"__mac_get_lcid(%i, %p)",_lcid, _label);
 	return 0x0;
 }
 
 int DAODAN__mac_get_lctx(mac_t _label) {
-	SDMPrint(PrintCode_NTR,"__mac_get_lctx(%p)",_label);
+	LogPrint(PrintCode_NTR,"__mac_get_lctx(%p)",_label);
 	return 0x0;
 }
 
 int DAODAN__mac_get_link(const char *_path, mac_t _label) {
-	SDMPrint(PrintCode_NTR,"__mac_get_link(%s, %p)",_path, _label);
+	LogPrint(PrintCode_NTR,"__mac_get_link(%s, %p)",_path, _label);
 	return 0x0;
 }
 
 int DAODAN__mac_get_pid(pid_t _pid, mac_t _label) {
-	SDMPrint(PrintCode_NTR,"__mac_get_pid(%i, %p)",_pid, _label);
+	LogPrint(PrintCode_NTR,"__mac_get_pid(%i, %p)",_pid, _label);
 	return 0x0;
 }
 
 int DAODAN__mac_get_proc(mac_t _label) {
-	SDMPrint(PrintCode_NTR,"__mac_get_proc(%p)",_label);
+	LogPrint(PrintCode_NTR,"__mac_get_proc(%p)",_label);
 	return 0x0;
 }
 
 int DAODAN__mac_set_fd(int _fildes, const mac_t _label) {
-	SDMPrint(PrintCode_NTR,"__mac_set_fd(%i, %p)",_fildes, _label);
+	LogPrint(PrintCode_NTR,"__mac_set_fd(%i, %p)",_fildes, _label);
 	return 0x0;
 }
 
 int DAODAN__mac_set_file(const char *_path, mac_t _label) {
-	SDMPrint(PrintCode_NTR,"__mac_set_file(%s, %p)",_path, _label);
+	LogPrint(PrintCode_NTR,"__mac_set_file(%s, %p)",_path, _label);
 	return 0x0;
 }
 
 int DAODAN__mac_set_lctx(mac_t _label) {
-	SDMPrint(PrintCode_NTR,"__mac_set_lctx(%p)",_label);
+	LogPrint(PrintCode_NTR,"__mac_set_lctx(%p)",_label);
 	return 0x0;
 }
 
 int DAODAN__mac_set_link(const char *_path, mac_t _label) {
-	SDMPrint(PrintCode_NTR,"__mac_set_link(%s, %p)",_path,_label);
+	LogPrint(PrintCode_NTR,"__mac_set_link(%s, %p)",_path,_label);
 	return 0x0;
 }
 
 int DAODAN__mac_mount(const char *type, const char *path, int flags, void *data, struct mac *label) {
-	SDMPrint(PrintCode_NTR,"__mac_mount(%s, %s, %i, %p, %p)",type,path,flags,data,label);
+	LogPrint(PrintCode_NTR,"__mac_mount(%s, %s, %i, %p, %p)",type,path,flags,data,label);
 	return 0x0;
 }
 
 int DAODAN__mac_get_mount(const char *path, struct mac *label) {
-	SDMPrint(PrintCode_NTR,"__mac_get_mount(%s, %p)",path,label);
+	LogPrint(PrintCode_NTR,"__mac_get_mount(%s, %p)",path,label);
 	return 0x0;
 }
 
 int DAODAN__mac_set_proc(const mac_t _label) {
-	SDMPrint(PrintCode_NTR,"__mac_set_proc(%p)",_label);
+	LogPrint(PrintCode_NTR,"__mac_set_proc(%p)",_label);
 	return 0x0;
 }
 
 int DAODAN__mac_syscall(const char *_policyname, int _call, void *_arg) {
-	SDMPrint(PrintCode_NTR,"__mac_syscall(%s, %i, %p)",_policyname,_call,_arg);
+	LogPrint(PrintCode_NTR,"__mac_syscall(%s, %i, %p)",_policyname,_call,_arg);
 	return 0x0;
 }
 
@@ -377,7 +377,7 @@ bool locateLaunchpad() {
 	if (symbolAddress) {
 		uint64_t result = (uint64_t)symbolAddress(NULL, NULL);
 		if (result == kiAmLaunchPad) {
-			SDMPrint(PrintCode_OK,"Found Launchpad");
+			LogPrint(PrintCode_OK,"Found Launchpad");
 			found = true;
 		}
 	}
@@ -422,7 +422,7 @@ void unloadDaodan() {
 }
 
 uintptr_t daodanLookupFunction(char *name) {
-	SDMPrint(PrintCode_TRY,"Looking up function with name: %s",name);
+	LogPrint(PrintCode_TRY,"Looking up function with name: %s",name);
 	struct SDMSTFunction *symbol = SDMSTCreateFunction(binaryTable, name);
 	if (symbol->offset) {
 		SDMFormatPrint(false,PrintCode_OK,"Successfully found symbol!");
@@ -448,7 +448,7 @@ uint32_t SDMGetIndexForLibraryPath(char *path) {
 }
 
 uint32_t SDMGetExecuteImage() {
-	SDMPrint(PrintCode_TRY,"Looking for application binary...");
+	LogPrint(PrintCode_TRY,"Looking for application binary...");
 	struct mach_header *imageHeader;
 	uint32_t count = _dyld_image_count();
 	bool foundBinary = false;
@@ -483,14 +483,14 @@ uint32_t SDMGetImageLocation(const struct mach_header *mh, char **path) {
 void SDMAddImageHook(const struct mach_header* mh, intptr_t vmaddr_slide) {
 	char *path = NULL;
 	SDMGetImageLocation(mh, &path);
-	SDMPrint(PrintCode_OK,"Load: %08lx %s",vmaddr_slide,path);
+	LogPrint(PrintCode_OK,"Load: %08lx %s",vmaddr_slide,path);
 	free(path);
 }
 
 void SDMRemoveImageHook(const struct mach_header* mh, intptr_t vmaddr_slide) {
 	char *path = NULL;
 	SDMGetImageLocation(mh, &path);
-	SDMPrint(PrintCode_OK,"Unloaded: %08lx %s",vmaddr_slide,path);
+	LogPrint(PrintCode_OK,"Unloaded: %08lx %s",vmaddr_slide,path);
 	free(path);
 }
 

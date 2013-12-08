@@ -151,7 +151,7 @@ struct SDMSTLibrary* SDMSTDumpBinaryArch(char *path, Pointer handle, uint64_t bi
 
 struct SDMSTLibrary* SDMSTLoadLibrary(char *path, uint32_t index, bool silent);
 struct SDMSTFunction* SDMSTCreateFunction(struct SDMSTLibrary *libTable, char *name);
-struct SDMSTRange SDMSTRangeOfSubroutine(struct SDMSTSubroutine *subroutine, struct SDMSTLibrary *libTable);
+CoreRange SDMSTRangeOfSubroutine(struct SDMSTSubroutine *subroutine, struct SDMSTLibrary *libTable);
 SDMSTFunctionCall SDMSTSymbolLookup(struct SDMSTLibrary *libTable, char *symbolName);
 void SDMSTFunctionRelease(struct SDMSTFunction *function);
 void SDMSTLibraryRelease(struct SDMSTLibrary *libTable);

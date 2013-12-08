@@ -1,13 +1,15 @@
 //
 //  Pointer.h
-//  Daodan
+//  Core
 //
 //  Created by Sam Marshall on 12/8/13.
 //  Copyright (c) 2013 Sam Marshall. All rights reserved.
 //
 
-#ifndef Daodan_Pointer_h
-#define Daodan_Pointer_h
+#ifndef Core_Pointer_h
+#define Core_Pointer_h
+
+#include <stdint.h>
 
 typedef uintptr_t* Pointer;
 typedef uintptr_t* (*FunctionPointer)();

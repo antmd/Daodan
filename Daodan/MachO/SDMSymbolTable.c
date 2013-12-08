@@ -302,8 +302,8 @@ void SDMSTFindSubroutines(struct SDMSTLibrary *libTable, bool silent) {
 	}	
 }
 
-struct SDMSTRange SDMSTRangeOfSubroutine(struct SDMSTSubroutine *subroutine, struct SDMSTLibrary *libTable) {
-	struct SDMSTRange range = {0x0, 0x0};
+CoreRange SDMSTRangeOfSubroutine(struct SDMSTSubroutine *subroutine, struct SDMSTLibrary *libTable) {
+	CoreRange range = {0x0, 0x0};
 	for (uint32_t i = 0x0; i < libTable->subroutineCount; i++) {
 		if (libTable->subroutine[i].offset == subroutine->offset) {
 			range.offset = (uintptr_t)(subroutine->offset);
@@ -422,19 +422,19 @@ bool SDMSTMapObjcClasses32(struct SDMSTLibrary *libTable, bool silent) {
 				moduleCount = (section->size)/sizeof(struct SDMSTObjcModuleRaw);
 			}
 			if (strncmp(sectionName, kObjc1Class, sizeof(char)*0x10) == 0x0) {
-				objcData->classRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)memOffset), section->size);
+				objcData->classRange = CoreRangeCreate((uint32_t)((uint64_t)(section->addr)+(uint64_t)memOffset), section->size);
 			}
 			if (strncmp(sectionName, kObjc1Category, sizeof(char)*0x10) == 0x0) {
-				objcData->catRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)memOffset), section->size);
+				objcData->catRange = CoreRangeCreate((uint32_t)((uint64_t)(section->addr)+(uint64_t)memOffset), section->size);
 			}
 			if (strncmp(sectionName, kObjc1Protocol, sizeof(char)*0x10) == 0x0) {
-				objcData->protRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)memOffset), section->size);
+				objcData->protRange = CoreRangeCreate((uint32_t)((uint64_t)(section->addr)+(uint64_t)memOffset), section->size);
 			}
 			if (strncmp(sectionName, kObjc1ClsMeth, sizeof(char)*0x10) == 0x0) {
-				objcData->clsMRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)memOffset), section->size);
+				objcData->clsMRange = CoreRangeCreate((uint32_t)((uint64_t)(section->addr)+(uint64_t)memOffset), section->size);
 			}
 			if (strncmp(sectionName, kObjc1InstMeth, sizeof(char)*0x10) == 0x0) {
-				objcData->instMRange = SDMSTRangeMake((uint32_t)((uint64_t)(section->addr)+(uint64_t)memOffset), section->size);
+				objcData->instMRange = CoreRangeCreate((uint32_t)((uint64_t)(section->addr)+(uint64_t)memOffset), section->size);
 			}
 			section = (struct section *)((uint64_t)section + (uint64_t)sizeof(struct section));
 		}
@@ -464,7 +464,7 @@ bool SDMSTMapObjcClasses64(struct SDMSTLibrary *libTable, bool silent) {
 			memOffset = (uint64_t)(libTable->libInfo->mhOffset);// - libTable->libInfo->binaryOffset;
 		}
 		memOffset = memOffset & k32BitMask;
-		struct SDMSTRange dataRange = SDMSTRangeMake((uintptr_t)((uint64_t)(dataSeg->vmaddr)+((uint64_t)memOffset)),dataSeg->vmsize);
+		CoreRange dataRange = CoreRangeCreate((uintptr_t)((uint64_t)(dataSeg->vmaddr)+((uint64_t)memOffset)),dataSeg->vmsize);
 		struct section_64 *section = (struct section_64 *)PtrAdd(dataSeg, sizeof(struct segment_command_64));
 		uint32_t sectionCount = (dataSeg)->nsects;
 		for (uint32_t i = 0x0; i < sectionCount; i++) {
@@ -592,7 +592,7 @@ struct SDMSTLibraryArchitecture SDMSTGetArchitecture() {
 		cpuTypeSize = sizeof(cpuArch.type);
 		err = sysctl(mib, (u_int)mibLen, &(cpuArch.type), &cpuTypeSize, 0x0, 0x0);
 		if (err) {
-			SDMPrint(PrintCode_ERR,"Could not find CPU Architecture");
+			LogPrint(PrintCode_ERR,"Could not find CPU Architecture");
 		}
 	}
 	return cpuArch;

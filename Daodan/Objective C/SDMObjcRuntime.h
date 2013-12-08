@@ -59,11 +59,11 @@ struct SDMSTObjcModuleContainer {
 struct SDMSTObjc {
 	struct SDMSTObjcClass *cls;
 	uint32_t clsCount;
-	struct SDMSTRange classRange;
-	struct SDMSTRange catRange;
-	struct SDMSTRange protRange;
-	struct SDMSTRange clsMRange;
-	struct SDMSTRange instMRange;
+	CoreRange classRange;
+	CoreRange catRange;
+	CoreRange protRange;
+	CoreRange clsMRange;
+	CoreRange instMRange;
 } ATR_PACK SDMSTObjc;
 
 #define CLS_CLASS               0x1
@@ -91,6 +91,6 @@ struct SDMSTObjcClass* SDMSTObjc1CreateClassFromProtocol(struct SDMSTObjc *objcD
 struct SDMSTObjcClass* SDMSTObjc1CreateClassFromCategory(struct SDMSTObjc *objcData, struct SDMSTObjc1Category *cat, uint64_t offset);
 struct SDMSTObjcClass* SDMSTObjc1CreateClassFromClass(struct SDMSTObjc *objcData, struct SDMSTObjc1Class *cls, uint64_t offset);
 void SDMSTObjc1CreateClassFromSymbol(Pointer libTable, struct SDMSTObjc *objcData, struct SDMSTObjc1Symtab *symtab);
-struct SDMSTObjcClass* SDMSTObjc2ClassCreateFromClass(struct SDMSTObjc2Class *cls, struct SDMSTObjc2Class *parentClass, struct SDMSTRange dataRange, uint64_t offset);
+struct SDMSTObjcClass* SDMSTObjc2ClassCreateFromClass(struct SDMSTObjc2Class *cls, struct SDMSTObjc2Class *parentClass, CoreRange dataRange, uint64_t offset);
 
 #endif

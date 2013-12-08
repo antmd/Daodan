@@ -109,7 +109,7 @@ void SDMSTObjc1CreateClassFromSymbol(Pointer libTable, struct SDMSTObjc *objcDat
 	}
 }
 
-struct SDMSTObjcClass* SDMSTObjc2ClassCreateFromClass(struct SDMSTObjc2Class *cls, struct SDMSTObjc2Class *parentClass, struct SDMSTRange dataRange, uint64_t offset) {
+struct SDMSTObjcClass* SDMSTObjc2ClassCreateFromClass(struct SDMSTObjc2Class *cls, struct SDMSTObjc2Class *parentClass, CoreRange dataRange, uint64_t offset) {
 	struct SDMSTObjcClass *newClass = calloc(0x1, sizeof(struct SDMSTObjcClass));
 	if (cls != parentClass) {
 		if ((PtrAdd(offset, cls->isa >= Ptr(dataRange.offset)) && (PtrAdd(offset, cls->isa) < (PtrAdd(offset, (dataRange.offset + dataRange.length)))))) {

@@ -20,7 +20,7 @@
 
 char* GenerateLaunchpadKillswitchName() {
 	pid_t currentPid = getpid();
-	char *buffer = calloc(0x1, sizeof(char)*(strlen(kLaunchPadKill)+0x2+SDMGetNumberOfDigits(currentPid)));
+	char *buffer = calloc(0x1, sizeof(char)*(strlen(kLaunchPadKill)+0x2+GetDigitsOfNumber(currentPid)));
 	sprintf(buffer,"%s.%i",kLaunchPadKill,currentPid);
 	return buffer;
 }

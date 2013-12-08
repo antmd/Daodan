@@ -24,7 +24,7 @@ void* exception_server(void *exceptionPort);
 extern boolean_t mach_exc_server(mach_msg_header_t *msg, mach_msg_header_t *reply);
 
 void SDMDaodanSetupExceptionHandler() {
-	SDMPrint(PrintCode_NTR,"Setup Exception Handler!");
+	LogPrint(PrintCode_NTR,"Setup Exception Handler!");
 	mach_port_t server_port = MACH_PORT_NULL;
 	pthread_t exceptionThread;
 	kern_return_t kr = mach_port_allocate(mach_task_self(), MACH_PORT_RIGHT_RECEIVE, &server_port);
